@@ -4,9 +4,36 @@
 
 #include "MeshManager.h"
 
-namespace gE
+namespace gE::Asset
 {
-    namespace Asset
+    void MeshManager::Destruct(std::pair<VAO*, std::vector<Entity*>> *t)
     {
-    } // gE
-} // Asset
+        delete t->first;
+        delete t;
+    }
+
+    void MeshManager::Register(Component::Renderer *renderer)
+    {
+        Pair* pair = FindPair(renderer->GetRenderMesh());
+
+        if (!pair)
+            pair = Register(renderer->GetRenderMesh());
+
+        pair->second.push_back(renderer->GetOwner());
+    }
+
+    MeshManager::Pair *MeshManager::FindPair(VAO *vao)
+    {
+        for (auto* asset : Base::p_Assets)
+            if (asset->first == vao)
+                return asset;
+
+        return nullptr;
+    }
+
+    void MeshManager::Remove(Component::Renderer *renderer)
+    {
+        Pair* pair = FindPair(renderer->GetRenderMesh());
+        if(pair) std::erase(pair->second, renderer->GetOwner());
+    }
+}

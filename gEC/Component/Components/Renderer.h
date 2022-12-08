@@ -21,5 +21,7 @@ namespace gE::Component
         void OnRender(double delta) override;
         void OnUpdate(double delta) override {};
         void OnDestroy() override {};
+
+        Asset::VAO* GetRenderMesh() const { return p_renderMesh; }
     };
 }
