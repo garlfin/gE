@@ -1,0 +1,70 @@
+//
+// Created by scion on 11/2/2022.
+//
+
+#pragma once
+
+#include <vector>
+#include "../Result.h"
+
+namespace gE::Asset
+{
+    template<typename T>
+    class AssetManager
+    {
+    protected:
+        std::vector<T*> p_Assets;
+        std::vector<T*> p_Instantiation;
+        std::vector<T*> p_Deletion;
+        virtual void Destruct(T* t) { delete t; }
+    public:
+        AssetManager() : p_Assets(), p_Instantiation(), p_Deletion() {}
+        ~AssetManager() {
+            for(T* asset : p_Assets)
+                delete asset;
+        }
+
+        template<typename I, typename... Args>
+        I* Create(Args&&... args)
+        {
+            static_assert(std::is_base_of<T, I>::value, "'I' must inherit from 'T'");
+
+            p_Assets.push_back(new I(std::forward<Args>(args)...));
+            p_Instantiation.push_back(p_Assets.back());
+
+            return (I*) p_Assets.back();
+        }
+
+        gE::Result Remove(T* ptr)
+        {
+            auto index = std::find(p_Assets.begin(), p_Assets.end(), ptr);
+
+            if (index == p_Assets.end()) return NOT_FOUND;
+
+            p_Assets.erase(index);
+            return OK;
+        }
+
+        gE::Result Destroy(T* ptr)
+        {
+            gE::Result result = Remove(ptr);
+
+            if(!result) p_Deletion.push_back(ptr);
+
+            return result;
+        }
+
+        void Add(T* ptr)
+        {
+            p_Assets.push_back(ptr);
+        }
+
+        virtual void OnUpdate(double delta)
+        {
+            for (T* const t : p_Deletion) Destruct(t);
+
+            p_Instantiation.clear();
+            p_Deletion.clear();
+        }
+    };
+}
