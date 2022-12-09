@@ -13,7 +13,6 @@ namespace gE::Component
     class Camera : public Component
     {
     protected:
-        glm::mat4 View;
         glm::mat4 Projection;
         glm::vec2 ClipPlanes;
     public:
@@ -25,7 +24,6 @@ namespace gE::Component
         void OnDestroy() final { }
 
         [[nodiscard]] const glm::mat4* GetProjection() const { return &Projection; }
-        [[nodiscard]] const glm::mat4* GetView() const { return &View; }
         [[nodiscard]] glm::vec2 GetClipPlanes() const { return ClipPlanes; }
 
         void Use();
@@ -52,7 +50,7 @@ namespace gE::Component
     class CameraManager final : public ComponentManager<Camera>
     {
     private:
-        Buffer<Camera> p_CameraBuffer;
+        Buffer<CameraData> p_CameraBuffer;
         Camera* p_CurrentCamera;
         Window* p_Window;
     public:

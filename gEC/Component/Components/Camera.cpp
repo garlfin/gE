@@ -22,8 +22,10 @@ namespace gE::Component
         /*if(typeid(p_CurrentCamera) == typeid(PerspectiveCamera))
             fov == ((PerspectiveCamera*) p_CurrentCamera).fov*/
 
-        CameraData data(*p_CurrentCamera->GetView(), *p_CurrentCamera->GetProjection(),
-                        p_CurrentCamera->GetOwner()->GetComponent<Transform>()->Location, glm::vec4(p_CurrentCamera->GetClipPlanes(), 0, p_Window->GetAspectRatio()));
+        Transform* transform = p_CurrentCamera->GetOwner()->GetComponent<Transform>();
+
+        CameraData data(glm::inverse(transform->Model), *p_CurrentCamera->GetProjection(),
+                        transform->Location, glm::vec4(p_CurrentCamera->GetClipPlanes(), 0, p_Window->GetAspectRatio()));
         p_CameraBuffer.ReplaceData(&data);
     }
 }

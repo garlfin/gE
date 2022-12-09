@@ -38,7 +38,7 @@ void gE::DemoWindow::Load()
 
     Asset::Texture* tex;
     AssetManager.Add(tex = Utility::LoadPVR(this, "../x.pvr"));
-    tex->CreateHandle();
+    glProgramUniformHandleui64ARB(DShader->Get(), glGetUniformLocation(DShader->Get(), "Albedo"), tex->GetHandle());
 
     uint32_t meshCount;
     gE::Mesh* meshes = gE::LoadgEMeshFromIntermediate("../cube.dae", &meshCount);
@@ -59,6 +59,7 @@ void gE::DemoWindow::Load()
     camera->AddComponent(CameraManager->Create<Component::PerspectiveCamera>(camera, 80, glm::vec2(0.1, 1000)));
     camera->GetComponent<Component::PerspectiveCamera>()->Use();
     camera->AddComponent(BehaviorManager.Create<Component::CameraMovement>(camera));
+
 }
 
 void gE::DemoWindow::Update(double delta)
@@ -67,7 +68,6 @@ void gE::DemoWindow::Update(double delta)
 
     EntityManager.OnUpdate(0);
     CameraManager->OnUpdate(0);
-    TransformManager.OnUpdate(0);
     MeshManager->OnUpdate(0);
 }
 

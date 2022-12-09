@@ -14,7 +14,7 @@ struct CameraCubemap
 
 mat4 GetView(out CameraCubemap camera, uint side)
 {
-    if (side)
+    if (bool(side))
         return camera.View[side - 1];
     else
         return camera.Base.View;

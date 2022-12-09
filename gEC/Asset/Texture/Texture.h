@@ -61,7 +61,7 @@ namespace gE::Asset
         ~Texture() override;
 
         [[nodiscard]] glm::uvec2 GetSize(uint8_t mip = 0) const { return {Width >> mip, Height >> mip}; }
-        [[nodiscard]] uint64_t GetHandle() const { return Handle; }
+        [[nodiscard]] uint64_t GetHandle() { if(!Handle) CreateHandle(); return Handle; }
 
         void CalculateMipCount();
         void CreateHandle();

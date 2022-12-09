@@ -24,7 +24,7 @@ namespace gE::Component
         glm::dvec2 mousePos;
         glfwGetCursorPos(GetWindow()->GetWindow(), &mousePos.x, &mousePos.y);
         glm::dvec2 mouseDelta = mousePos - prevMousePos;
-        transform->Rotation -= glm::vec3(mouseDelta.y, mouseDelta.x, 0);
+        transform->Rotation -= glm::vec3(mouseDelta.y, mouseDelta.x, 0) * glm::vec3(0.1);
         transform->Rotation.x = std::clamp(transform->Rotation.x, -89.0f, 89.0f);
         prevMousePos = mousePos;
 

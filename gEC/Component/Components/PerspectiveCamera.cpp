@@ -21,14 +21,6 @@ namespace gE::Component
         UpdateProjection();
     }
 
-    void PerspectiveCamera::OnUpdate(double delta)
-    {
-        if (auto* transform = p_Owner->GetComponent<Transform>())
-            View = glm::inverse(transform->Model);
-        else
-            View = glm::mat4(1);
-    }
-
     PerspectiveCamera::PerspectiveCamera(Entity* owner, float fov, glm::vec2 planes) : Camera(owner, planes), FOV(fov)
     {
         UpdateProjection();

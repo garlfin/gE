@@ -21,7 +21,7 @@ namespace gE::Component
         };
 
         void SetFOV(float fovDegrees, FOVType type = Horizontal);
-        void OnUpdate(double delta) override;
+        void OnUpdate(double delta) override {};
 
     protected:
         void UpdateProjection() override;

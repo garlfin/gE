@@ -8,7 +8,7 @@ file(GLOB_RECURSE gECFiles  "gEC/*.cpp"
         "gEC/*.c")
 file(GLOB_RECURSE gEGLFiles "gEGL/*.cpp"
                             "gEGL/*.c")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++")
 
 include_directories(gEGL gEModel)
 
@@ -22,5 +22,5 @@ add_library(gEModel SHARED gEModel/gEModel.cpp)
 target_link_libraries(gEModel ${CMAKE_CURRENT_SOURCE_DIR}/libassimp-5.dll)
 
 # gEC
-add_executable(gEC ${gECFiles} gEC/Component/Components/Camera.cpp gEC/Component/Components/Renderer.cpp gEC/Component/Components/Renderer.h gEC/Component/Components/Behavior.h res/script/CameraMovement.cpp res/script/CameraMovement.h gEC/Asset/Buffer/Renderbuffer.cpp gEC/Asset/Buffer/Renderbuffer.h gEC/Asset/Buffer/Framebuffer.cpp gEC/Asset/Buffer/Framebuffer.h gEC/Asset/VAO/MeshManager.cpp gEC/Asset/VAO/MeshManager.h)
+add_executable(gEC ${gECFiles} res/script/CameraMovement.cpp)
 target_link_libraries(gEC gEGL gEModel)
