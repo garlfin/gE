@@ -9,7 +9,7 @@
 namespace gE
 {
     Window::Window(const char* const title, const uint32_t width, const uint32_t height, Result* const result)
-            : p_Title(title), p_Size(width, height), IncludeManager()
+            : p_Title(title), p_Size(width, height), IncludeManager(), ComponentManager()
     {
         p_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
@@ -26,6 +26,7 @@ namespace gE
         *result = OK;
 
         CameraManager = new Component::CameraManager(this);
+        MeshManager = new Asset::MeshManager(this);
     }
 
     Window::~Window()

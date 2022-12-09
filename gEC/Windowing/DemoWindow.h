@@ -18,8 +18,7 @@ namespace gE
     {
     private:
         Component::ComponentManager<Component::Transform> TransformManager;
-        Component::ComponentManager<Component::Renderer> MeshRendererManager;
-        Asset::AssetManager<Asset::Texture> TextureManager;
+        Asset::AssetManager<Asset::Asset> AssetManager;
         Component::ComponentManager<Component::Behavior> BehaviorManager;
     public:
         DemoWindow(const char* const title, const uint32_t width, const uint32_t height, Result* const result);

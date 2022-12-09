@@ -16,8 +16,9 @@ namespace gE::Component
     protected:
         Entity* p_Owner;
         bool p_Flagged;
+        const bool p_Managed;
     public:
-        explicit Component(Entity* owner) : p_Owner(owner), p_Flagged(false) {};
+        explicit Component(Entity* owner, bool managed = false) : p_Owner(owner), p_Flagged(false), p_Managed(managed) {};
         virtual ~Component();
 
         [[nodiscard]] Window* GetWindow() const;
@@ -30,10 +31,11 @@ namespace gE::Component
 
         void FlagDeletion() { p_Flagged = true; }
         [[nodiscard]] bool IsFlagged() const { return p_Flagged; }
+        [[nodiscard]] bool IsManaged() const { return p_Managed; }
     };
 
     template<typename T>
-    class ComponentManager : public Asset::AssetManager<T>
+    class   ComponentManager : public Asset::AssetManager<T>
     {
     private:
         typedef Asset::AssetManager<T> Base;

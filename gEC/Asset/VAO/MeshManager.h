@@ -8,20 +8,35 @@
 #include "../../Component/Entity.h"
 #include "VAO.h"
 #include "../../Component/Components/Renderer.h"
+#include "../Buffer/Buffer.h"
+#include "glm/mat4x4.hpp"
+
+#define MAX_INSTANCE_COUNT 100u
 
 namespace gE::Asset
 {
     class MeshManager final : public AssetManager<std::pair<VAO*, std::vector<Entity*>>>
     {
     private:
+        struct ObjectInfo
+        {
+            glm::mat4 Model[MAX_INSTANCE_COUNT];
+            uint32_t ObjectCount;
+        };
+
         typedef std::pair<VAO*, std::vector<Entity*>> Pair;
         typedef AssetManager<Pair> Base;
+        Buffer<ObjectInfo> ModelBuffer;
+
     protected:
         void Destruct(std::pair<VAO*, std::vector<Entity*>> *t) override;
 
+    public:
+        explicit MeshManager(Window* window) : Base(), ModelBuffer(window) { ModelBuffer.Bind(1, BufferTarget::UNIFORM); }
+
         Pair* Register(VAO* vao)
         {
-            Create<Pair>(vao, std::vector<Entity*>());
+            return Create<Pair>(vao, std::vector<Entity*>());
         };
 
         template<typename I, typename... Args>
@@ -34,5 +49,7 @@ namespace gE::Asset
 
         void Register(Component::Renderer*);
         void Remove(Component::Renderer*);
+
+        void OnRender();
     };
 }

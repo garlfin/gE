@@ -13,8 +13,8 @@
 #include "../Component/Components/PerspectiveCamera.h"
 
 gE::DemoWindow::DemoWindow(const char* const title, const uint32_t width, const uint32_t height, gE::Result* const result)
-        : Window(title, width, height, result), TransformManager(), MeshRendererManager(), TextureManager(), BehaviorManager()
-{}
+        : Window(title, width, height, result), TransformManager(), AssetManager(), BehaviorManager()
+{ }
 
 void APIENTRY DebugCallback(GLenum src, GLenum type, GLuint id, GLenum severity, GLsizei len, const GLchar* msg, const void* usrPrm)
 {
@@ -36,7 +36,9 @@ void gE::DemoWindow::Load()
 
     DShader = new Asset::Shader(this, "../res/shader/default.vert", "../res/shader/default.frag");
 
-    TextureManager.Add(Utility::LoadPVR(this, "../x.pvr"));
+    Asset::Texture* tex;
+    AssetManager.Add(tex = Utility::LoadPVR(this, "../x.pvr"));
+    tex->CreateHandle();
 
     uint32_t meshCount;
     gE::Mesh* meshes = gE::LoadgEMeshFromIntermediate("../cube.dae", &meshCount);
@@ -45,7 +47,12 @@ void gE::DemoWindow::Load()
 
     auto* entity = EntityManager.Create<Entity>(this);
     entity->AddComponent(TransformManager.Create<Component::Transform>(entity));
-    entity->AddComponent(MeshRendererManager.Create<Component::Renderer>(entity, mesh));
+    entity->AddComponent(ComponentManager.Create<Component::Renderer>(entity, mesh));
+
+    entity = EntityManager.Create<Entity>(this);
+    entity->AddComponent(TransformManager.Create<Component::Transform>(entity));
+    entity->GetComponent<Component::Transform>()->Location = glm::vec3(5, 0, 0);
+    entity->AddComponent(ComponentManager.Create<Component::Renderer>(entity, mesh));
 
     auto* camera = EntityManager.Create<Entity>(this);
     camera->AddComponent(TransformManager.Create<Component::Transform>(entity));
@@ -59,9 +66,9 @@ void gE::DemoWindow::Update(double delta)
     BehaviorManager.OnUpdate(delta);
 
     EntityManager.OnUpdate(0);
-    MeshRendererManager.OnUpdate(0);
     CameraManager->OnUpdate(0);
     TransformManager.OnUpdate(0);
+    MeshManager->OnUpdate(0);
 }
 
 void gE::DemoWindow::Render(double delta)
@@ -72,6 +79,6 @@ void gE::DemoWindow::Render(double delta)
     TransformManager.OnRender(0);
     CameraManager->OnRender(0);
 
-    MeshRendererManager.OnRender(0);
+    MeshManager->OnRender();
 }
 

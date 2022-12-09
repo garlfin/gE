@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../GLAsset.h"
-#include "GLAD/glad.h"
+#include "GLAD/glad.h" // TODO: Remove this include and replace with prototypes.
 
 namespace gE
 {

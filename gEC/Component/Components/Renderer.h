@@ -18,9 +18,9 @@ namespace gE::Component
         Renderer(Entity* owner, Asset::VAO* mesh);
 
         void OnLoad() override {};
-        void OnRender(double delta) override;
+        void OnRender(double delta) override {};
         void OnUpdate(double delta) override {};
-        void OnDestroy() override {};
+        void OnDestroy() override;
 
         Asset::VAO* GetRenderMesh() const { return p_renderMesh; }
     };

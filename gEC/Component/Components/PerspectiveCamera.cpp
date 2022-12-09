@@ -8,10 +8,6 @@
 #include "../../Windowing/Window.h"
 #include "Transform.h"
 
-#define RIGHT glm::vec3(1, 0, 0)
-#define UP glm::vec3(0, 1, 0)
-#define FRONT glm::vec3(0, 0, 1)
-
 namespace gE::Component
 {
     void PerspectiveCamera::UpdateProjection()
@@ -27,16 +23,10 @@ namespace gE::Component
 
     void PerspectiveCamera::OnUpdate(double delta)
     {
-        auto* transform = p_Owner->GetComponent<Transform>();
-        glm::vec3 rotation = transform ? transform->Rotation : glm::vec3(0.0);
-
-        // The ship stays where it is, and the engines move the universe around it.
-        // -Gus Fring
-        // Go backwards, if not I rotate around the origin
-        View = glm::rotate(glm::radians(-rotation.x), RIGHT);
-        View *= glm::rotate(glm::radians(-rotation.y), UP);
-        View *= glm::rotate(glm::radians(-rotation.z), FRONT);
-        View *= glm::translate(-transform->Location);
+        if (auto* transform = p_Owner->GetComponent<Transform>())
+            View = glm::inverse(transform->Model);
+        else
+            View = glm::mat4(1);
     }
 
     PerspectiveCamera::PerspectiveCamera(Entity* owner, float fov, glm::vec2 planes) : Camera(owner, planes), FOV(fov)

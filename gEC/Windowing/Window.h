@@ -9,6 +9,7 @@
 #include "../Component/Entity.h"
 #include "../Asset/IncludeManager.h"
 #include "../Component/Components/Camera.h"
+#include "../Asset/VAO/MeshManager.h"
 
 class GLFWwindow;
 
@@ -28,6 +29,8 @@ namespace gE
         Asset::AssetManager<Entity> EntityManager;
         Asset::IncludeManager IncludeManager;
         Component::CameraManager* CameraManager;
+        Asset::MeshManager* MeshManager;
+        Component::ComponentManager<Component::Component> ComponentManager;
 
         [[nodiscard]] float GetAspectRatio() const { return (float) p_Size.x / p_Size.y; }
         [[nodiscard]] glm::u32vec2 GetSize() const { return p_Size; }

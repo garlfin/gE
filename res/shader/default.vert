@@ -31,5 +31,5 @@ void main() {
     Normal = normalize(vNor);
     TexCoord = vUV;
 
-    gl_Position = cam.Projection * cam.View * vec4(vPos, 1.0);
+    gl_Position = cam.Projection * cam.View * Objects.Model[gl_InstanceID] * vec4(vPos, 1.0);
 }

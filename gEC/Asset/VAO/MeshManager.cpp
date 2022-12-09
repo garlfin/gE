@@ -3,6 +3,7 @@
 //
 
 #include "MeshManager.h"
+#include "../../Component/Components/Transform.h"
 
 namespace gE::Asset
 {
@@ -35,5 +36,20 @@ namespace gE::Asset
     {
         Pair* pair = FindPair(renderer->GetRenderMesh());
         if(pair) std::erase(pair->second, renderer->GetOwner());
+    }
+
+    void MeshManager::OnRender()
+    {
+        for (Pair *pair: Base::p_Assets)
+            for (uint32_t i = 0; i < pair->second.size(); i += MAX_INSTANCE_COUNT)
+            {
+                static ObjectInfo info;
+                info.ObjectCount = std::min((unsigned) pair->second.size(), MAX_INSTANCE_COUNT);
+                for(uint32_t x = 0; x < info.ObjectCount; x++)
+                    info.Model[x] = pair->second[i * MAX_INSTANCE_COUNT + x]->GetComponent<Component::Transform>()->Model;
+
+                ModelBuffer.ReplaceData(&info);
+                pair->first->Draw(info.ObjectCount);
+            }
     }
 }
