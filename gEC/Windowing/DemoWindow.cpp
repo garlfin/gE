@@ -7,7 +7,6 @@
 #include "GLAD/glad.h"
 #include "gEModel.h"
 #include "../Utility/PVR.h"
-#include "../Asset/Shader/Shader.h"
 #include "../Asset/VAO/IndexedVAO.h"
 #include "GLFW/glfw3.h"
 #include "../Component/Components/PerspectiveCamera.h"
@@ -34,11 +33,16 @@ void gE::DemoWindow::Load()
 
     glDebugMessageCallback(DebugCallback, nullptr);
 
-    DShader = new Asset::Shader(this, "../res/shader/default.vert", "../res/shader/default.frag");
+    AssetManager.Add(DShader = new Asset::Shader(this, "../res/shader/default.vert", "../res/shader/default.frag"));
+    AssetManager.Add(Skybox.SkyboxShader = new Asset::Shader(this, "../res/shader/skybox.vert", "../res/shader/skybox.frag", Asset::CullMode::NEVER, Asset::DepthFunction::LEQUAL));
+    AssetManager.Add(Skybox.SkyboxVAO = gE::Utility::CreateSkyboxVAO(this));
 
     Asset::Texture* tex;
-    AssetManager.Add(tex = Utility::LoadPVR(this, "../x.pvr"));
+    AssetManager.Add(tex = Utility::LoadPVR(this, "../x.pvr", nullptr));
+    AssetManager.Add(Skybox.SkyboxTexture = Utility::LoadPVR(this, "../sky.pvr", nullptr));
+
     glProgramUniformHandleui64ARB(DShader->Get(), glGetUniformLocation(DShader->Get(), "Albedo"), tex->GetHandle());
+    glProgramUniformHandleui64ARB(Skybox.SkyboxShader->Get(), glGetUniformLocation(Skybox.SkyboxShader->Get(), "Skybox"), Skybox.SkyboxTexture->GetHandle());
 
     uint32_t meshCount;
     gE::Mesh* meshes = gE::LoadgEMeshFromIntermediate("../cube.dae", &meshCount);
@@ -73,12 +77,14 @@ void gE::DemoWindow::Update(double delta)
 
 void gE::DemoWindow::Render(double delta)
 {
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     DShader->Use();
     TransformManager.OnRender(0);
     CameraManager->OnRender(0);
 
     MeshManager->OnRender();
+
+    Skybox.Render();
 }
 

@@ -26,21 +26,22 @@ namespace
         uint32_t FaceCount;
         uint32_t MipCount;
         uint32_t MetaDataSize;
-    } __attribute__ ((__packed__));
+    };
 }
 
 namespace gE::Utility
 {
-    gE::Asset::Texture* LoadPVR(Window* window, const char* const path)
+
+    gE::Asset::Texture* LoadPVR(Window* window, const char* const path, TextureReturnType* returnType)
     {
         if (!std::filesystem::exists(path)) throw std::runtime_error("Could not find requested file!");
         FILE* file = fopen(path, "rb");
 
-        PVR header;
+        PVR header{};
         uint64_t byteCount = 0;
         glm::uvec2 size;
 
-        fread(&header, sizeof(PVR), 1, file);
+        fread(&header, sizeof(PVR) - 4, 1, file);
         if(header.Version != 0x03525650) return nullptr;
         if(header.ColorSpace) *((uint64_t*) &header.PixelFormat) += 44; // I have no clue why enums aren't implicitly cast to their respective supporting types
 
@@ -49,7 +50,8 @@ namespace gE::Utility
         size = glm::uvec2(header.Width, header.Height);
 
         for(uint8_t i = 0; i < header.MipCount; i++, size /= 2)
-            byteCount += FormatToCompressionRatio(header.PixelFormat).CalculatePixelCount(size);
+            byteCount += FormatToCompressionRatio(header.PixelFormat).CalculatePixelCount(size) * header.FaceCount *
+                    Asset::FormatToPixelSize(header.PixelFormat);
 
         byteCount *= header.Depth * header.SurfaceCount;
         auto* imageData = new uint8_t[byteCount];
@@ -65,9 +67,15 @@ namespace gE::Utility
         if (header.FaceCount == 6 && header.Width != header.Height) throw std::runtime_error("Texture is a cubemap, but has a different width and height!");
 
         Asset::Texture* texture = header.FaceCount == 6 ?
-            (Asset::Texture*) new gE::Asset::TextureCube(window, header.Width, header.PixelFormat, header.MipCount)
-            :
-            (Asset::Texture*) new gE::Asset::Texture2D(window, header.Width, header.Height, Asset::TextureFilterMode::LINEAR, header.PixelFormat, imageData, header.MipCount, header.MipCount);
+                                  (Asset::Texture *) new gE::Asset::TextureCube(window, header.Width,
+                                                                                header.PixelFormat, header.MipCount)
+                                                        :
+                                  (Asset::Texture *) new gE::Asset::Texture2D(window, header.Width, header.Height,
+                                                                              Asset::TextureFilterMode::LINEAR,
+                                                                              header.PixelFormat, imageData,
+                                                                              header.MipCount, header.MipCount);
+
+        if(returnType) *returnType = header.FaceCount == 6 ? TextureReturnType::TextureCubeMap : TextureReturnType::Texture2D;
 
         delete[] imageData;
         return texture;

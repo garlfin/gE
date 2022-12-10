@@ -55,3 +55,53 @@ namespace gE::Asset
         }
     }
 }
+
+gE::Asset::VAO *gE::Utility::CreateSkyboxVAO(gE::Window *window)
+{
+    static const float Vertices[108]
+            {
+                    -0.5f, -0.5f, -0.5f,
+                    0.5f, -0.5f, -0.5f,
+                    0.5f,  0.5f, -0.5f,
+                    0.5f,  0.5f, -0.5f,
+                    -0.5f,  0.5f, -0.5f,
+                    -0.5f, -0.5f, -0.5f,
+
+                    -0.5f, -0.5f,  0.5f,
+                    0.5f, -0.5f,  0.5f,
+                    0.5f,  0.5f,  0.5f,
+                    0.5f,  0.5f,  0.5f,
+                    -0.5f,  0.5f,  0.5f,
+                    -0.5f, -0.5f,  0.5f,
+
+                    -0.5f,  0.5f,  0.5f,
+                    -0.5f,  0.5f, -0.5f,
+                    -0.5f, -0.5f, -0.5f,
+                    -0.5f, -0.5f, -0.5f,
+                    -0.5f, -0.5f,  0.5f,
+                    -0.5f,  0.5f,  0.5f,
+
+                    0.5f,  0.5f,  0.5f,
+                    0.5f,  0.5f, -0.5f,
+                    0.5f, -0.5f, -0.5f,
+                    0.5f, -0.5f, -0.5f,
+                    0.5f, -0.5f,  0.5f,
+                    0.5f,  0.5f,  0.5f,
+
+                    -0.5f, -0.5f, -0.5f,
+                    0.5f, -0.5f, -0.5f,
+                    0.5f, -0.5f,  0.5f,
+                    0.5f, -0.5f,  0.5f,
+                    -0.5f, -0.5f,  0.5f,
+                    -0.5f, -0.5f, -0.5f,
+
+                    -0.5f,  0.5f, -0.5f,
+                    0.5f,  0.5f, -0.5f,
+                    0.5f,  0.5f,  0.5f,
+                    0.5f,  0.5f,  0.5f,
+                    -0.5f,  0.5f,  0.5f,
+                    -0.5f,  0.5f, -0.5f,
+            };
+
+    return new Asset::VAO(window, FieldInfo(false, false, false, false), 12, (void*) Vertices);
+}

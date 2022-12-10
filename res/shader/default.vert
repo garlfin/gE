@@ -28,7 +28,7 @@ layout(std140, binding = 1) uniform ObjectsInfo
 
 void main() {
     FragPos = (Objects.Model[gl_InstanceID] * vec4(vPos, 1.0)).xyz;
-    Normal = mat3(transpose(inverse(Objects.Model[gl_InstanceID]))) * vNor;
+    Normal = mat3(transpose(inverse(Objects.Model[gl_InstanceID])))* vNor;
     TexCoord = vUV;
 
     gl_Position = cam.Projection * cam.View * Objects.Model[gl_InstanceID] * vec4(vPos, 1.0);

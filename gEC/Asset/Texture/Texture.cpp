@@ -63,7 +63,9 @@ namespace gE::Asset
             case gE::Asset::TextureType::COMPRESSED_DX5:
                 return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
             case gE::Asset::TextureType::COMPRESSED_DX5_SRGB:
-                return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT; break;
+                return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+            case gE::Asset::TextureType::RGBf_32:
+                return GL_RGB32F;
             default:
                 return GL_RGBA32UI;
         };
@@ -71,6 +73,7 @@ namespace gE::Asset
 
     GLenum FormatToPixelType(gE::Asset::TextureType type)
     {
+        if (type == TextureType::RGBf_32) return GL_RGB;
         return GL_RGBA; // TODO
     }
 
@@ -85,5 +88,10 @@ namespace gE::Asset
             return CompressionRatio(16, 8);
         if (IS_COMPRESSED(type)) return CompressionRatio(16, 16);
         return CompressionRatio(1, 1);
+    }
+
+    uint8_t FormatToPixelSize(TextureType t) {
+        if(t == TextureType::RGBf_32) return 12;
+        return 1;
     }
 }

@@ -25,3 +25,8 @@ namespace gE::Asset
         ~VAO() override;
     };
 }
+
+namespace gE::Utility
+{
+    Asset::VAO* CreateSkyboxVAO(Window* window);
+}

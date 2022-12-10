@@ -4,6 +4,8 @@
 
 #include "MeshManager.h"
 #include "../../Component/Components/Transform.h"
+#include "glm/gtc/matrix_inverse.hpp"
+#include "../../Windowing/Window.h"
 
 namespace gE::Asset
 {
@@ -46,9 +48,13 @@ namespace gE::Asset
                 static ObjectInfo info;
                 info.ObjectCount = std::min((unsigned) pair->second.size(), MAX_INSTANCE_COUNT);
                 for(uint32_t x = 0; x < info.ObjectCount; x++)
-                    info.Model[x] = pair->second[i * MAX_INSTANCE_COUNT + x]->GetComponent<Component::Transform>()->Model;
+                {
+                    auto* transform = pair->second[i * MAX_INSTANCE_COUNT + x]->GetComponent<Component::Transform>();
+                    info.Model[x] = transform->Model;
+                    info.NormalMatrix[x] = glm::inverseTranspose(glm::mat3(transform->Model));
+                }
 
-                ModelBuffer.ReplaceData(&info);
+                p_ModelBuffer.ReplaceData(&info);
                 pair->first->Draw(info.ObjectCount);
             }
     }

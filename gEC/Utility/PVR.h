@@ -6,12 +6,13 @@
 
 #include "../Asset/Texture/Texture.h"
 
-namespace gE
-{
-    class Window;
-}
-
 namespace gE::Utility
 {
-    [[nodiscard]] gE::Asset::Texture* LoadPVR(Window* window, const char* const);
+    enum class TextureReturnType
+    {
+        Texture2D,
+        TextureCubeMap
+    };
+
+    [[nodiscard]] gE::Asset::Texture* LoadPVR(Window* window, const char* const, TextureReturnType* returnType);
 }

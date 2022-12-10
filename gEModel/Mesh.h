@@ -22,6 +22,10 @@ namespace gE
             };
         };
 
+        FieldInfo(bool hasUv, bool hasNormal, bool hasTangent, bool hasColor) : HasUV(hasUv), HasNormal(hasNormal),
+                                                                                HasTangent(hasTangent),
+                                                                                HasColor(hasColor) {}
+
         [[nodiscard]] uint32_t CalculateSize() const
         {
             return ((uint8_t) HasNormal + HasTangent + HasColor) * sizeof(glm::vec3) + (uint8_t) HasUV * sizeof(glm::vec2);
@@ -48,6 +52,7 @@ namespace gE
         glm::vec3* Colors = nullptr;
         glm::u32vec3* Indices = nullptr;
 
+        SubMesh() : Fields(false, false, false, false), VertexCount(), FaceCount() { }
         ~SubMesh() { delete[] Positions; delete[] UVs; delete[] Normals; delete[] Tangents; delete[] Colors; delete[] Indices; }
 
         [[nodiscard]] void* GetField(uint8_t i) const

@@ -6,10 +6,8 @@
 #include "ShaderStage.h"
 #include <GLAD/glad.h>
 
-gE::Asset::Shader::Shader(gE::Window* window, const char* const vPath, const char* const fPath) : GLAsset(window)
+gE::Asset::Shader::Shader(gE::Window* window, const char* const vPath, const char* const fPath, CullMode cullMode, DepthFunction depthFunc) : Shader(window, cullMode, depthFunc)
 {
-    ID = glCreateProgram();
-
     ShaderStage vertex(window, vPath, StageType::Vertex);
     ShaderStage fragment(window, fPath, StageType::Fragment);
 
@@ -25,23 +23,35 @@ gE::Asset::Shader::~Shader()
 
 void gE::Asset::Shader::Use()
 {
+    if((uint32_t) p_CullMode)
+    {
+        glEnable(GL_CULL_FACE);
+        glCullFace((GLenum) p_CullMode);
+    }
+    else
+        glDisable(GL_CULL_FACE);
+
+    glDepthFunc((GLenum) p_DepthFunc);
+
     glUseProgram(ID);
 }
 
-gE::Asset::Shader::Shader(gE::Window* window, const char* const path) : GLAsset(window)
+gE::Asset::Shader::Shader(gE::Window* window, const char* const path) : Shader(window, CullMode::NEVER, DepthFunction::ALWAYS)
 {
-    ID = glCreateProgram();
     glAttachShader(ID, ShaderStage(window, path, StageType::Compute).Get());
     glLinkProgram(ID);
 }
 
 gE::Asset::Shader::Shader(gE::Window* window, gE::Asset::ShaderStage* v,
-                          gE::Asset::ShaderStage* f) : GLAsset(window)
+                          gE::Asset::ShaderStage* f, CullMode cullMode, DepthFunction depthFunc) : Shader(window, cullMode, depthFunc)
 {
-    ID = glCreateProgram();
-
     glAttachShader(ID, v->Get());
     glAttachShader(ID, f->Get());
 
     glLinkProgram(ID);
+}
+
+gE::Asset::Shader::Shader(gE::Window *window, gE::Asset::CullMode cullMode, gE::Asset::DepthFunction function) : GLAsset(window), p_CullMode(cullMode), p_DepthFunc(function)
+{
+    ID = glCreateProgram();
 }

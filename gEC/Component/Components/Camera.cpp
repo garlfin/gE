@@ -28,4 +28,8 @@ namespace gE::Component
                         transform->Location, glm::vec4(p_CurrentCamera->GetClipPlanes(), 0, p_Window->GetAspectRatio()));
         p_CameraBuffer.ReplaceData(&data);
     }
+
+    glm::mat4 CameraManager::GetView() const {
+        return glm::inverse(p_CurrentCamera->GetOwner()->GetComponent<Transform>()->Model);
+    }
 }

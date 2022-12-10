@@ -21,18 +21,20 @@ namespace gE::Asset
         struct ObjectInfo
         {
             glm::mat4 Model[MAX_INSTANCE_COUNT];
+            glm::mat3 NormalMatrix[MAX_INSTANCE_COUNT];
             uint32_t ObjectCount;
         };
 
         typedef std::pair<VAO*, std::vector<Entity*>> Pair;
         typedef AssetManager<Pair> Base;
-        Buffer<ObjectInfo> ModelBuffer;
+        Buffer<ObjectInfo> p_ModelBuffer;
+        Window* p_Window;
 
     protected:
         void Destruct(std::pair<VAO*, std::vector<Entity*>> *t) override;
 
     public:
-        explicit MeshManager(Window* window) : Base(), ModelBuffer(window) { ModelBuffer.Bind(1, BufferTarget::UNIFORM); }
+        explicit MeshManager(Window* window) : Base(), p_Window(window), p_ModelBuffer(window) { p_ModelBuffer.Bind(1, BufferTarget::UNIFORM); }
 
         Pair* Register(VAO* vao)
         {

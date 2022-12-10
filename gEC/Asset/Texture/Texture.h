@@ -31,8 +31,8 @@ namespace gE::Asset
         COMPRESSED_DX2_SRGB = 52,
         COMPRESSED_DX3_SRGB = 53,
         COMPRESSED_DX5_SRGB = 55,
-        RGBA_32,
-        RGB_32,
+        RGBAf_32,
+        RGBf_32 = 9042521072232306,
         RGBAi_32,
         RGBi_32,
     };

@@ -63,6 +63,8 @@ namespace gE::Component
         void SetCamera(Camera* camera) { p_CurrentCamera = camera; }
         Camera* GetCamera() { return p_CurrentCamera; }
 
+        glm::mat4 GetView() const;
+
         void OnUpdate(double delta) override;
     };
 }

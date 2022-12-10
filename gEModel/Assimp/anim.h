@@ -500,7 +500,7 @@ struct Interpolator {
     }
 }; // ! Interpolator <T>
 
-//! @cond Never
+//! @cond NEVER
 
 template <>
 struct Interpolator<aiQuaternion> {
