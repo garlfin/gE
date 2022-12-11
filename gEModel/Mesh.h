@@ -33,9 +33,9 @@ namespace gE
 
         [[nodiscard]] static uint8_t GetFieldSize(uint8_t i)
         {
-            if(i - 1)
-                return sizeof(glm::vec3);
-            return sizeof(glm::vec2);
+            if(i == 1)
+                return sizeof(glm::vec2);
+            return sizeof(glm::vec3);
         }
     };
 

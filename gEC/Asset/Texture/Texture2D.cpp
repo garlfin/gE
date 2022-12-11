@@ -31,11 +31,12 @@ namespace gE
                 auto mipSize = GetSize(i);
 
                 if(compressed)
-                    glCompressedTextureSubImage2D(ID, i, 0, 0, mipSize.x, mipSize.y, FormatToPixelFormat(type), FormatToCompressionRatio(type).CalculatePixelCount(mipSize), data);
+                    glCompressedTextureSubImage2D(ID, i, 0, 0, mipSize.x, mipSize.y, FormatToPixelFormat(type),
+                                                  FormatToCompressionRatio(type).CalculateBytes(mipSize), data);
                 else
                     glTextureSubImage2D(ID, i, 0, 0, mipSize.x, mipSize.y, FormatToPixelFormat(type), FormatToPixelType(Format), data);
 
-                data += FormatToCompressionRatio(type).CalculatePixelCount(mipSize);
+                data += FormatToCompressionRatio(type).CalculateBytes(mipSize);
             }
 
             glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_NEAREST + (filter == TextureFilterMode::LINEAR) + (MipMapCount > 1) * 0x100);

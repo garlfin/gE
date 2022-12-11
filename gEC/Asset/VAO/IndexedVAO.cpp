@@ -42,4 +42,11 @@ namespace gE::Asset
         else
             glDrawElements(GL_TRIANGLES, TriCount * 3, GL_UNSIGNED_INT, nullptr);
     }
+
+    IndexedVAO::IndexedVAO(Window* window, FieldInfo fields, uint32_t vCount, uint32_t triCount, void* vertices, void* tris) :  VAO(window, fields, vCount, vertices),
+                                                                                            p_EBO(window, triCount, 1, (glm::u32vec3*) tris)
+    {
+        TriCount = triCount;
+        glVertexArrayElementBuffer(ID, p_EBO.Get());
+    }
 }

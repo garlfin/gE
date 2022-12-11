@@ -28,7 +28,7 @@ void gE::DemoWindow::Load()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
-    glClearColor(0, 0, 0, 1);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
     glDebugMessageCallback(DebugCallback, nullptr);
@@ -41,8 +41,10 @@ void gE::DemoWindow::Load()
     AssetManager.Add(tex = Utility::LoadPVR(this, "../x.pvr", nullptr));
     AssetManager.Add(Skybox.SkyboxTexture = Utility::LoadPVR(this, "../sky.pvr", nullptr));
 
-    glProgramUniformHandleui64ARB(DShader->Get(), glGetUniformLocation(DShader->Get(), "Albedo"), tex->GetHandle());
-    glProgramUniformHandleui64ARB(Skybox.SkyboxShader->Get(), glGetUniformLocation(Skybox.SkyboxShader->Get(), "Skybox"), Skybox.SkyboxTexture->GetHandle());
+    uint64_t handle = tex->GetHandle();
+    glProgramUniform2uiv(DShader->Get(), glGetUniformLocation(DShader->Get(), "Albedo"), 1, (GLuint*) &handle);
+    handle = Skybox.SkyboxTexture->GetHandle();
+    glProgramUniform2uiv(Skybox.SkyboxShader->Get(), glGetUniformLocation(Skybox.SkyboxShader->Get(), "Skybox"), 1, (GLuint*) &handle);
 
     uint32_t meshCount;
     gE::Mesh* meshes = gE::LoadgEMeshFromIntermediate("../cube.dae", &meshCount);

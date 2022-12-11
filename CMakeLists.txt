@@ -8,7 +8,7 @@ file(GLOB_RECURSE gECFiles  "gEC/*.cpp"
         "gEC/*.c")
 file(GLOB_RECURSE gEGLFiles "gEGL/*.cpp"
                             "gEGL/*.c")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++")
 
 include_directories(gEGL gEModel)
 

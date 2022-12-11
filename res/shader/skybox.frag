@@ -1,13 +1,13 @@
 #version 460 core
-#extension GL_ARB_TEXTURE_BINDLESS: enable
+#extension GL_ARB_bindless_texture: enable
 
-uniform samplerCube Skybox;
-
+uniform uvec2 Skybox;
 in vec3 TexCoords;
 out vec4 FragColor;
 
 void main()
 {
-    FragColor = texture(Skybox, TexCoords);
-    FragColor = pow(FragColor, vec4(1/2.2));
+    //FragColor = vec4(1);
+    FragColor = texture(samplerCube(Skybox), TexCoords);
+    FragColor = pow(FragColor, vec4(1.0/2.2));
 }

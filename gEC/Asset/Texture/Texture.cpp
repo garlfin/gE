@@ -85,9 +85,10 @@ namespace gE::Asset
     CompressionRatio FormatToCompressionRatio(gE::Asset::TextureType type)
     {
         if (type == gE::Asset::TextureType::COMPRESSED_DX1 || type == gE::Asset::TextureType::COMPRESSED_DX1_SRGB)
-            return CompressionRatio(16, 8);
-        if (IS_COMPRESSED(type)) return CompressionRatio(16, 16);
-        return CompressionRatio(1, 1);
+            return {16, 8};
+        if (IS_COMPRESSED(type)) return {16, 16};
+        if(type == TextureType::RGBf_32) return {1, sizeof(float) * 3};
+        return {1, 1};
     }
 
     uint8_t FormatToPixelSize(TextureType t) {

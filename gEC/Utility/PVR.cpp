@@ -50,8 +50,7 @@ namespace gE::Utility
         size = glm::uvec2(header.Width, header.Height);
 
         for(uint8_t i = 0; i < header.MipCount; i++, size /= 2)
-            byteCount += FormatToCompressionRatio(header.PixelFormat).CalculatePixelCount(size) * header.FaceCount *
-                    Asset::FormatToPixelSize(header.PixelFormat);
+            byteCount += FormatToCompressionRatio(header.PixelFormat).CalculateBytes(size) * header.FaceCount;
 
         byteCount *= header.Depth * header.SurfaceCount;
         auto* imageData = new uint8_t[byteCount];
@@ -67,10 +66,12 @@ namespace gE::Utility
         if (header.FaceCount == 6 && header.Width != header.Height) throw std::runtime_error("Texture is a cubemap, but has a different width and height!");
 
         Asset::Texture* texture = header.FaceCount == 6 ?
-                                  (Asset::Texture *) new gE::Asset::TextureCube(window, header.Width,
-                                                                                header.PixelFormat, header.MipCount)
+                                  (Asset::Texture*) new gE::Asset::TextureCube(window, header.Width,
+                                                                               Asset::TextureFilterMode::LINEAR,
+                                                                               header.PixelFormat, imageData,
+                                                                               0, header.MipCount)
                                                         :
-                                  (Asset::Texture *) new gE::Asset::Texture2D(window, header.Width, header.Height,
+                                  (Asset::Texture*) new gE::Asset::Texture2D(window, header.Width, header.Height,
                                                                               Asset::TextureFilterMode::LINEAR,
                                                                               header.PixelFormat, imageData,
                                                                               header.MipCount, header.MipCount);

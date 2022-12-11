@@ -21,9 +21,7 @@ namespace gE
 
         glfwMakeContextCurrent(p_Window);
 
-        if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) *result = FAIL;
-
-        *result = OK;
+        *result = !gladLoadGLLoader((GLADloadproc) glfwGetProcAddress) ? FAIL : OK;
 
         CameraManager = new Component::CameraManager(this);
         MeshManager = new Asset::MeshManager(this);
@@ -39,15 +37,16 @@ namespace gE
     {
         Load();
 
-        glfwSetTime(0);
+        double pTime = glfwGetTime();
         while (!glfwWindowShouldClose(p_Window))
         {
             glfwPollEvents();
 
-            Update(glfwGetTime()); // TODO: Multithread
-            Render(glfwGetTime());
+            Update(glfwGetTime() - pTime); // TODO: Multithread
+            double nTime = glfwGetTime();
+            Render(nTime - pTime);
+            pTime = nTime;
 
-            glfwSetTime(0);
             glfwSwapBuffers(p_Window);
         }
     }
@@ -56,7 +55,7 @@ namespace gE
     {
         if (!glfwInit()) return FAIL;
 
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug);

@@ -13,6 +13,6 @@ out vec3 TexCoords;
 void main()
 {
     TexCoords = vPos;
-    gl_Position = (cam.Projection * cam.View * vec4(vPos, 1.0)).xyww;
+    gl_Position = (cam.Projection * mat4(mat3(cam.View)) * vec4(vPos, 1.0)).xyww;
 }
 

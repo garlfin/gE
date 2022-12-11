@@ -4,7 +4,9 @@
 
 #include "VAO.h"
 #include <memory>
+#include <iostream>
 #include "GLAD/glad.h"
+#include "IndexedVAO.h"
 
 namespace gE::Asset
 {
@@ -38,70 +40,49 @@ namespace gE::Asset
 
         glVertexArrayVertexBuffer(ID, 0, VBO.Get(), 0, sizeof(glm::vec3) + fields.CalculateSize());
 
-        glEnableVertexArrayAttrib(ID, 0);
-        glVertexArrayAttribFormat(ID, 0, 3, GL_FLOAT, GL_FALSE, 0);
-        glVertexArrayAttribBinding(ID, 0, 0);
 
-        uint8_t currentOffset = sizeof(glm::vec3);
-        for(uint8_t i = 1; i < 5; i++)
+        uint8_t currentOffset = 0;
+        for(uint8_t i = 0; i < 5; i++, currentOffset += FieldInfo::GetFieldSize(i))
         {
-            if (!fields.Values[i]) continue;
-
+            if(i && !fields.Values[i - 1])
+                continue;
+            //std::cout << (uint32_t) i << std::endl;
             glEnableVertexArrayAttrib(ID, i);
             glVertexArrayAttribFormat(ID, i, i == 1 ? 2 : 3, GL_FLOAT, GL_FALSE, currentOffset);
             glVertexArrayAttribBinding(ID, i, 0);
-
-            currentOffset += FieldInfo::GetFieldSize(i);
         }
     }
 }
 
 gE::Asset::VAO *gE::Utility::CreateSkyboxVAO(gE::Window *window)
 {
-    static const float Vertices[108]
+    static const float Vertices[]
             {
-                    -0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f, -0.5f,
-                    0.5f,  0.5f, -0.5f,
-                    0.5f,  0.5f, -0.5f,
-                    -0.5f,  0.5f, -0.5f,
-                    -0.5f, -0.5f, -0.5f,
+                -1, -1, -1,
+                1, -1, -1,
+                -1, 1, -1,
+                -1, 1, -1,
 
-                    -0.5f, -0.5f,  0.5f,
-                    0.5f, -0.5f,  0.5f,
-                    0.5f,  0.5f,  0.5f,
-                    0.5f,  0.5f,  0.5f,
-                    -0.5f,  0.5f,  0.5f,
-                    -0.5f, -0.5f,  0.5f,
-
-                    -0.5f,  0.5f,  0.5f,
-                    -0.5f,  0.5f, -0.5f,
-                    -0.5f, -0.5f, -0.5f,
-                    -0.5f, -0.5f, -0.5f,
-                    -0.5f, -0.5f,  0.5f,
-                    -0.5f,  0.5f,  0.5f,
-
-                    0.5f,  0.5f,  0.5f,
-                    0.5f,  0.5f, -0.5f,
-                    0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f,  0.5f,
-                    0.5f,  0.5f,  0.5f,
-
-                    -0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f,  0.5f,
-                    0.5f, -0.5f,  0.5f,
-                    -0.5f, -0.5f,  0.5f,
-                    -0.5f, -0.5f, -0.5f,
-
-                    -0.5f,  0.5f, -0.5f,
-                    0.5f,  0.5f, -0.5f,
-                    0.5f,  0.5f,  0.5f,
-                    0.5f,  0.5f,  0.5f,
-                    -0.5f,  0.5f,  0.5f,
-                    -0.5f,  0.5f, -0.5f,
+                -1, -1, 1,
+                1, -1, 1,
+                1, 1, 1,
+                -1, 1, 1
+            };
+    static const uint32_t Faces[]
+            {
+                0, 1, 2,
+                2, 3, 0,
+                4, 5, 6,
+                6, 7, 4,
+                0, 3, 7,
+                7, 4, 0,
+                1, 2, 6,
+                6, 5, 1,
+                3, 7, 6,
+                6, 2, 3,
+                0, 4, 5,
+                5, 1, 0
             };
 
-    return new Asset::VAO(window, FieldInfo(false, false, false, false), 12, (void*) Vertices);
+    return new Asset::IndexedVAO(window, FieldInfo(false, false, false, false), 8, 12, (void*) &Vertices, (void*) &Faces);
 }
