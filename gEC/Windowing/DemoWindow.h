@@ -23,6 +23,9 @@ namespace gE
 
         void Render()
         {
+            glDepthFunc(GL_LEQUAL);
+            glDisable(GL_CULL_FACE);
+
             SkyboxShader->Use();
             SkyboxVAO->Draw(1);
         }

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../Component.h"
+#include "../../Asset/VAO/RenderMesh.h"
 
 namespace gE::Asset { class VAO; }
 
@@ -13,15 +14,16 @@ namespace gE::Component
     class Renderer final : public Component::Component
     {
     private:
-        Asset::VAO* p_renderMesh;
+        Asset::RenderMesh* p_renderMesh;
     public:
-        Renderer(Entity* owner, Asset::VAO* mesh);
+        Renderer(Entity* owner, Asset::RenderMesh* mesh);
 
         void OnLoad() override {};
         void OnRender(double delta) override {};
         void OnUpdate(double delta) override {};
         void OnDestroy() override;
 
-        Asset::VAO* GetRenderMesh() const { return p_renderMesh; }
+        Asset::RenderMesh* GetRenderMesh() const { return p_renderMesh; }
+        const Asset::VAO* const GetVAO(uint32_t i) const { return p_renderMesh->Renderers[i]; }
     };
 }

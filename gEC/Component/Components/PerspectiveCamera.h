@@ -7,7 +7,7 @@
 
 namespace gE::Component
 {
-    class PerspectiveCamera : public Camera
+    class PerspectiveCamera final : public Camera
     {
     private:
         float FOV;

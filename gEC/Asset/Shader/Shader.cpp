@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "ShaderStage.h"
 #include <GLAD/glad.h>
+#include "../../Windowing/Window.h"
 
 gE::Asset::Shader::Shader(gE::Window* window, const char* const vPath, const char* const fPath, CullMode cullMode, DepthFunction depthFunc) : Shader(window, cullMode, depthFunc)
 {
@@ -21,7 +22,7 @@ gE::Asset::Shader::~Shader()
     glDeleteProgram(ID);
 }
 
-void gE::Asset::Shader::Use()
+void gE::Asset::Shader::Use() const
 {
     if((uint32_t) p_CullMode)
     {
@@ -31,7 +32,7 @@ void gE::Asset::Shader::Use()
     else
         glDisable(GL_CULL_FACE);
 
-    glDepthFunc((GLenum) p_DepthFunc);
+    if(GetWindow()->GetStage() == Windowing::Stage::PreZ) glDepthFunc((GLenum) p_DepthFunc);
 
     glUseProgram(ID);
 }

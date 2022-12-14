@@ -16,6 +16,6 @@ class IndexedVAO final : public VAO
         IndexedVAO(Window* window, SubMesh* mesh);
         IndexedVAO(Window* window, FieldInfo fields, uint32_t vCount, uint32_t triCount, void* vertices, void* tris);
 
-        void Draw(uint32_t instanceCount) override;
+        void Draw(uint32_t instanceCount) const override;
     };
 }

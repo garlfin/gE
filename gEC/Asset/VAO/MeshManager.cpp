@@ -6,10 +6,12 @@
 #include "../../Component/Components/Transform.h"
 #include "glm/gtc/matrix_inverse.hpp"
 #include "../../Windowing/Window.h"
+#include "../Shader/Material.h"
+#include "../../Component/Components/MaterialHolder.h"
 
 namespace gE::Asset
 {
-    void MeshManager::Destruct(std::pair<VAO*, std::vector<Entity*>> *t)
+    void MeshManager::Destruct(Pair *t)
     {
         delete t->first;
         delete t;
@@ -25,10 +27,10 @@ namespace gE::Asset
         pair->second.push_back(renderer->GetOwner());
     }
 
-    MeshManager::Pair *MeshManager::FindPair(VAO *vao)
+    MeshManager::Pair *MeshManager::FindPair(RenderMesh *mesh)
     {
         for (auto* asset : Base::p_Assets)
-            if (asset->first == vao)
+            if (asset->first == mesh)
                 return asset;
 
         return nullptr;
@@ -54,8 +56,19 @@ namespace gE::Asset
                     info.NormalMatrix[x] = glm::inverseTranspose(glm::mat3(transform->Model));
                 }
 
-                p_ModelBuffer.ReplaceData(&info);
-                pair->first->Draw(info.ObjectCount);
+                for (uint8_t y = 0; y < pair->first->Mesh->SubMeshCount; y++)
+                {
+                    Material* renderMaterial = nullptr;
+
+                    if(auto* mHolder = pair->second[0]->GetComponent<Component::MaterialHolder>())
+                        renderMaterial = mHolder->GetMaterial(0);
+
+                    if (renderMaterial != nullptr) renderMaterial->Use();
+                    else p_Window->GetDefaultShader()->Use();
+
+                    p_ModelBuffer.ReplaceData(&info);
+                    pair->first->Renderers[y]->Draw(info.ObjectCount);
+                }
             }
     }
 }

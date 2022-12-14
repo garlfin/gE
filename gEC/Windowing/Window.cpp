@@ -9,28 +9,30 @@
 namespace gE
 {
     Window::Window(const char* const title, const uint32_t width, const uint32_t height, Result* const result)
-            : p_Title(title), p_Size(width, height), IncludeManager(), ComponentManager()
+            : Title(title), Size(width, height), IncludeManager(), ComponentManager()
     {
-        p_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+        GLFWWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
-        if (!p_Window)
+        if (!GLFWWindow)
         {
             *result = FAIL;
             return;
         }
 
-        glfwMakeContextCurrent(p_Window);
+        glfwMakeContextCurrent(GLFWWindow);
 
         *result = !gladLoadGLLoader((GLADloadproc) glfwGetProcAddress) ? FAIL : OK;
 
         CameraManager = new Component::CameraManager(this);
         MeshManager = new Asset::MeshManager(this);
+        p_MissingShader = new Asset::Shader(this, "../gEC/Resource/depth.vert", "../gEC/Resource/empty.frag", Asset::CullMode::BACKFACE);
     }
 
     Window::~Window()
     {
-        glfwDestroyWindow( p_Window);
-        p_Window = nullptr;
+        delete p_MissingShader;
+        glfwDestroyWindow(GLFWWindow);
+        GLFWWindow = nullptr;
     }
 
     void Window::Run()
@@ -38,7 +40,7 @@ namespace gE
         Load();
 
         double pTime = glfwGetTime();
-        while (!glfwWindowShouldClose(p_Window))
+        while (!glfwWindowShouldClose(GLFWWindow))
         {
             glfwPollEvents();
 
@@ -47,7 +49,7 @@ namespace gE
             Render(nTime - pTime);
             pTime = nTime;
 
-            glfwSwapBuffers(p_Window);
+            glfwSwapBuffers(GLFWWindow);
         }
     }
 

@@ -5,17 +5,18 @@
 #include "Texture.h"
 #include "GLAD/glad.h"
 #include <cmath>
+#include <iostream>
 
 namespace gE::Asset
 {
     void Texture::CalculateMipCount()
     {
-        MipMapCount =  1 + uint8_t(std::floor(std::log2(std::max(Width, Height))));
+        MipMapCount = 1 + uint8_t(std::floor(std::log2(std::max(Width, Height))));
     }
 
     void Texture::CreateHandle()
     {
-        if(Handle) return;
+        if(Handle || !GLAD_GL_ARB_bindless_texture) return;
 
         Handle = glGetTextureHandleARB(ID);
         glMakeTextureHandleResidentARB(Handle);

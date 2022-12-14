@@ -33,7 +33,7 @@ namespace gE::Asset
         delete[] byteData;
     }
 
-    void IndexedVAO::Draw(uint32_t instanceCount)
+    void IndexedVAO::Draw(uint32_t instanceCount) const
     {
         if (!instanceCount) return;
         Bind();

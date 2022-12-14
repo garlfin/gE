@@ -5,11 +5,33 @@
 #pragma once
 
 #include <cstdint>
+#include <glm/mat4x4.hpp>
+#include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 
 namespace gE
 {
+    struct AABB
+    {
+        glm::vec3 Center;
+        glm::vec3 Extent;
+
+        AABB() : Center(0), Extent(1) {}
+        AABB(glm::vec3 center, glm::vec3 extent) : Center(center), Extent(glm::abs(extent)) {}
+        AABB(AABB& a, glm::mat4& b) : Center(a.Center), Extent(a.Extent) { Transform(b); }
+
+        void Transform(glm::mat4& b)
+        {
+            Center = glm::vec4(Center, 1) * b;
+            Extent = glm::vec4(Extent, 0) * b;
+        };
+
+        [[nodiscard]] glm::vec3 Max() const { return Center + Extent; }
+        [[nodiscard]] glm::vec3 Min() const { return Center - Extent; }
+
+    };
+
     struct FieldInfo
     {
         union {
@@ -74,6 +96,7 @@ namespace gE
         const char* Name = nullptr;
         uint8_t SubMeshCount = 0;
         SubMesh* SubMeshes = nullptr;
+        AABB Bounds;
 
         ~Mesh() { delete[] SubMeshes; delete[] Name; }
     };

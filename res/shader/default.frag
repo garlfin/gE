@@ -2,6 +2,8 @@
 #extension GL_ARB_bindless_texture: enable
 #include "../res/shader/camera.glsl"
 
+layout(early_fragment_tests) in;
+
 layout(std140, binding = 0) uniform SceneInfo
 {
     Camera cam;

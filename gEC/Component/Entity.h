@@ -12,7 +12,7 @@ namespace gE
 {
     class Window;
 
-    class Entity
+    class Entity final
     {
     private:
         Window const* p_Window;

@@ -10,7 +10,7 @@
 
 namespace gE::Asset
 {
-    void VAO::Use()
+    void VAO::Use() const
     {
         glBindVertexArray(ID);
     }
@@ -20,7 +20,7 @@ namespace gE::Asset
         glDeleteVertexArrays(1, &ID);
     }
 
-    void VAO::Draw(uint32_t instanceCount)
+    void VAO::Draw(uint32_t instanceCount) const
     {
         Bind();
         if (instanceCount - 1)
@@ -29,7 +29,7 @@ namespace gE::Asset
             glDrawArrays(GL_TRIANGLES, 0, TriCount * 3);
     }
 
-    void VAO::Bind()
+    void VAO::Bind() const
     {
         glBindVertexArray(ID);
     }

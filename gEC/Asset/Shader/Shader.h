@@ -37,6 +37,6 @@ namespace gE::Asset
         Shader(gE::Window* window, const char* const);
         ~Shader() override;
 
-        void Use();
+        void Use() const;
     };
 }

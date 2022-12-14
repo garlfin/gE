@@ -17,10 +17,10 @@ namespace gE::Asset
     public:
         VAO(Window* window, FieldInfo fields, uint32_t triCount, void* data = nullptr);
 
-        void Use();
-        void Bind();
+        void Use() const;
+        void Bind() const;
 
-        virtual void Draw(uint32_t instanceCount);
+        virtual void Draw(uint32_t instanceCount) const;
 
         ~VAO() override;
     };

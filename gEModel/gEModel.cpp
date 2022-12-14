@@ -8,6 +8,7 @@
 #include <Assimp/Importer.hpp>
 #include <Assimp/scene.h>
 #include <Assimp/postprocess.h>
+#include <cfloat>
 
 #define PP_FLAGS (aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices | aiProcess_FindInvalidData)
 
@@ -61,11 +62,16 @@ Mesh* gE::LoadgEMeshFromIntermediate(const char* const path, uint32_t* count)
         mesh->SubMeshCount = aiData[i].first.size();
         mesh->SubMeshes = new SubMesh[aiData[i].first.size()];
         mesh->Name = (const char*) memcpy(new char[aiData[i].second->length + 1] {}, aiData[i].second->data, aiData[i].second->length);
-        
+
+        auto min = glm::vec3(FLT_MAX), max = glm::vec3(FLT_MIN);
+
         for(uint32_t s = 0; s < aiData[i].first.size(); s++)
         {
             SubMesh* sMesh = &mesh->SubMeshes[s];
             aiMesh* aMesh = aiData[i].first[s];
+
+            min = glm::min(min, *(glm::vec3*) &aMesh->mAABB.mMin);
+            max = glm::max(max, *(glm::vec3*) &aMesh->mAABB.mMax);
 
             sMesh->VertexCount = aMesh->mNumVertices;
             sMesh->FaceCount = aMesh->mNumFaces;
@@ -96,6 +102,9 @@ Mesh* gE::LoadgEMeshFromIntermediate(const char* const path, uint32_t* count)
                 sMesh->Indices[f] = glm::u32vec3(indices[0], indices[1], indices[2]);
             }
         }
+
+        glm::vec3 center = (min + max) / 2.0f;
+        meshes->Bounds = AABB(center, max - center);
     }
 
     return meshes;

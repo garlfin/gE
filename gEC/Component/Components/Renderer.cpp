@@ -3,12 +3,11 @@
 //
 
 #include "Renderer.h"
-#include "../../Asset/VAO/VAO.h"
 #include "../../Windowing/Window.h"
 
 namespace gE::Component
 {
-    Renderer::Renderer(Entity* owner, Asset::VAO* mesh) : Component::Component(owner, false),  p_renderMesh(mesh)
+    Renderer::Renderer(Entity* owner, Asset::RenderMesh* mesh) : Component::Component(owner, false),  p_renderMesh(mesh)
     {
         GetWindow()->MeshManager->Register(this);
     }

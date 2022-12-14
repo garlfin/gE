@@ -22,5 +22,5 @@ add_library(gEModel SHARED gEModel/gEModel.cpp)
 target_link_libraries(gEModel ${CMAKE_CURRENT_SOURCE_DIR}/libassimp-5.dll)
 
 # gEC
-add_executable(gEC ${gECFiles} res/script/CameraMovement.cpp)
+add_executable(gEC ${gECFiles} res/script/CameraMovement.cpp gEC/Asset/Shader/Material.cpp gEC/Asset/Shader/Material.h gEC/Windowing/Stage.h gEC/Component/Components/MaterialHolder.h gEC/Asset/VAO/RenderMesh.h gEC/Asset/VAO/RenderMesh.cpp res/shader/PBRMaterial.cpp res/shader/PBRMaterial.h)
 target_link_libraries(gEC gEGL gEModel)
