@@ -33,7 +33,7 @@ Mesh* gE::LoadgEMeshFromIntermediate(const char* const path, uint32_t* count)
 {
     Assimp::Importer importer{};
 
-    const aiScene* scene = importer.ReadFile(path, PP_FLAGS);
+    const aiScene* scene = importer.ReadFile(path, PP_FLAGS | aiProcess_GenBoundingBoxes);
 
     std::vector<std::pair<std::vector<aiMesh*>, aiString*>> aiData{};
 
@@ -63,7 +63,7 @@ Mesh* gE::LoadgEMeshFromIntermediate(const char* const path, uint32_t* count)
         mesh->SubMeshes = new SubMesh[aiData[i].first.size()];
         mesh->Name = (const char*) memcpy(new char[aiData[i].second->length + 1] {}, aiData[i].second->data, aiData[i].second->length);
 
-        auto min = glm::vec3(FLT_MAX), max = glm::vec3(FLT_MIN);
+        auto min = glm::vec3(FLT_MAX), max = glm::vec3(-FLT_MAX);
 
         for(uint32_t s = 0; s < aiData[i].first.size(); s++)
         {
@@ -104,7 +104,7 @@ Mesh* gE::LoadgEMeshFromIntermediate(const char* const path, uint32_t* count)
         }
 
         glm::vec3 center = (min + max) / 2.0f;
-        meshes->Bounds = AABB(center, max - center);
+        meshes->Bounds = Math::AABB(center, max - center);
     }
 
     return meshes;

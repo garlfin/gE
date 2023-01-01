@@ -23,6 +23,8 @@ namespace gE::Component
         void OnUpdate(double delta) override {};
         void OnDestroy() override;
 
+        bool IsInView;
+
         Asset::RenderMesh* GetRenderMesh() const { return p_renderMesh; }
         const Asset::VAO* const GetVAO(uint32_t i) const { return p_renderMesh->Renderers[i]; }
     };

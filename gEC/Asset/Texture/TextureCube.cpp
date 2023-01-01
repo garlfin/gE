@@ -18,7 +18,7 @@ namespace gE::Asset
     {
         if(!mipCount) CalculateMipCount();
         glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &ID);
-        glTextureStorage2D(ID, MipMapCount, FormatToSizedFormat(Format), size, size);
+        glTextureStorage2D(ID, MipMapCount, GL_RGB32F, size, size);
 
         glTextureParameteri(ID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(ID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -29,17 +29,17 @@ namespace gE::Asset
                              TextureType type, uint8_t* data, uint8_t mipCount, uint8_t sentMips) : TextureCube(window, size, type, mipCount)
     {
         bool compressed = IS_COMPRESSED(type);
-        for(uint8_t i = 0; i < sentMips; i++)
+        for(uint8_t mip = 0; mip < sentMips; mip++)
         {
-            auto mipSize = GetSize(i);
+            auto mipSize = GetSize(mip);
 
-            for(uint8_t f = 0; f < 6; f++)
+            for(uint8_t face = 0; face < 6; face++)
             {
                 if(compressed)
-                    glCompressedTextureSubImage3D(ID, i, 0, 0, f, mipSize.x, mipSize.y, 1, FormatToPixelFormat(type),
+                    glCompressedTextureSubImage3D(ID, mip, 0, 0, face, mipSize.x, mipSize.y, 1, FormatToPixelFormat(type),
                                                   FormatToCompressionRatio(type).CalculateBytes(mipSize), data);
                 else
-                    glTextureSubImage3D(ID, i, 0, 0, f, mipSize.x, mipSize.y, 1, GL_RGB, GL_FLOAT, data);
+                    glTextureSubImage3D(ID, mip, 0, 0, face, mipSize.x, mipSize.y, 1, GL_RGB, GL_FLOAT, data);
                 data += FormatToCompressionRatio(type).CalculateBytes(mipSize);
             }
         }

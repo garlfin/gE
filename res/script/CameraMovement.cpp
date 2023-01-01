@@ -2,7 +2,6 @@
 // Created by scion on 12/5/2022.
 //
 
-#include <cstdio>
 #include <iostream>
 #include "CameraMovement.h"
 #include "../../gEC/Component/Entity.h"

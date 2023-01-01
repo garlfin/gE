@@ -24,11 +24,7 @@ namespace gE::Asset
 
     Texture::~Texture()
     {
-        if (Handle)
-        {
-            glMakeTextureHandleNonResidentARB(Handle);
-            Handle = 0;
-        }
+        if (Handle) glMakeTextureHandleNonResidentARB(Handle);
         glDeleteTextures(1, &ID);
     }
 
@@ -67,6 +63,8 @@ namespace gE::Asset
                 return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
             case gE::Asset::TextureType::RGBf_32:
                 return GL_RGB32F;
+            case gE::Asset::TextureType::DEPTH_32f:
+                return GL_DEPTH_COMPONENT32F;
             default:
                 return GL_RGBA32UI;
         };

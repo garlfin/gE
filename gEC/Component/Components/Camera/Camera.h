@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "../Component.h"
-#include "../../Asset/Buffer/Buffer.h"
-#include <glm/mat4x4.hpp>
+#include "../../Component.h"
+#include "../../../Asset/Buffer/Buffer.h"
+#include "../../../Utility/Frustum.h"
+#include "glm/mat4x4.hpp"
 
 namespace gE::Component
 {
@@ -18,15 +19,15 @@ namespace gE::Component
     public:
         Camera(gE::Entity* owner, glm::vec2 clipPlanes) : Component(owner), Projection(1.0), ClipPlanes(clipPlanes) {}
 
-        void OnLoad() override { OnUpdate(0.0); UpdateProjection(); }
-        void OnRender(double delta) final { OnUpdate(delta); }
-        void OnUpdate(double delta) override = 0;
+        void OnLoad() override { OnUpdate(0); UpdateProjection(); }
+        void OnUpdate(double delta) final { }
         void OnDestroy() final { }
 
         [[nodiscard]] const glm::mat4* GetProjection() const { return &Projection; }
+        [[nodiscard]] glm::mat4 GetView() const;
         [[nodiscard]] glm::vec2 GetClipPlanes() const { return ClipPlanes; }
 
-        void Use();
+        virtual void Use();
     protected:
         virtual void UpdateProjection() = 0;
     };
@@ -40,11 +41,8 @@ namespace gE::Component
 
         glm::mat4 View;
         glm::mat4 Projection;
-        glm::vec3 Position;
-    private:
-        float pad;
-    public:
         glm::vec4 Info;
+        glm::vec3 Position;
     };
 
     class CameraManager final : public ComponentManager<Camera>
@@ -53,9 +51,10 @@ namespace gE::Component
         Buffer<CameraData> p_CameraBuffer;
         Camera* p_CurrentCamera;
         Window* p_Window;
+        Math::Frustum p_ViewFrustum;
     public:
         explicit CameraManager(Window* window) : ComponentManager<Camera>(), p_CurrentCamera(nullptr),
-                                        p_CameraBuffer(window), p_Window(window)
+                                        p_CameraBuffer(window), p_Window(window), p_ViewFrustum(glm::mat4(1))
         {
             p_CameraBuffer.Bind(0, BufferTarget::UNIFORM);
         }
@@ -64,6 +63,7 @@ namespace gE::Component
         Camera* GetCamera() { return p_CurrentCamera; }
 
         glm::mat4 GetView() const;
+        [[nodiscard]] Math::Frustum const* GetFrustum() const { return &p_ViewFrustum; }
 
         void OnUpdate(double delta) override;
     };

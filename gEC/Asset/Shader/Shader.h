@@ -14,14 +14,15 @@ namespace gE::Asset
     {
         NEVER = 0,
         BACKFACE = 0x0405,
-        FRONT_FACE = 0x0404
+        FRONT_FACE = 0x0404,
     };
 
     enum class DepthFunction : uint32_t
     {
         ALWAYS = 0x0207,
         LESS = 0x0201,
-        LEQUAL = 0x0203
+        LEQUAL = 0x0203,
+        IGNORE = 0
     };
 
     class Shader : public GLAsset
@@ -33,10 +34,13 @@ namespace gE::Asset
     public:
         Shader(gE::Window* window, gE::Asset::ShaderStage*,
                gE::Asset::ShaderStage*, CullMode cullMode = CullMode::BACKFACE, DepthFunction depthFunc = DepthFunction::LESS);
-        Shader(gE::Window* window, const char* const, const char* const, CullMode cullMode = CullMode::BACKFACE, DepthFunction depthFunc = DepthFunction::LESS);
-        Shader(gE::Window* window, const char* const);
+        Shader(gE::Window* window, const char*, const char*, CullMode cullMode = CullMode::BACKFACE, DepthFunction depthFunc = DepthFunction::LESS);
+        Shader(gE::Window* window, const char*);
         ~Shader() override;
 
-        void Use() const;
+        [[nodiscard]] DepthFunction GetDepthFunc() const { return p_DepthFunc; }
+        [[nodiscard]] CullMode GetCullMode() const { return p_CullMode; }
+
+        void Use(DepthFunction = DepthFunction::IGNORE, CullMode = CullMode::NEVER) const;
     };
 }

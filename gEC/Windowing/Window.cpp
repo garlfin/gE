@@ -25,12 +25,19 @@ namespace gE
 
         CameraManager = new Component::CameraManager(this);
         MeshManager = new Asset::MeshManager(this);
-        p_MissingShader = new Asset::Shader(this, "../gEC/Resource/depth.vert", "../gEC/Resource/empty.frag", Asset::CullMode::BACKFACE);
+        TransformManager = new Component::TransformManager(this);
+        p_MissingShader = new Asset::Shader(this, "../gEC/Resource/depth.vert", "../gEC/Resource/empty.frag", Asset::CullMode::NEVER);
+
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     }
 
     Window::~Window()
     {
         delete p_MissingShader;
+        delete MeshManager;
+        delete CameraManager;
+        delete TransformManager;
+
         glfwDestroyWindow(GLFWWindow);
         GLFWWindow = nullptr;
     }
@@ -44,8 +51,9 @@ namespace gE
         {
             glfwPollEvents();
 
-            Update(glfwGetTime() - pTime); // TODO: Multithread
             double nTime = glfwGetTime();
+            Update(nTime - pTime); // TODO: Multithread
+            nTime = glfwGetTime();
             Render(nTime - pTime);
             pTime = nTime;
 

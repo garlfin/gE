@@ -19,9 +19,9 @@ namespace gE::Asset
         glCreateFramebuffers(1, &ID);
     }
 
-    void Framebuffer::Bind(Framebuffer::FramebufferTarget target)
+    void Framebuffer::Bind()
     {
-        glBindFramebuffer((GLenum) target, ID);
+        glBindFramebuffer(GL_FRAMEBUFFER, ID);
     }
 
     void Framebuffer::Attach(Attachable *attachment, Framebuffer::AttachmentPoint point, uint32_t mip)

@@ -26,7 +26,7 @@ namespace gE::Asset
         }
 
         VBO.ReplaceData(byteData, mesh->VertexCount);
-        TriCount = mesh->FaceCount;
+        VertCount = mesh->FaceCount;
 
         glVertexArrayElementBuffer(ID, p_EBO.Get());
 
@@ -38,15 +38,15 @@ namespace gE::Asset
         if (!instanceCount) return;
         Bind();
         if(instanceCount - 1)
-            glDrawElementsInstanced(GL_TRIANGLES, TriCount * 3, GL_UNSIGNED_INT, nullptr, instanceCount);
+            glDrawElementsInstanced(GL_TRIANGLES, VertCount * 3, GL_UNSIGNED_INT, nullptr, instanceCount);
         else
-            glDrawElements(GL_TRIANGLES, TriCount * 3, GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, VertCount * 3, GL_UNSIGNED_INT, nullptr);
     }
 
     IndexedVAO::IndexedVAO(Window* window, FieldInfo fields, uint32_t vCount, uint32_t triCount, void* vertices, void* tris) :  VAO(window, fields, vCount, vertices),
                                                                                             p_EBO(window, triCount, 1, (glm::u32vec3*) tris)
     {
-        TriCount = triCount;
+        VertCount = triCount;
         glVertexArrayElementBuffer(ID, p_EBO.Get());
     }
 }

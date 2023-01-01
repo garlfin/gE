@@ -3,10 +3,10 @@
 //
 
 #include "PerspectiveCamera.h"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-#include "../../Windowing/Window.h"
-#include "Transform.h"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/transform.hpp"
+#include "../../../Windowing/Window.h"
+#include "../Transform.h"
 
 namespace gE::Component
 {

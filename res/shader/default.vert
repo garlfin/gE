@@ -1,6 +1,8 @@
 #version 460 core
+#extension GL_ARB_bindless_texture : enable
 #include "../res/shader/camera.glsl"
 #include "../res/shader/objectinfo.glsl"
+#include "../res/shader/demowindow.glsl"
 
 layout(location = 0) in vec3 vPos;
 layout(location = 1) in vec2 vUV;
@@ -14,22 +16,17 @@ out FragInfo
     uvec4 InstanceInfo;
     vec3 Normal;
     vec2 TexCoord;
-};
-
-layout(std140, binding = 0) uniform SceneInfo
-{
-    Camera cam;
-};
-
-layout(std140, binding = 1) uniform ObjectsInfo
-{
-    ObjectInfo Objects;
+    vec4 FragPosLightSpace;
+    mat3 TBN;
 };
 
 void main() {
-    FragPos = (Objects.Model[gl_InstanceID] * vec4(vPos, 1.0)).xyz;
-    Normal = mat3(Objects.NormalMatrix[gl_InstanceID]) * vNor;
+    FragPos = (Model[gl_InstanceID] * vec4(vPos, 1.0)).xyz;
+    Normal = normalize(mat3(NormalMatrix[gl_InstanceID]) * vNor);
     TexCoord = vUV;
 
-    gl_Position = cam.Projection * cam.View * Objects.Model[gl_InstanceID] * vec4(vPos, 1.0);
+    gl_Position = Projection * View * Model[gl_InstanceID] * vec4(vPos, 1.0);
+    FragPosLightSpace = SunMatrix * vec4(FragPos, 1.0);
+
+    TBN = mat3(vTan, normalize(cross(vTan, Normal)), Normal);
 }

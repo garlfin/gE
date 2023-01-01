@@ -29,10 +29,11 @@ namespace gE::Asset
         {
             static_assert(std::is_base_of<T, I>::value, "'I' must inherit from 'T'");
 
-            p_Assets.push_back(new I(std::forward<Args>(args)...));
-            p_Instantiation.push_back(p_Assets.back());
+            I* i = new I(std::forward<Args>(args)...);
+            p_Assets.push_back(i);
+            p_Instantiation.push_back(i);
 
-            return (I*) p_Assets.back();
+            return i;
         }
 
         gE::Result Remove(T* ptr)

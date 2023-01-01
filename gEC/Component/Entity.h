@@ -28,7 +28,7 @@ namespace gE
         void DeleteComponent(Component::Component* c) { c->FlagDeletion(); } // Yeah It can be static no i dont care
 
         template<class T>
-        T* GetComponent()
+        T* GetComponent() const
         {
             for (auto component : p_Components)
                 if (typeid(T) == typeid(*component)) return (T*) component;

@@ -12,7 +12,6 @@
 #define DIV_CEIL(x, y) (((x) + (y) - 1) / (y))
 #define IS_COMPRESSED(t) (t <= TextureType::COMPRESSED_DX5 || (t >= TextureType::COMPRESSED_DX1_SRGB && t <= TextureType::COMPRESSED_DX5_SRGB))
 
-
 namespace gE::Asset
 {
     enum class TextureFilterMode
@@ -35,6 +34,7 @@ namespace gE::Asset
         RGBf_32 = 9042521072232306,
         RGBAi_32,
         RGBi_32,
+        DEPTH_32f = 0x8CAC
     };
 
     enum class AccessMode : uint64_t

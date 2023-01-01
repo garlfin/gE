@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "GLAD/glad.h"
 #include "../GLAsset.h"
 
 namespace gE::Asset
@@ -23,7 +24,7 @@ namespace gE::Asset
         {
             DRAW = 0x8CA8,
             READ = 0x8CA9,
-            ALL = 0x8D40
+            ALL = GL_FRAMEBUFFER
         };
 
         enum AttachmentPoint
@@ -38,7 +39,7 @@ namespace gE::Asset
 
         void Attach(Attachable* attachment, AttachmentPoint point, uint32_t mip = 0);
         void Attach(Attachable* attachable, uint32_t colorSlot, uint32_t mip = 0);
-        void Bind(FramebufferTarget = ALL);
+        void Bind();
         Attachable* GetAttachment(uint32_t i) { return p_attachments[i]; }
 
     private:

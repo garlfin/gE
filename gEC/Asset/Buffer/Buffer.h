@@ -34,7 +34,7 @@ namespace gE
         void ReplaceData(I* data, uint32_t count = 1, uint32_t offset = 0, uint32_t sizeMultiplier = 0)
         {
             if (!count || !data) return;
-            glNamedBufferSubData(ID, offset * p_TMultiplier, sizeof(I) * count * (sizeMultiplier ?: p_TMultiplier), data);
+            glNamedBufferSubData(ID, offset * (sizeMultiplier ?: p_TMultiplier), sizeof(I) * count * (sizeMultiplier ?: p_TMultiplier), data);
         }
 
         uint32_t Bind(uint32_t slot, BufferTarget target)

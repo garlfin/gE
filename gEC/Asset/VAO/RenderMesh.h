@@ -19,8 +19,8 @@ namespace gE::Asset
             RenderMesh(Window* window, gE::Mesh* mesh);
             RenderMesh(Window* window, gE::Mesh* mesh, VAO** vaos);
 
-            const gE::Mesh* Mesh;
-            const gE::Asset::VAO** const Renderers;
+            const gE::Mesh *const Mesh;
+            const gE::Asset::VAO  **const Renderers;
 
             ~RenderMesh() { delete[] Renderers; }
         };

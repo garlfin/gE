@@ -9,12 +9,13 @@ namespace gE::Asset
 {
     void Material::Use()
     {
-        if(GetWindow()->GetStage() == Windowing::Stage::PreZ)
-            (p_DepthShader ?: GetWindow()->GetDefaultShader())->Use();
         MandatorySetup();
-
-        if(GetWindow()->GetStage() != Windowing::Stage::Render) return;
-        p_Shader->Use();
-        RenderStageSetup();
+        if(GetWindow()->GetStage() & (Windowing::Stage::PreZ | Windowing::Stage::Shadow))
+            (p_DepthShader ?: GetWindow()->GetDefaultShader())->Use(p_Shader->GetDepthFunc(), p_Shader->GetCullMode());
+        else
+        {
+            p_Shader->Use();
+            RenderStageSetup();
+        }
     }
 }

@@ -13,9 +13,9 @@ namespace gE::Asset
     {
     protected:
         Buffer<uint8_t> VBO;
-        uint32_t TriCount;
+        uint32_t VertCount;
     public:
-        VAO(Window* window, FieldInfo fields, uint32_t triCount, void* data = nullptr);
+        VAO(Window* window, FieldInfo fields, uint32_t vertCount, void* data = nullptr);
 
         void Use() const;
         void Bind() const;

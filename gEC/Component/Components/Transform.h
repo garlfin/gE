@@ -7,6 +7,9 @@
 #include "../Component.h"
 #include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
+#include "../../Asset/Buffer/Buffer.h"
+
+#define MAX_INSTANCE_COUNT 100u
 
 namespace gE::Component
 {
@@ -25,5 +28,26 @@ namespace gE::Component
         void OnRender(double delta) override;
         void OnUpdate(double delta) override;
         void OnDestroy() override {}
+    };
+
+    struct ObjectInfo
+    {
+        glm::mat4 Model[MAX_INSTANCE_COUNT];
+        glm::mat4 NormalMatrix[MAX_INSTANCE_COUNT];
+        uint32_t ObjectCount;
+    };
+
+    class TransformManager final : public ComponentManager<Transform>
+    {
+    private:
+        Buffer<ObjectInfo> p_Buffer;
+        ObjectInfo p_Info;
+
+    public:
+        TransformManager(Window* window) : ComponentManager<Transform>(), p_Buffer(window)
+        {
+            p_Buffer.Bind(1, BufferTarget::UNIFORM);
+        }
+        void UpdateMatrices(const Entity** entities, uint32_t count);
     };
 }

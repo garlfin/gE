@@ -3,9 +3,7 @@
 //
 
 #include "Camera.h"
-#include "../../Windowing/Window.h"
-#include "Transform.h"
-#include "PerspectiveCamera.h"
+#include "../../../Windowing/Window.h"
 
 namespace gE::Component
 {
@@ -14,18 +12,21 @@ namespace gE::Component
         GetWindow()->CameraManager->SetCamera(this);
     }
 
+    glm::mat4 Camera::GetView() const
+    {
+        return glm::inverse(GetOwner()->GetComponent<Transform>()->Model);
+    }
+
     void CameraManager::OnUpdate(double delta)
     {
         ComponentManager::OnUpdate(delta);
 
-        float fov = 0;
-        /*if(typeid(p_CurrentCamera) == typeid(PerspectiveCamera))
-            fov == ((PerspectiveCamera*) p_CurrentCamera).fov*/
-
         Transform* transform = p_CurrentCamera->GetOwner()->GetComponent<Transform>();
 
         CameraData data(glm::inverse(transform->Model), *p_CurrentCamera->GetProjection(),
-                        transform->Location, glm::vec4(p_CurrentCamera->GetClipPlanes(), 0, p_Window->GetAspectRatio()));
+                        transform->Location, glm::vec4(0, p_Window->GetAspectRatio(), p_CurrentCamera->GetClipPlanes()));
+
+        p_ViewFrustum = Math::Frustum(data.Projection * data.View);
         p_CameraBuffer.ReplaceData(&data);
     }
 

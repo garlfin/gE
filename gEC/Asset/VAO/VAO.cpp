@@ -24,9 +24,9 @@ namespace gE::Asset
     {
         Bind();
         if (instanceCount - 1)
-            glDrawArraysInstanced(GL_TRIANGLES, 0, TriCount * 3, instanceCount);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, VertCount, instanceCount);
         else
-            glDrawArrays(GL_TRIANGLES, 0, TriCount * 3);
+            glDrawArrays(GL_TRIANGLES, 0, VertCount);
     }
 
     void VAO::Bind() const
@@ -34,7 +34,7 @@ namespace gE::Asset
         glBindVertexArray(ID);
     }
 
-    VAO::VAO(Window* window, FieldInfo fields, uint32_t triCount, void* data) : GLAsset::GLAsset(window), VBO(window, triCount, sizeof(glm::vec3) + fields.CalculateSize(), (uint8_t*) data), TriCount(triCount)
+    VAO::VAO(Window* window, FieldInfo fields, uint32_t triCount, void* data) : GLAsset::GLAsset(window), VBO(window, triCount, sizeof(glm::vec3) + fields.CalculateSize(), (uint8_t*) data), VertCount(triCount)
     {
         glCreateVertexArrays(1, &ID);
 
@@ -60,7 +60,7 @@ gE::Asset::VAO *gE::Utility::CreateSkyboxVAO(gE::Window *window)
             {
                 -1, -1, -1,
                 1, -1, -1,
-                -1, 1, -1,
+                1, 1, -1,
                 -1, 1, -1,
 
                 -1, -1, 1,
@@ -74,14 +74,14 @@ gE::Asset::VAO *gE::Utility::CreateSkyboxVAO(gE::Window *window)
                 2, 3, 0,
                 4, 5, 6,
                 6, 7, 4,
-                0, 3, 7,
-                7, 4, 0,
-                1, 2, 6,
-                6, 5, 1,
-                3, 7, 6,
-                6, 2, 3,
-                0, 4, 5,
-                5, 1, 0
+                0, 4, 7,
+                7, 3, 0,
+                1, 5, 6,
+                6, 2, 1,
+                0, 1, 5,
+                5, 4, 0,
+                3, 2, 6,
+                6, 7, 3
             };
 
     return new Asset::IndexedVAO(window, FieldInfo(false, false, false, false), 8, 12, (void*) &Vertices, (void*) &Faces);

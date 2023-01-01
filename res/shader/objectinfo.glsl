@@ -1,4 +1,4 @@
-struct ObjectInfo
+layout(std140, binding = 1) uniform ObjectsInfo
 {
     mat4 Model[100];
     mat4 NormalMatrix[100];

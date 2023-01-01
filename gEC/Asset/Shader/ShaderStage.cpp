@@ -17,15 +17,15 @@ gE::Asset::ShaderStage::ShaderStage(gE::Window* window, const char* const path, 
     glShaderSource(ID, 1, &shaderSource, nullptr);
     glCompileShader(ID);
 
-    GLint length;
-    glGetShaderiv(ID, GL_COMPILE_STATUS, &length); // cheese
+    GLint status, length;
+    glGetShaderiv(ID, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &length);
 
-    if(length) return;
-    glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &length); // cheese: the reckoning
+    if(status) return;
 
     char* log = new char[length + 1]{};
     glGetShaderInfoLog(ID, length, nullptr, log);
-    std::cout << log << std::endl;
+    std::cout << log << shaderSource << std::endl;
 }
 
 gE::Asset::ShaderStage::~ShaderStage()

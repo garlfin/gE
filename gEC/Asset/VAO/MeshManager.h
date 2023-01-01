@@ -11,30 +11,23 @@
 #include "../Buffer/Buffer.h"
 #include "glm/mat4x4.hpp"
 
-#define MAX_INSTANCE_COUNT 100u
-
 namespace gE::Asset
 {
     class MeshManager final : public AssetManager<std::pair<RenderMesh*, std::vector<Entity*>>>
     {
     private:
-        struct ObjectInfo
-        {
-            glm::mat4 Model[MAX_INSTANCE_COUNT];
-            glm::mat4 NormalMatrix[MAX_INSTANCE_COUNT];
-            uint32_t ObjectCount;
-        };
-
         typedef std::pair<RenderMesh*, std::vector<Entity*>> Pair;
         typedef AssetManager<Pair> Base;
-        Buffer<ObjectInfo> p_ModelBuffer;
         Window* p_Window;
+        const Entity** p_EligibleEntities;
+        uint32_t p_PreviousCount;
 
     protected:
         void Destruct(Pair *t) override;
 
     public:
-        explicit MeshManager(Window* window) : Base(), p_Window(window), p_ModelBuffer(window) { p_ModelBuffer.Bind(1, BufferTarget::UNIFORM); }
+        explicit MeshManager(Window* window) : Base(), p_Window(window), p_EligibleEntities(nullptr)
+                                                    , p_PreviousCount(0) {}
 
         Pair* Register(RenderMesh* mesh)
         {
@@ -45,7 +38,8 @@ namespace gE::Asset
         void Register(Component::Renderer*);
         void Remove(Component::Renderer*);
 
-        void OnRender();
+        void OnUpdate(double delta) override;
 
+        void OnRender();
     };
 }

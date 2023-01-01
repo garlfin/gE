@@ -22,17 +22,17 @@ gE::Asset::Shader::~Shader()
     glDeleteProgram(ID);
 }
 
-void gE::Asset::Shader::Use() const
+void gE::Asset::Shader::Use(gE::Asset::DepthFunction dOverride, CullMode cOverride) const
 {
-    if((uint32_t) p_CullMode)
+    if((uint32_t) p_CullMode || (uint32_t) cOverride)
     {
         glEnable(GL_CULL_FACE);
-        glCullFace((GLenum) p_CullMode);
+        glCullFace((uint32_t) cOverride ?: (uint32_t) p_CullMode);
     }
     else
         glDisable(GL_CULL_FACE);
 
-    if(GetWindow()->GetStage() == Windowing::Stage::PreZ) glDepthFunc((GLenum) p_DepthFunc);
+    if(GetWindow()->GetStage() & (Windowing::Stage::PreZ | Windowing::Stage::Shadow | Windowing::Stage::PostProcess)) glDepthFunc((uint32_t) dOverride ?: (uint32_t) p_DepthFunc);
 
     glUseProgram(ID);
 }
@@ -56,3 +56,4 @@ gE::Asset::Shader::Shader(gE::Window *window, gE::Asset::CullMode cullMode, gE::
 {
     ID = glCreateProgram();
 }
+

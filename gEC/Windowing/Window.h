@@ -8,10 +8,12 @@
 #include "../Result.h"
 #include "../Component/Entity.h"
 #include "../Asset/IncludeManager.h"
-#include "../Component/Components/Camera.h"
+#include "../Component/Components/Camera/Camera.h"
 #include "../Asset/VAO/MeshManager.h"
 #include "Stage.h"
 #include "../Asset/Shader/Shader.h"
+#include "../Component/Components/Transform.h"
+#include "../Component/Components/Behavior.h"
 
 class GLFWwindow;
 
@@ -30,11 +32,15 @@ namespace gE
 
         void Run();
         [[nodiscard]] inline GLFWwindow* GetWindow() const { return GLFWWindow; }
+
         Asset::AssetManager<Entity> EntityManager;
         Asset::IncludeManager IncludeManager;
         Component::CameraManager* CameraManager;
         Asset::MeshManager* MeshManager;
         Component::ComponentManager<Component::Component> ComponentManager;
+        Component::TransformManager* TransformManager;
+        Asset::AssetManager<Asset::Asset> AssetManager;
+        Component::ComponentManager<Component::Behavior> BehaviorManager;
 
         [[nodiscard]] float GetAspectRatio() const { return (float) Size.x / Size.y; }
         [[nodiscard]] glm::u32vec2 GetSize() const { return Size; }

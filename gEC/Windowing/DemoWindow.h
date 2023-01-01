@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "Window.h"
 #include "gEModel.h"
 #include "../Component/Components/Transform.h"
@@ -12,6 +11,8 @@
 #include "../Component/Components/Renderer.h"
 #include "../../res/script/CameraMovement.h"
 #include "../Asset/Shader/Shader.h"
+#include "../Component/Components/Camera/Light.h"
+#include "../Component/Components/Camera/DirectionalLight.h"
 
 namespace gE
 {
@@ -31,18 +32,36 @@ namespace gE
         }
     };
 
+    struct DemoUBO
+    {
+    public:
+        DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, gE::Asset::Texture* prevFrame,
+                gE::Asset::Texture* depthTex);
+        uint64_t SkyboxID;
+        uint64_t ShadowID;
+        glm::vec4 SunInfo; // Direction, ShadowSize
+        glm::mat4 SunMatrix;
+        uint64_t ColorID;
+        uint64_t DepthID;
+    };
+
     class DemoWindow : public Window
     {
-    private:
-        Component::ComponentManager<Component::Transform> TransformManager;
-        Asset::AssetManager<Asset::Asset> AssetManager;
-        Component::ComponentManager<Component::Behavior> BehaviorManager;
-        SkyboxInfo Skybox;
     public:
         DemoWindow(const char* title, uint32_t width, uint32_t height, Result* result);
 
         void Load() override;
         void Update(double delta) override;
         void Render(double delta) override;
+
+        SkyboxInfo Skybox;
+        Component::ComponentManager<Component::Camera> LightManager;
+        Buffer<DemoUBO>* DemoUniformBuffer;
+        Component::DirectionalLight* Sun;
+
+        Asset::Framebuffer* RenderFrameBuffer;
+        Asset::Shader* PassthroughShader;
+        Asset::VAO* PassthroughVAO;
+        Asset::Texture* PrevFrameTex, *FrameTex, *DepthTex, *PrevDepthTex;
     };
 }
