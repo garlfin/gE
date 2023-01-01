@@ -19,7 +19,7 @@ in FragInfo
 
 out vec4 FragColor;
 
-#define ITERATIONS 150
+#define ITERATIONS 200
 #define MAX_LENGTH 10.0
 #define ROUGHNESS 0.3
 
@@ -28,9 +28,7 @@ void main()
     const vec3 normal = normalize(Normal);
     const vec3 viewDir = normalize(FragPos - Position);
 
-    mat3 rayTBN = mat3(reflect(viewDir, TBN[2]), reflect(viewDir, TBN[1]), reflect(viewDir, TBN[0]));
-
-    const vec3 rayDir = randCone(0.001, rayTBN);
+    const vec3 rayDir = randCone(reflect(viewDir, normal), ROUGHNESS);
     const vec2 screenUV = gl_FragCoord.xy / vec2(1280, 720);
 
     vec3 rayPos = screenToWorld(vec3(screenUV, texture(FrameDepthTex, screenUV).r), true);

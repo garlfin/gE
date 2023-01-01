@@ -92,18 +92,15 @@ void gE::DemoWindow::Load()
 
     Asset::Material* shinyMat = new Asset::PBRMaterial(this, shinyShader);
     Asset::Material* ssrMat = new Asset::PBRMaterial(this, ssrShader);
-    entity->AddComponent(ComponentManager.Create<Component::MaterialHolder>(entity, &shinyMat, 1));
 
-    entity = EntityManager.Create<Entity>(this);
-    CREATE_TRANSFORM(entity);
-    entity->GetComponent<Component::Transform>()->Location.x = 5;
+    entity->GetComponent<Component::Transform>()->Scale = glm::vec3(2);
+    entity->GetComponent<Component::Transform>()->Rotation.x = -90;
     entity->AddComponent(ComponentManager.Create<Component::Renderer>(entity, rMesh));
     entity->AddComponent(ComponentManager.Create<Component::MaterialHolder>(entity, &shinyMat, 1));
 
     entity = EntityManager.Create<Entity>(this);
     CREATE_TRANSFORM(entity);
-    entity->GetComponent<Component::Transform>()->Location.y = -2;
-    entity->GetComponent<Component::Transform>()->Scale = glm::vec3(10);
+    entity->GetComponent<Component::Transform>()->Scale = glm::vec3(2);
     entity->GetComponent<Component::Transform>()->Rotation.x = -90;
 
     entity->AddComponent(ComponentManager.Create<Component::Renderer>(entity, rMeshCopy));

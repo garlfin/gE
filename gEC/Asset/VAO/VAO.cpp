@@ -34,22 +34,21 @@ namespace gE::Asset
         glBindVertexArray(ID);
     }
 
-    VAO::VAO(Window* window, FieldInfo fields, uint32_t triCount, void* data) : GLAsset::GLAsset(window), VBO(window, triCount, sizeof(glm::vec3) + fields.CalculateSize(), (uint8_t*) data), VertCount(triCount)
+    VAO::VAO(Window* window, FieldInfo fields, uint32_t triCount, void* data) : GLAsset::GLAsset(window), VBO(window, triCount, fields.CalculateSize(), (uint8_t*) data), VertCount(triCount)
     {
         glCreateVertexArrays(1, &ID);
 
-        glVertexArrayVertexBuffer(ID, 0, VBO.Get(), 0, sizeof(glm::vec3) + fields.CalculateSize());
+        glVertexArrayVertexBuffer(ID, 0, VBO.Get(), 0, fields.CalculateSize());
 
-
-        uint8_t currentOffset = 0;
-        for(uint8_t i = 0; i < 5; i++, currentOffset += FieldInfo::GetFieldSize(i))
+        for(uint8_t i = 0, currentOffset = 0; i < 5; i++)
         {
-            if(i && !fields.Values[i - 1])
-                continue;
-            //std::cout << (uint32_t) i << std::endl;
+            if(!fields.Values[i]) continue;
+
             glEnableVertexArrayAttrib(ID, i);
             glVertexArrayAttribFormat(ID, i, i == 1 ? 2 : 3, GL_FLOAT, GL_FALSE, currentOffset);
             glVertexArrayAttribBinding(ID, i, 0);
+
+            currentOffset += FieldInfo::GetFieldSize(i);
         }
     }
 }

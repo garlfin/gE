@@ -38,8 +38,9 @@ namespace gE
     struct FieldInfo
     {
         union {
-            bool Values[4];
+            bool Values[5];
             struct {
+                bool HasPosition;
                 bool HasUV;
                 bool HasNormal;
                 bool HasTangent;
@@ -47,13 +48,14 @@ namespace gE
             };
         };
 
-        FieldInfo(bool hasUv, bool hasNormal, bool hasTangent, bool hasColor) : HasUV(hasUv), HasNormal(hasNormal),
+        FieldInfo(bool hasUv, bool hasNormal, bool hasTangent, bool hasColor) : HasPosition(true), HasUV(hasUv),
+                                                                                HasNormal(hasNormal),
                                                                                 HasTangent(hasTangent),
                                                                                 HasColor(hasColor) {}
 
         [[nodiscard]] uint32_t CalculateSize() const
         {
-            return ((uint8_t) HasNormal + HasTangent + HasColor) * sizeof(glm::vec3) + (uint8_t) HasUV * sizeof(glm::vec2);
+            return ((uint8_t) HasPosition + HasNormal + HasTangent + HasColor) * sizeof(glm::vec3) + (uint8_t) HasUV * sizeof(glm::vec2);
         }
 
         [[nodiscard]] static uint8_t GetFieldSize(uint8_t i)

@@ -10,13 +10,13 @@ namespace gE::Asset
     IndexedVAO::IndexedVAO(Window* window, SubMesh* mesh) : VAO(window, mesh->Fields, mesh->VertexCount),
                                                                 p_EBO(window, mesh->FaceCount, 1, mesh->Indices)
     {
-        uint8_t totalVertexOffset = sizeof(glm::vec3) + mesh->Fields.CalculateSize();
-        uint8_t* byteData = new uint8_t[(sizeof(glm::vec3) + mesh->Fields.CalculateSize()) * mesh->VertexCount];
+        uint8_t totalVertexOffset = mesh->Fields.CalculateSize();
+        uint8_t* byteData = new uint8_t[totalVertexOffset * mesh->VertexCount];
 
         // Mandatory position attribute
         for(uint8_t b = 0, offset = 0; b < 5; b++)
         {
-            if(b && !mesh->Fields.Values[b - 1]) continue;
+            if(b && !mesh->Fields.Values[b]) continue;
             for(uint32_t i = 0; i < mesh->VertexCount; i++)
                 if(b - 1)
                     *(glm::vec3*)(byteData + offset + i * totalVertexOffset) = ((glm::vec3*) mesh->GetField(b))[i];

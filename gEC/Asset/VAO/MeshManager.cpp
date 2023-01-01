@@ -100,10 +100,9 @@ void SortVisibleEntities(const gE::Entity** entities, uint32_t count, gE::Window
     {
         auto* renderer = entities[i]->GetComponent<gE::Component::Renderer>();
         auto* transform = entities[i]->GetComponent<gE::Component::Transform>();
-        renderer->IsInView = false;
-
-        if(!window->CameraManager->GetFrustum()->Collide(gE::Math::AABB(mesh->Mesh->Bounds, transform->Model))) continue;
         renderer->IsInView = true;
+
+        //if(window->CameraManager->GetFrustum()->Collide(gE::Math::AABB(mesh->Mesh->Bounds, transform->Model))) renderer->IsInView = true;
     }
 }
 

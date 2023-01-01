@@ -6,6 +6,8 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
+#define FPS_TARGET 144
+
 namespace gE
 {
     Window::Window(const char* const title, const uint32_t width, const uint32_t height, Result* const result)
@@ -47,16 +49,24 @@ namespace gE
         Load();
 
         double pTime = glfwGetTime();
+        uint64_t frame = 0;
+
         while (!glfwWindowShouldClose(GLFWWindow))
         {
             glfwPollEvents();
 
             double nTime = glfwGetTime();
             Update(nTime - pTime); // TODO: Multithread
-            nTime = glfwGetTime();
-            Render(nTime - pTime);
-            pTime = nTime;
 
+
+            if(nTime > frame * (1.0 / FPS_TARGET))
+            {
+                nTime = glfwGetTime();
+                Render(nTime - pTime);
+                frame++;
+            }
+
+            pTime = nTime;
             glfwSwapBuffers(GLFWWindow);
         }
     }
@@ -69,6 +79,7 @@ namespace gE
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, debug);
+        glfwWindowHint(GLFW_REFRESH_RATE, 144);
 
         return OK;
     }

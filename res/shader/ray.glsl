@@ -1,6 +1,6 @@
 #define RAY_THRESHOLD 0.1
-#define RAY_OBJ_THICKNESS 1.0
-#define RAY_REFINE 50
+#define RAY_OBJ_THICKNESS 10.0
+#define RAY_REFINE 10
 
 float linearizeDepth(float z, vec2 planes);
 vec3 worldToScreen(vec3 pos);
@@ -20,8 +20,11 @@ vec2 castRay(inout vec3 rayPos, vec3 dir, float maxLen, uint steps)
         const float delta = screenPos.z - screenDepth;
 
         if(screenPos.z < 0 || max(screenPos.x, screenPos.y) > 1 || min(screenPos.x, screenPos.y) < 0) return vec2(-1.0); // Early exit
-        if(abs(delta) <= RAY_THRESHOLD) return screenPos.xy;
-        if(delta > 0 && delta < RAY_OBJ_THICKNESS) return binaryRefine(rayPos, dir, RAY_REFINE);
+        if(delta > 0)
+        {
+            if(delta <= RAY_THRESHOLD) return screenPos.xy;
+            if(delta < RAY_OBJ_THICKNESS) return binaryRefine(rayPos, dir, RAY_REFINE);
+        }
 
         rayPos += dir;
     }
@@ -76,19 +79,7 @@ float InterleavedGradientNoise(vec2 pos) {
     return fract(magic.z * fract(dot(pos, magic.xy)));
 }
 
-float ditherSample = InterleavedGradientNoise(gl_FragCoord.xy);
-
-vec3 hash(vec3 a)
+vec3 randCone(vec3 normal, float rwadius)
 {
-    a = fract(a);
-    a += dot(a, a.yxz + 19.19);
-    return fract((a.xxy + a.yxx)*a.zyx);
-}
-
-vec3 randCone(float radius, inout mat3 tbn)
-{
-    vec3 h = normalize(hash(FragPos)) * ditherSample;
-    h.xz *= radius;
-
-    return normalize(tbn * normalize(h));
+    return normal;
 }
