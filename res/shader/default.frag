@@ -63,5 +63,4 @@ void main()
 
     FragColor = vec4(texture(sampler2D(Albedo), TexCoord).rgb * light + spec, 1);
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
-
 }

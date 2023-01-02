@@ -24,7 +24,7 @@ namespace gE::Component
         Transform* transform = p_CurrentCamera->GetOwner()->GetComponent<Transform>();
 
         CameraData data(glm::inverse(transform->Model), *p_CurrentCamera->GetProjection(),
-                        transform->Location, glm::vec4(0, p_Window->GetAspectRatio(), p_CurrentCamera->GetClipPlanes()));
+                        transform->Location, glm::vec4(p_CurrentCamera->GetWindow()->GetSize(), p_CurrentCamera->GetClipPlanes()));
 
         p_ViewFrustum = Math::Frustum(data.Projection * data.View);
         p_CameraBuffer.ReplaceData(&data);

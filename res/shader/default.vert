@@ -28,5 +28,6 @@ void main() {
     gl_Position = Projection * View * Model[gl_InstanceID] * vec4(vPos, 1.0);
     FragPosLightSpace = SunMatrix * vec4(FragPos, 1.0);
 
-    TBN = mat3(vTan, normalize(cross(vTan, Normal)), Normal);
+    vec3 tan = normalize(mat3(NormalMatrix[gl_InstanceID]) * vTan);
+    TBN = mat3(tan, normalize(cross(tan, Normal)), Normal);
 }

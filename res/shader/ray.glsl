@@ -79,7 +79,12 @@ float InterleavedGradientNoise(vec2 pos) {
     return fract(magic.z * fract(dot(pos, magic.xy)));
 }
 
-vec3 randCone(vec3 normal, float rwadius)
+vec3 randCone(vec3 incoming, float radius, float i)
 {
-    return normal;
+    vec3 h = vec3(InterleavedGradientNoise(gl_FragCoord.xy + i), max(InterleavedGradientNoise(gl_FragCoord.yx / i), 0.1), InterleavedGradientNoise(gl_FragCoord.zx - i));
+    h = normalize(h);
+    h.xz = h.xy * 2 - 1;
+    h.xz *= radius;
+
+    return reflect(incoming, normalize(h));
 }

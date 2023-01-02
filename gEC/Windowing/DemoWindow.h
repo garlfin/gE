@@ -60,7 +60,7 @@ namespace gE
         Component::DirectionalLight* Sun;
 
         Asset::Framebuffer* RenderFrameBuffer;
-        Asset::Shader* PassthroughShader;
+        Asset::Shader* PassthroughShader, *HiZComputeShader;
         Asset::VAO* PassthroughVAO;
         Asset::Texture* PrevFrameTex, *FrameTex, *DepthTex, *PrevDepthTex;
     };

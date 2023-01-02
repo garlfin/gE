@@ -14,10 +14,6 @@
 #include "glm/trigonometric.hpp"
 #include "../Asset/Texture/Texture2D.h"
 
-
-#define DEPTH_CREATE AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::DEPTH_32f, 1, gE::Asset::TextureFilterMode::NEAREST)
-#define COLOR_CREATE AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::RGBAf_32)
-
 const float PassthroughVertices[]
         {
             -1, -1, 0,
@@ -29,8 +25,10 @@ const float PassthroughVertices[]
         };
 
 #define LOG(msg) std::cout << "LOG: " << msg << std::endl
-
 #define CREATE_TRANSFORM(entity) entity->AddComponent(TransformManager->Create<Component::Transform>(entity))
+#define COLOR_CREATE AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::RGBAf_32)
+#define CEIL_DIV(x, y) ((((x) + (y) - 1) / (y)) ?: 1)
+#define HIZ_WORK_GROUP_SIZE 8
 
 gE::DemoWindow::DemoWindow(const char* const title, const uint32_t width, const uint32_t height, gE::Result* const result)
         : Window(title, width, height, result), LightManager()
@@ -52,11 +50,11 @@ void gE::DemoWindow::Load()
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-
     glDebugMessageCallback(DebugCallback, nullptr);
 
     PassthroughVAO = AssetManager.Create<Asset::VAO>(this, gE::FieldInfo(false, false, false, false), 6, (void*) &PassthroughVertices);
     PassthroughShader = AssetManager.Create<Asset::Shader>(this, "../gEC/Resource/passthrough.vert", "../gEC/Resource/passthrough.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
+    HiZComputeShader = AssetManager.Create<Asset::Shader>(this, "../res/shader/highz.comp");
 
     auto* shinyShader = AssetManager.Create<Asset::Shader>(this, "../res/shader/default.vert", "../res/shader/default.frag");
     auto* ssrShader = AssetManager.Create<Asset::Shader>(this, "../res/shader/default.vert", "../res/shader/ssr.frag");
@@ -67,8 +65,8 @@ void gE::DemoWindow::Load()
     AssetManager.Add(tex = Utility::LoadPVR(this, "../x.pvr", nullptr));
     AssetManager.Add(Skybox.SkyboxTexture = Utility::LoadPVR(this, "../sky.pvr", nullptr));
 
-    DepthTex = DEPTH_CREATE;
-    PrevDepthTex = DEPTH_CREATE;
+    DepthTex = AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::DEPTH_32f, 0, gE::Asset::TextureFilterMode::NEAREST);
+    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::DEPTH_32f, 0, gE::Asset::TextureFilterMode::NEAREST);
     FrameTex = COLOR_CREATE;
     PrevFrameTex = COLOR_CREATE;
 
@@ -84,7 +82,7 @@ void gE::DemoWindow::Load()
     auto* rMesh = new Asset::RenderMesh(this, meshes);
 
     meshes = gE::LoadgEMeshFromIntermediate("../plane.dae", &meshCount);
-    auto* rMeshCopy = new Asset::RenderMesh(this, meshes); // todo finally implement materials because this is really really stupid
+    auto* rMeshCopy = new Asset::RenderMesh(this, meshes); // TODO: finally implement materials because this is really really stupid
 
     auto* entity = EntityManager.Create<Entity>(this);
     CREATE_TRANSFORM(entity);
@@ -165,12 +163,23 @@ void gE::DemoWindow::Render(double delta)
 
     Stage = Windowing::Stage::PostProcess;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    PassthroughShader->Use();
+    HiZComputeShader->Use(); // TODO: Change to ping-pong system instead of copies
 
     glCopyImageSubData(FrameTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, PrevFrameTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, GetSize().x, GetSize().y, 1);
     glCopyImageSubData(DepthTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, PrevDepthTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, GetSize().x, GetSize().y, 1);
+    glProgramUniform1i(HiZComputeShader->Get(), 0, DepthTex->Use(0));
+    for(uint8_t i = 1; i < DepthTex->GetMipCount(); i++)
+    {
+        auto mipSize = DepthTex->GetSize(i - 1);
+        PrevDepthTex->Bind(1, Asset::AccessMode::WRITE, i);
+        glProgramUniform2uiv(HiZComputeShader->Get(), 2, 1, (GLuint*) &mipSize);
+        glDispatchCompute(CEIL_DIV(mipSize.x, HIZ_WORK_GROUP_SIZE), CEIL_DIV(mipSize.y, HIZ_WORK_GROUP_SIZE), 1);
+        mipSize = DepthTex->GetSize(i);
+        glCopyImageSubData(PrevDepthTex->Get(), GL_TEXTURE_2D, i, 0, 0, 0, DepthTex->Get(), GL_TEXTURE_2D, i, 0, 0, 0, mipSize.x, mipSize.y, 1);
+    }
 
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    PassthroughShader->Use();
     glProgramUniform1i(PassthroughShader->Get(), 0, FrameTex->Use(1));
     PassthroughVAO->Draw(1);
 }

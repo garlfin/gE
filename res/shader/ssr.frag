@@ -21,23 +21,25 @@ out vec4 FragColor;
 
 #define ITERATIONS 200
 #define MAX_LENGTH 10.0
-#define ROUGHNESS 0.3
+#define ROUGHNESS 0.1
 
 void main()
 {
     const vec3 normal = normalize(Normal);
     const vec3 viewDir = normalize(FragPos - Position);
-
-    const vec3 rayDir = randCone(reflect(viewDir, normal), ROUGHNESS);
-    const vec2 screenUV = gl_FragCoord.xy / vec2(1280, 720);
-
+    const vec2 screenUV = gl_FragCoord.xy / Info.xy;
+    const vec3 rayDir = reflect(viewDir, normal);
     vec3 rayPos = screenToWorld(vec3(screenUV, texture(FrameDepthTex, screenUV).r), true);
-    vec2 reflection = castRay(rayPos, rayDir, MAX_LENGTH, ITERATIONS);
 
-    if(reflection.x == -1.0)
-        FragColor = pow(texture(SkyboxTex, -rayDir), vec4(1.0 / 2.2));
+
+    FragColor = textureLod(FrameDepthTex, screenUV, 0.8);
+    return;
+
+    vec2 reflection = castRay(rayPos, rayDir, MAX_LENGTH, ITERATIONS);
+    if (reflection.x == -1.0)
+         FragColor = pow(texture(SkyboxTex, -reflect(viewDir, normal)), vec4(1.0 / 2.2));
     else
-        FragColor = texture(FrameColorTex, reflection);
+         FragColor = texture(FrameColorTex, reflection);
 }
 
 

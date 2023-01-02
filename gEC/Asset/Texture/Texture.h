@@ -64,6 +64,7 @@ namespace gE::Asset
         [[nodiscard]] uint64_t GetHandle() { if(!Handle) CreateHandle(); return Handle; }
 
         void CalculateMipCount();
+        uint8_t GetMipCount() { return MipMapCount; }
         void CreateHandle();
         virtual uint32_t Use(uint32_t slot);
         virtual uint32_t Bind(uint32_t slot, AccessMode accessMode, uint8_t level = 0);
