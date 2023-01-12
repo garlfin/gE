@@ -28,7 +28,7 @@ const float PassthroughVertices[]
 #define CREATE_TRANSFORM(entity) entity->AddComponent(TransformManager->Create<Component::Transform>(entity))
 #define COLOR_CREATE AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::RGBAf_32)
 #define CEIL_DIV(x, y) ((((x) + (y) - 1) / (y)) ?: 1)
-#define HIZ_WORK_GROUP_SIZE 8
+#define HIZ_WORK_GROUP_SIZE 32
 
 gE::DemoWindow::DemoWindow(const char* const title, const uint32_t width, const uint32_t height, gE::Result* const result)
         : Window(title, width, height, result), LightManager()
@@ -65,8 +65,8 @@ void gE::DemoWindow::Load()
     AssetManager.Add(tex = Utility::LoadPVR(this, "../x.pvr", nullptr));
     AssetManager.Add(Skybox.SkyboxTexture = Utility::LoadPVR(this, "../sky.pvr", nullptr));
 
-    DepthTex = AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::DEPTH_32f, 0, gE::Asset::TextureFilterMode::NEAREST);
-    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::DEPTH_32f, 0, gE::Asset::TextureFilterMode::NEAREST);
+    DepthTex = AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::DEPTH_32F, 0, gE::Asset::TextureFilterMode::NEAREST);
+    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::RED_32F, 0, gE::Asset::TextureFilterMode::NEAREST);
     FrameTex = COLOR_CREATE;
     PrevFrameTex = COLOR_CREATE;
 
@@ -84,18 +84,16 @@ void gE::DemoWindow::Load()
     meshes = gE::LoadgEMeshFromIntermediate("../plane.dae", &meshCount);
     auto* rMeshCopy = new Asset::RenderMesh(this, meshes); // TODO: finally implement materials because this is really really stupid
 
+    Asset::Material* shinyMat = new Asset::PBRMaterial(this, shinyShader);
     auto* entity = EntityManager.Create<Entity>(this);
     CREATE_TRANSFORM(entity);
-    entity->AddComponent(ComponentManager.Create<Component::Renderer>(entity, rMesh));
-
-    Asset::Material* shinyMat = new Asset::PBRMaterial(this, shinyShader);
-    Asset::Material* ssrMat = new Asset::PBRMaterial(this, ssrShader);
-
     entity->GetComponent<Component::Transform>()->Scale = glm::vec3(2);
     entity->GetComponent<Component::Transform>()->Rotation.x = -90;
     entity->AddComponent(ComponentManager.Create<Component::Renderer>(entity, rMesh));
     entity->AddComponent(ComponentManager.Create<Component::MaterialHolder>(entity, &shinyMat, 1));
 
+
+    Asset::Material* ssrMat = new Asset::PBRMaterial(this, ssrShader);
     entity = EntityManager.Create<Entity>(this);
     CREATE_TRANSFORM(entity);
     entity->GetComponent<Component::Transform>()->Scale = glm::vec3(2);
@@ -167,15 +165,16 @@ void gE::DemoWindow::Render(double delta)
 
     glCopyImageSubData(FrameTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, PrevFrameTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, GetSize().x, GetSize().y, 1);
     glCopyImageSubData(DepthTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, PrevDepthTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, GetSize().x, GetSize().y, 1);
-    glProgramUniform1i(HiZComputeShader->Get(), 0, DepthTex->Use(0));
-    for(uint8_t i = 1; i < DepthTex->GetMipCount(); i++)
+
+    for(uint8_t i = 1; i < PrevDepthTex->GetMipCount(); i++)
     {
-        auto mipSize = DepthTex->GetSize(i - 1);
+        auto mipSize = glm::uvec3(PrevDepthTex->GetSize(i - 1), i - 1);
+
         PrevDepthTex->Bind(1, Asset::AccessMode::WRITE, i);
-        glProgramUniform2uiv(HiZComputeShader->Get(), 2, 1, (GLuint*) &mipSize);
+        PrevDepthTex->Bind(0, Asset::AccessMode::READ, i - 1);
+
+        glProgramUniform3uiv(HiZComputeShader->Get(), 2, 1, (GLuint*) &mipSize);
         glDispatchCompute(CEIL_DIV(mipSize.x, HIZ_WORK_GROUP_SIZE), CEIL_DIV(mipSize.y, HIZ_WORK_GROUP_SIZE), 1);
-        mipSize = DepthTex->GetSize(i);
-        glCopyImageSubData(PrevDepthTex->Get(), GL_TEXTURE_2D, i, 0, 0, 0, DepthTex->Get(), GL_TEXTURE_2D, i, 0, 0, 0, mipSize.x, mipSize.y, 1);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -34,7 +34,8 @@ namespace gE::Asset
         RGBf_32 = 9042521072232306,
         RGBAi_32,
         RGBi_32,
-        DEPTH_32f = 0x8CAC
+        DEPTH_32F = 0x8CAC,
+        RED_32F
     };
 
     enum class AccessMode : uint64_t

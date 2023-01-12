@@ -29,11 +29,7 @@ void main()
     const vec3 viewDir = normalize(FragPos - Position);
     const vec2 screenUV = gl_FragCoord.xy / Info.xy;
     const vec3 rayDir = reflect(viewDir, normal);
-    vec3 rayPos = screenToWorld(vec3(screenUV, texture(FrameDepthTex, screenUV).r), true);
-
-
-    FragColor = textureLod(FrameDepthTex, screenUV, 0.8);
-    return;
+    vec3 rayPos = screenToWorld(vec3(screenUV, textureLod(FrameDepthTex, screenUV, 0).r), true);
 
     vec2 reflection = castRay(rayPos, rayDir, MAX_LENGTH, ITERATIONS);
     if (reflection.x == -1.0)

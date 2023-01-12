@@ -30,8 +30,7 @@ namespace gE::Asset
 
     uint32_t Texture::Bind(uint32_t slot, AccessMode accessMode, uint8_t mip)
     {
-        auto format = FormatToPixelFormat(Format);
-        glBindImageTexture(slot, ID, mip, GL_FALSE, 0, (GLenum) accessMode, format == GL_DEPTH_COMPONENT32F ? GL_R32F : format );
+        glBindImageTexture(slot, ID, mip, GL_FALSE, 0, (GLenum) accessMode, FormatToPixelFormat(Format) );
         return slot;
     }
 
@@ -66,8 +65,10 @@ namespace gE::Asset
                 return GL_RGB32F;
             case gE::Asset::TextureType::RGBAf_32:
                 return GL_RGBA32F;
-            case gE::Asset::TextureType::DEPTH_32f:
+            case gE::Asset::TextureType::DEPTH_32F:
                 return GL_DEPTH_COMPONENT32F;
+            case gE::Asset::TextureType::RED_32F:
+                return GL_R32F;
             default:
                 return GL_RGBA32UI;
         };
@@ -76,6 +77,7 @@ namespace gE::Asset
     GLenum FormatToPixelType(gE::Asset::TextureType type)
     {
         if (type == TextureType::RGBf_32) return GL_RGB;
+        if (type == TextureType::RED_32F) return GL_RED;
         return GL_RGBA; // TODO
     }
 

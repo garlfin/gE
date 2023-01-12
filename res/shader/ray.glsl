@@ -16,7 +16,7 @@ vec2 castRay(inout vec3 rayPos, vec3 dir, float maxLen, uint steps)
     for(uint i = 0; i < steps; i++)
     {
         const vec3 screenPos = worldToScreen(rayPos);
-        const float screenDepth = linearizeDepth(texture(FrameDepthTex, screenPos.xy).r, Info.zw);
+        const float screenDepth = linearizeDepth(textureLod(FrameDepthTex, screenPos.xy, 0).r, Info.zw);
         const float delta = screenPos.z - screenDepth;
 
         if(screenPos.z < 0 || max(screenPos.x, screenPos.y) > 1 || min(screenPos.x, screenPos.y) < 0) return vec2(-1.0); // Early exit
@@ -39,7 +39,7 @@ vec2 binaryRefine(inout vec3 rayPos, vec3 dir, uint steps)
     for(uint i = 0; i < steps; i++)
     {
         screenPos = worldToScreen(rayPos);
-        const float screenDepth = linearizeDepth(texture(FrameDepthTex, screenPos.xy).r, Info.zw);
+        const float screenDepth = linearizeDepth(textureLod(FrameDepthTex, screenPos.xy, 0).r, Info.zw);
         const float delta = screenPos.z - screenDepth;
 
         if(abs(delta) <= RAY_THRESHOLD) return screenPos.xy;
