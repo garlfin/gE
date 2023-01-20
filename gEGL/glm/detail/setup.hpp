@@ -775,7 +775,7 @@ namespace detail
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Only use x, y, z, w as vector type components
+// Only use x, y, z, w as vector type Components
 
 #ifdef GLM_FORCE_XYZW_ONLY
 #	define GLM_CONFIG_XYZW_ONLY GLM_ENABLE

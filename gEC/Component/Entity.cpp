@@ -6,15 +6,15 @@
 #include "../Windowing/Window.h"
 
 gE::Entity::Entity(gE::Window* window, gE::Entity* parent, const char* name)
-    : p_Window(window), p_Parent(parent), p_Name(name)
+    : OwningWindow(window), Parent(parent), Name(name), Components(nullptr), ComponentCount(0)
 {
 
 }
 
 void gE::Entity::Destroy()
 {
-    for (Component::Component* const component: p_Components)
-        component->FlagDeletion();
+    for (uint32_t i = 0; i < ComponentCount; i++)
+        Components[i]->FlagDeletion();
     GetWindow()->EntityManager.Destroy(this);
 }
 

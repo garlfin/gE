@@ -29,5 +29,5 @@ void main() {
     FragPosLightSpace = SunMatrix * vec4(FragPos, 1.0);
 
     vec3 tan = normalize(mat3(NormalMatrix[gl_InstanceID]) * vTan);
-    TBN = mat3(tan, normalize(cross(tan, Normal)), Normal);
+    TBN = mat3(tan, normalize(cross(Normal, tan)), Normal);
 }

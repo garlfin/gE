@@ -4,7 +4,7 @@
 /// @defgroup ext_vector_int4_sized GLM_EXT_vector_int4_sized
 /// @ingroup ext
 ///
-/// Exposes sized signed integer vector of 4 components type.
+/// Exposes sized signed integer vector of 4 Components type.
 ///
 /// Include <glm/ext/vector_int4_sized.hpp> to use the features of this extension.
 ///
@@ -25,22 +25,22 @@ namespace glm
 	/// @addtogroup ext_vector_int4_sized
 	/// @{
 
-	/// 8 bit signed integer vector of 4 components type.
+	/// 8 bit signed integer vector of 4 Components type.
 	///
 	/// @see ext_vector_int4_sized
 	typedef vec<4, int8, defaultp>		i8vec4;
 
-	/// 16 bit signed integer vector of 4 components type.
+	/// 16 bit signed integer vector of 4 Components type.
 	///
 	/// @see ext_vector_int4_sized
 	typedef vec<4, int16, defaultp>		i16vec4;
 
-	/// 32 bit signed integer vector of 4 components type.
+	/// 32 bit signed integer vector of 4 Components type.
 	///
 	/// @see ext_vector_int4_sized
 	typedef vec<4, int32, defaultp>		i32vec4;
 
-	/// 64 bit signed integer vector of 4 components type.
+	/// 64 bit signed integer vector of 4 Components type.
 	///
 	/// @see ext_vector_int4_sized
 	typedef vec<4, int64, defaultp>		i64vec4;

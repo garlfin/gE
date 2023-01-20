@@ -86,7 +86,7 @@ public:
     /** construction from 3x3 matrix, remaining elements are set to identity */
     explicit aiMatrix4x4t( const aiMatrix3x3t<TReal>& m);
 
-    /** construction from position, rotation and scaling components
+    /** construction from position, rotation and scaling Components
      * @param scaling The scaling for the x,y,z axes
      * @param rotation The rotation as a hamilton quaternion
      * @param position The position for the x,y,z axes
@@ -141,7 +141,7 @@ public:
     inline bool IsIdentity() const;
 
     // -------------------------------------------------------------------
-    /** @brief Decompose a trafo matrix into its original components
+    /** @brief Decompose a trafo matrix into its original Components
      *  @param scaling Receives the output scaling for the x,y,z axes
      *  @param rotation Receives the output rotation as a hamilton
      *   quaternion
@@ -152,7 +152,7 @@ public:
 
 	// -------------------------------------------------------------------
 	/** @fn void Decompose(aiVector3t<TReal>& pScaling, aiVector3t<TReal>& pRotation, aiVector3t<TReal>& pPosition) const
-     *  @brief Decompose a trafo matrix into its original components.
+     *  @brief Decompose a trafo matrix into its original Components.
      * Thx to good FAQ at http://www.gamedev.ru/code/articles/faq_matrix_quat
      *  @param [out] pScaling - Receives the output scaling for the x,y,z axes.
      *  @param [out] pRotation - Receives the output rotation as a Euler angles.
@@ -162,7 +162,7 @@ public:
 
 	// -------------------------------------------------------------------
 	/** @fn void Decompose(aiVector3t<TReal>& pScaling, aiVector3t<TReal>& pRotationAxis, TReal& pRotationAngle, aiVector3t<TReal>& pPosition) const
-     *  @brief Decompose a trafo matrix into its original components
+     *  @brief Decompose a trafo matrix into its original Components
 	 * Thx to good FAQ at http://www.gamedev.ru/code/articles/faq_matrix_quat
      *  @param [out] pScaling - Receives the output scaling for the x,y,z axes.
      *  @param [out] pRotationAxis - Receives the output rotation axis.
@@ -173,7 +173,7 @@ public:
 
     // -------------------------------------------------------------------
     /** @brief Decompose a trafo matrix with no scaling into its
-     *    original components
+     *    original Components
      *  @param rotation Receives the output rotation as a hamilton
      *    quaternion
      *  @param position Receives the output position for the x,y,z axes

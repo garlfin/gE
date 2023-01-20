@@ -72,7 +72,7 @@ namespace glm
 
 		typedef length_t length_type;
 
-		/// Return the count of components of a quaternion
+		/// Return the count of Components of a quaternion
 		GLM_FUNC_DECL static GLM_CONSTEXPR length_type length(){return 4;}
 
 		GLM_FUNC_DECL GLM_CONSTEXPR T & operator[](length_type i);

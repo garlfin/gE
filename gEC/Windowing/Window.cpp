@@ -6,12 +6,12 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-#define FPS_TARGET 144
+#define FPS_TARGET 60
 
 namespace gE
 {
     Window::Window(const char* const title, const uint32_t width, const uint32_t height, Result* const result)
-            : Title(title), Size(width, height), IncludeManager(), ComponentManager()
+            : Title(title), Size(width, height), EntityManager(this), IncludeManager(this), ComponentManager(this), AssetManager(this), BehaviorManager(this)
     {
         GLFWWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
@@ -64,10 +64,11 @@ namespace gE
                 nTime = glfwGetTime();
                 Render(nTime - pTime);
                 frame++;
+
+                glfwSwapBuffers(GLFWWindow);
             }
 
             pTime = nTime;
-            glfwSwapBuffers(GLFWWindow);
         }
     }
 

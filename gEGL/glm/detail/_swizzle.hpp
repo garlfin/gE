@@ -45,7 +45,7 @@ namespace detail
 		Template parameters:
 
 		T			= type of scalar values (e.g. float, double)
-		N			= number of components in the vector (e.g. 3)
+		N			= number of Components in the vector (e.g. 3)
 		E0...3		= what index the n-th element of this swizzle refers to in the unswizzled vec
 
 		DUPLICATE_ELEMENTS = 1 if there is a repeated element, 0 otherwise (used to specialize swizzles

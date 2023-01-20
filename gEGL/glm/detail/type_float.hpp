@@ -29,7 +29,7 @@ namespace detail
 			return *this;
 		}
 
-		// Portable extraction of components.
+		// Portable extraction of Components.
 		GLM_CONSTEXPR bool negative() const { return i < 0; }
 		GLM_CONSTEXPR int_type mantissa() const { return i & ((1 << 23) - 1); }
 		GLM_CONSTEXPR int_type exponent() const { return (i >> 23) & ((1 << 8) - 1); }
@@ -52,7 +52,7 @@ namespace detail
 			return *this;
 		}
 
-		// Portable extraction of components.
+		// Portable extraction of Components.
 		GLM_CONSTEXPR bool negative() const { return i < 0; }
 		GLM_CONSTEXPR int_type mantissa() const { return i & ((int_type(1) << 52) - 1); }
 		GLM_CONSTEXPR int_type exponent() const { return (i >> 52) & ((int_type(1) << 11) - 1); }

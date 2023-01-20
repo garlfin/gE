@@ -17,7 +17,7 @@
 ///
 /// @defgroup core_vector Vector types
 ///
-/// Vector types of two to four components with an exhaustive set of operators.
+/// Vector types of two to four Components with an exhaustive set of operators.
 ///
 /// @ingroup core
 ///

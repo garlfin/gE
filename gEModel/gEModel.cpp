@@ -31,8 +31,10 @@ Mesh* gETF::GetMesh(uint32_t i)
 
 Mesh* gE::LoadgEMeshFromIntermediate(const char* const path, uint32_t* count)
 {
-    Assimp::Importer importer{};
+    uint32_t countI;
+    if(!count) count = &countI;
 
+    Assimp::Importer importer{};
     const aiScene* scene = importer.ReadFile(path, PP_FLAGS | aiProcess_GenBoundingBoxes);
 
     std::vector<std::pair<std::vector<aiMesh*>, aiString*>> aiData{};

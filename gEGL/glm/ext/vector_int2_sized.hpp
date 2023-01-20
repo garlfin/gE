@@ -4,7 +4,7 @@
 /// @defgroup ext_vector_int2_sized GLM_EXT_vector_int2_sized
 /// @ingroup ext
 ///
-/// Exposes sized signed integer vector of 2 components type.
+/// Exposes sized signed integer vector of 2 Components type.
 ///
 /// Include <glm/ext/vector_int2_sized.hpp> to use the features of this extension.
 ///
@@ -25,22 +25,22 @@ namespace glm
 	/// @addtogroup ext_vector_int2_sized
 	/// @{
 
-	/// 8 bit signed integer vector of 2 components type.
+	/// 8 bit signed integer vector of 2 Components type.
 	///
 	/// @see ext_vector_int2_sized
 	typedef vec<2, int8, defaultp>		i8vec2;
 
-	/// 16 bit signed integer vector of 2 components type.
+	/// 16 bit signed integer vector of 2 Components type.
 	///
 	/// @see ext_vector_int2_sized
 	typedef vec<2, int16, defaultp>		i16vec2;
 
-	/// 32 bit signed integer vector of 2 components type.
+	/// 32 bit signed integer vector of 2 Components type.
 	///
 	/// @see ext_vector_int2_sized
 	typedef vec<2, int32, defaultp>		i32vec2;
 
-	/// 64 bit signed integer vector of 2 components type.
+	/// 64 bit signed integer vector of 2 Components type.
 	///
 	/// @see ext_vector_int2_sized
 	typedef vec<2, int64, defaultp>		i64vec2;

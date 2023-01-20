@@ -227,7 +227,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // ---------------------------------------------------------------------------
 /** @brief Configures the #aiProcess_PreTransformVertices step to normalize
- *  all vertex components into the [-1,1] range. That is, a bounding box
+ *  all vertex Components into the [-1,1] range. That is, a bounding box
  *  for the whole scene is computed, the maximum component is taken and all
  *  meshes are scaled appropriately (uniformly of course!).
  *  This might be useful if you don't know the spatial dimension of the input
@@ -386,7 +386,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define AI_CONFIG_PP_ICL_PTCACHE_SIZE   "PP_ICL_PTCACHE_SIZE"
 
 // ---------------------------------------------------------------------------
-/** @brief Enumerates components of the aiScene and aiMesh data structures
+/** @brief Enumerates Components of the aiScene and aiMesh data structures
  *  that can be excluded from the import using the #aiProcess_RemoveComponent step.
  *
  *  See the documentation to #aiProcess_RemoveComponent for more details.
@@ -493,7 +493,7 @@ enum aiComponent
  *  and removes them. This tweakable controls the epsilon for floating-point
  *  comparisons - two keys are considered equal if the invariant
  *  abs(n0-n1)>epsilon holds true for all vector respectively quaternion
- *  components. The default value is 0.f - comparisons are exact then.
+ *  Components. The default value is 0.f - comparisons are exact then.
  */
 #define AI_CONFIG_PP_FID_ANIM_ACCURACY              \
     "PP_FID_ANIM_ACCURACY"

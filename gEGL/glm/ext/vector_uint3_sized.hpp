@@ -4,7 +4,7 @@
 /// @defgroup ext_vector_uint3_sized GLM_EXT_vector_uint3_sized
 /// @ingroup ext
 ///
-/// Exposes sized unsigned integer vector of 3 components type.
+/// Exposes sized unsigned integer vector of 3 Components type.
 ///
 /// Include <glm/ext/vector_uint3_sized.hpp> to use the features of this extension.
 ///
@@ -25,22 +25,22 @@ namespace glm
 	/// @addtogroup ext_vector_uint3_sized
 	/// @{
 
-	/// 8 bit unsigned integer vector of 3 components type.
+	/// 8 bit unsigned integer vector of 3 Components type.
 	///
 	/// @see ext_vector_uint3_sized
 	typedef vec<3, uint8, defaultp>		u8vec3;
 
-	/// 16 bit unsigned integer vector of 3 components type.
+	/// 16 bit unsigned integer vector of 3 Components type.
 	///
 	/// @see ext_vector_uint3_sized
 	typedef vec<3, uint16, defaultp>	u16vec3;
 
-	/// 32 bit unsigned integer vector of 3 components type.
+	/// 32 bit unsigned integer vector of 3 Components type.
 	///
 	/// @see ext_vector_uint3_sized
 	typedef vec<3, uint32, defaultp>	u32vec3;
 
-	/// 64 bit unsigned integer vector of 3 components type.
+	/// 64 bit unsigned integer vector of 3 Components type.
 	///
 	/// @see ext_vector_uint3_sized
 	typedef vec<3, uint64, defaultp>	u64vec3;

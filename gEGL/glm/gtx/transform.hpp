@@ -47,7 +47,7 @@ namespace glm
 		T angle,
 		vec<3, T, Q> const& v);
 
-	/// Transforms a matrix with a scale 4 * 4 matrix created from a vector of 3 components.
+	/// Transforms a matrix with a scale 4 * 4 matrix created from a vector of 3 Components.
 	/// @see gtc_matrix_transform
 	/// @see gtx_transform
 	template<typename T, qualifier Q>

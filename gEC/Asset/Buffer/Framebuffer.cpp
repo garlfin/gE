@@ -5,8 +5,6 @@
 #include "GLAD/glad.h"
 #include "Framebuffer.h"
 
-static unsigned BIND_COUNT = 0;
-
 namespace gE::Asset
 {
     Framebuffer::~Framebuffer()

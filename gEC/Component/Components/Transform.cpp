@@ -22,7 +22,9 @@ namespace gE::Component
 
     void Transform::OnUpdate(double delta)
     {
-        Model = glm::translate(glm::mat4(1.0), Location);
+        gE::Component::Transform* t = nullptr;
+        if(p_Owner->GetParent()) t = p_Owner->GetParent()->GetComponent<gE::Component::Transform>();
+        Model = glm::translate(t ? t->Model : glm::mat4(1), Location);
         Model *= glm::rotate(glm::radians(Rotation.z), glm::vec3(0, 0, 1));
         Model *= glm::rotate(glm::radians(Rotation.y), glm::vec3(0, 1, 0));
         Model *= glm::rotate(glm::radians(Rotation.x), glm::vec3(1, 0, 0));

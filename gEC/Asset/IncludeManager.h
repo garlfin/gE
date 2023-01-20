@@ -9,9 +9,11 @@
 
 namespace gE::Asset
 {
-    class IncludeManager : public AssetManager<std::pair<const char*, const char*>>
+    class IncludeManager : public AssetManager<std::pair<const char*, const char*>, false>
     {
     public:
+        explicit IncludeManager(Window* window) : AssetManager<std::pair<const char *, const char *>, false>(window) {};
+
         // Pair: path, value
         const char* LoadIncludesRecurse(const char* path);
         uint32_t FindIncludeFileLength(const char* path) const;

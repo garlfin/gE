@@ -5,7 +5,6 @@
 layout(local_size_x = GROUP_SIZE / 2, local_size_y = GROUP_SIZE / 2, local_size_z = 1) in;
 layout(binding = 0, r32f) restrict readonly uniform image2D DepthIn;
 layout(binding = 1, r32f) restrict writeonly uniform image2D DepthOut;
-layout(location = 2) uniform uvec3 Info;
 
 void main()
 {

@@ -7,18 +7,21 @@
 #include <vector>
 #include "../Result.h"
 
+namespace gE { class Window; }
+
 namespace gE::Asset
 {
-    template<typename T>
+    template<typename T, bool useWindow = true>
     class AssetManager
     {
     protected:
         std::vector<T*> p_Assets;
         std::vector<T*> p_Instantiation;
         std::vector<T*> p_Deletion;
+        Window* p_Window;
         virtual void Destruct(T* t) { delete t; }
     public:
-        AssetManager() : p_Assets(), p_Instantiation(), p_Deletion() {}
+        explicit AssetManager(Window* window) : p_Assets(), p_Instantiation(), p_Deletion(), p_Window(window) {}
         ~AssetManager() {
             for(T* asset : p_Assets)
                 delete asset;
@@ -29,7 +32,11 @@ namespace gE::Asset
         {
             static_assert(std::is_base_of<T, I>::value, "'I' must inherit from 'T'");
 
-            I* i = new I(std::forward<Args>(args)...);
+            I* i;
+            if constexpr(useWindow)
+                i = new I(p_Window, std::forward<Args>(args)...);
+            else
+                i = new I(std::forward<Args>(args)...);
             p_Assets.push_back(i);
             p_Instantiation.push_back(i);
 
@@ -55,9 +62,10 @@ namespace gE::Asset
             return result;
         }
 
-        void Add(T* ptr)
+        T* Add(T* ptr)
         {
             p_Assets.push_back(ptr);
+            return ptr;
         }
 
         virtual void OnUpdate(double delta)

@@ -8,6 +8,7 @@
 #include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
 #include "../../Asset/Buffer/Buffer.h"
+#include "gEModel.h"
 
 #define MAX_INSTANCE_COUNT 100u
 
@@ -17,6 +18,8 @@ namespace gE::Component
     {
     public:
         Transform(Entity* owner) : Component::Component(owner), Location(0.0), Rotation(0.0), Scale(1.0) {};
+        Transform(Entity* owner, gE::Transform const& t) : Component::Component(owner), Location(t.Location), Rotation(t.Rotation), Scale(t.Scale) {};
+
 
         glm::vec3 Location;
         glm::vec3 Rotation;
@@ -41,10 +44,10 @@ namespace gE::Component
     {
     private:
         Buffer<ObjectInfo> p_Buffer;
-        ObjectInfo p_Info;
+        ObjectInfo p_Info{};
 
     public:
-        TransformManager(Window* window) : ComponentManager<Transform>(), p_Buffer(window)
+        explicit TransformManager(gE::Window* window) : ComponentManager<Transform>(nullptr), p_Buffer(window)
         {
             p_Buffer.Bind(1, BufferTarget::UNIFORM);
         }

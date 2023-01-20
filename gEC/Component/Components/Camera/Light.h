@@ -22,7 +22,7 @@ namespace gE::Component
     public:
         Light(Entity* entity, Asset::Texture* shadowMap);
 
-        [[nodiscard]] Asset::Texture* const GetShadowMap() const { return ShadowMap; }
+        [[nodiscard]] Asset::Texture* GetShadowMap() const { return ShadowMap; }
 
         ~Light();
 

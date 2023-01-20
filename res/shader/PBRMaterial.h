@@ -6,14 +6,13 @@
 
 
 #include "../../gEC/Asset/Shader/Material.h"
-#include "../../gEC/Windowing/DemoWindow.h"
 
 namespace gE::Asset
 {
     class PBRMaterial final : public Material
     {
     public:
-        PBRMaterial(gE::DemoWindow* pWindow, Shader* pShader);
+        PBRMaterial(gE::Window* pWindow, Shader* pShader);
 
         void MandatorySetup() override;
         void RenderStageSetup() override;

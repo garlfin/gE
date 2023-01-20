@@ -86,7 +86,7 @@ namespace glm
 
 		typedef length_t length_type;
 
-		/// Return the count of components of the vector
+		/// Return the count of Components of the vector
 		GLM_FUNC_DECL static GLM_CONSTEXPR length_type length(){return 4;}
 
 		GLM_FUNC_DECL GLM_CONSTEXPR T & operator[](length_type i);

@@ -4,7 +4,7 @@
 /// @defgroup ext_vector_uint2_sized GLM_EXT_vector_uint2_sized
 /// @ingroup ext
 ///
-/// Exposes sized unsigned integer vector of 2 components type.
+/// Exposes sized unsigned integer vector of 2 Components type.
 ///
 /// Include <glm/ext/vector_uint2_sized.hpp> to use the features of this extension.
 ///
@@ -25,22 +25,22 @@ namespace glm
 	/// @addtogroup ext_vector_uint2_sized
 	/// @{
 
-	/// 8 bit unsigned integer vector of 2 components type.
+	/// 8 bit unsigned integer vector of 2 Components type.
 	///
 	/// @see ext_vector_uint2_sized
 	typedef vec<2, uint8, defaultp>		u8vec2;
 
-	/// 16 bit unsigned integer vector of 2 components type.
+	/// 16 bit unsigned integer vector of 2 Components type.
 	///
 	/// @see ext_vector_uint2_sized
 	typedef vec<2, uint16, defaultp>	u16vec2;
 
-	/// 32 bit unsigned integer vector of 2 components type.
+	/// 32 bit unsigned integer vector of 2 Components type.
 	///
 	/// @see ext_vector_uint2_sized
 	typedef vec<2, uint32, defaultp>	u32vec2;
 
-	/// 64 bit unsigned integer vector of 2 components type.
+	/// 64 bit unsigned integer vector of 2 Components type.
 	///
 	/// @see ext_vector_uint2_sized
 	typedef vec<2, uint64, defaultp>	u64vec2;

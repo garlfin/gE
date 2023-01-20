@@ -11,8 +11,11 @@
 #include "../Component/Components/Camera/PerspectiveCamera.h"
 #include "../Component/Components/MaterialHolder.h"
 #include "../../res/shader/PBRMaterial.h"
-#include "glm/trigonometric.hpp"
+#include <glm/trigonometric.hpp>
+#include "../Asset/Buffer/Renderbuffer.h"
 #include "../Asset/Texture/Texture2D.h"
+#include "../../res/script/StaticRenderer.h"
+#include "../../res/script/InventoryScript.h"
 
 const float PassthroughVertices[]
         {
@@ -24,14 +27,12 @@ const float PassthroughVertices[]
             1, -1, 0
         };
 
-#define LOG(msg) std::cout << "LOG: " << msg << std::endl
-#define CREATE_TRANSFORM(entity) entity->AddComponent(TransformManager->Create<Component::Transform>(entity))
-#define COLOR_CREATE AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::RGBAf_32)
+#define LOG(msg) std::cout << "LOG: " << msg << std::endl)
 #define CEIL_DIV(x, y) ((((x) + (y) - 1) / (y)) ?: 1)
 #define HIZ_WORK_GROUP_SIZE 32
 
 gE::DemoWindow::DemoWindow(const char* const title, const uint32_t width, const uint32_t height, gE::Result* const result)
-        : Window(title, width, height, result), LightManager()
+        : Window(title, width, height, result), LightManager(this)
 { }
 
 void APIENTRY DebugCallback(GLenum src, GLenum type, GLuint id, GLenum severity, GLsizei len, const GLchar* msg, const void* usrPrm)
@@ -41,80 +42,76 @@ void APIENTRY DebugCallback(GLenum src, GLenum type, GLuint id, GLenum severity,
 
 void gE::DemoWindow::Load()
 {
+    // Engine Setup
     glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    DemoUniformBuffer = new Buffer<DemoUBO>(this);
+    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    //glDebugMessageCallback(DebugCallback, nullptr);
+
+    DemoUniformBuffer = AssetManager.Create<Buffer<DemoUBO>>();
     DemoUniformBuffer->Bind(2, BufferTarget::UNIFORM);
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(DebugCallback, nullptr);
+    PassthroughVAO = AssetManager.Create<Asset::VAO>(gE::FieldInfo(false, false, false, false), 6, (void*) &PassthroughVertices);
+    PassthroughShader = AssetManager.Create<Asset::Shader>("../gEC/Resource/passthrough.vert", "../gEC/Resource/passthrough.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
+    HiZComputeShader = AssetManager.Create<Asset::Shader>("../res/shader/highz.comp");
+    Skybox.SkyboxShader = AssetManager.Create<Asset::Shader>("../res/shader/skybox.vert", "../res/shader/skybox.frag", Asset::CullMode::NEVER, Asset::DepthFunction::LEQUAL);
 
-    PassthroughVAO = AssetManager.Create<Asset::VAO>(this, gE::FieldInfo(false, false, false, false), 6, (void*) &PassthroughVertices);
-    PassthroughShader = AssetManager.Create<Asset::Shader>(this, "../gEC/Resource/passthrough.vert", "../gEC/Resource/passthrough.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
-    HiZComputeShader = AssetManager.Create<Asset::Shader>(this, "../res/shader/highz.comp");
-
-    auto* shinyShader = AssetManager.Create<Asset::Shader>(this, "../res/shader/default.vert", "../res/shader/default.frag");
-    auto* ssrShader = AssetManager.Create<Asset::Shader>(this, "../res/shader/default.vert", "../res/shader/ssr.frag");
-    Skybox.SkyboxShader = AssetManager.Create<Asset::Shader>(this, "../res/shader/skybox.vert", "../res/shader/skybox.frag", Asset::CullMode::NEVER, Asset::DepthFunction::LEQUAL);
     AssetManager.Add(Skybox.SkyboxVAO = gE::Utility::CreateSkyboxVAO(this));
+    Skybox.SkyboxTexture = (Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../sky.pvr", nullptr));
 
-    Asset::Texture* tex;
-    AssetManager.Add(tex = Utility::LoadPVR(this, "../x.pvr", nullptr));
-    AssetManager.Add(Skybox.SkyboxTexture = Utility::LoadPVR(this, "../sky.pvr", nullptr));
+    DepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST);
+    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RED_32F, 0, Asset::TextureFilterMode::NEAREST);
+    FrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1);
+    PrevFrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1);
 
-    DepthTex = AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::DEPTH_32F, 0, gE::Asset::TextureFilterMode::NEAREST);
-    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(this, this->GetSize().x, this->GetSize().y, Asset::TextureType::RED_32F, 0, gE::Asset::TextureFilterMode::NEAREST);
-    FrameTex = COLOR_CREATE;
-    PrevFrameTex = COLOR_CREATE;
-
-    RenderFrameBuffer = AssetManager.Create<Asset::Framebuffer>(this);
+    RenderFrameBuffer = AssetManager.Create<Asset::Framebuffer>();
     RenderFrameBuffer->Attach(DepthTex, Asset::Framebuffer::DEPTH);
     RenderFrameBuffer->Attach(FrameTex, 0);
 
-    uint64_t handle = tex->GetHandle();
+    BlitBuffer = AssetManager.Create<Asset::Framebuffer>();
+    BlitBuffer->Attach(AssetManager.Create<Asset::Renderbuffer>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F), Asset::Framebuffer::DEPTH);
+    BlitBuffer->Attach(PrevDepthTex, 0);
+
+    // Scene Setup
+    
+    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
+    auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
+    auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
+
+    Asset::Material* shinyMat = AssetManager.Create<Asset::PBRMaterial>(shinyShader);
+    Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader);
+
+    uint64_t handle = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../x.pvr", nullptr)))->GetHandle();
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) &handle);
+    
+    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(1)), rMesh, &shinyMat, 1);
+    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
-    uint32_t meshCount;
-    gE::Mesh* meshes = gE::LoadgEMeshFromIntermediate("../cube.dae", &meshCount);
-    auto* rMesh = new Asset::RenderMesh(this, meshes);
+    auto* entity = EntityManager.Create<DynamicEntity>();
+    entity->CreateComponent<Component::Transform>(TransformManager);
+    entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 80, glm::vec2(0.1, 1000))->Use();
+    entity->GetComponent<Component::PerspectiveCamera>()->SetFOV(80, Component::PerspectiveCamera::Vertical);
+    entity->CreateComponent<Component::CameraMovement>(&BehaviorManager);
 
-    meshes = gE::LoadgEMeshFromIntermediate("../plane.dae", &meshCount);
-    auto* rMeshCopy = new Asset::RenderMesh(this, meshes); // TODO: finally implement materials because this is really really stupid
+    entity = EntityManager.Create<DynamicEntity>(entity);
+    entity->CreateComponent<Component::Transform>(TransformManager);
+    entity->CreateComponent<Component::Renderer>(&ComponentManager, nullptr);
+    entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &ssrMat, 1);
+    entity->CreateComponent<Component::InventoryScript>(&BehaviorManager)->Weapon = new Weapon(
+                AssetManager.Create<Asset::RenderMesh>(LoadgEMeshFromIntermediate("../gun.dae")),
+                nullptr, 0,
+                Transform(glm::vec3(0.97, -0.7, -1.45), glm::vec3(4, 0, 5.72), glm::vec3(1)) * 0.4,
+                Transform(glm::vec3(0, -0.39, -1.24), glm::vec3(0), glm::vec3(1)) * 0.4,
+                0.25
+            );
 
-    Asset::Material* shinyMat = new Asset::PBRMaterial(this, shinyShader);
-    auto* entity = EntityManager.Create<Entity>(this);
-    CREATE_TRANSFORM(entity);
-    entity->GetComponent<Component::Transform>()->Scale = glm::vec3(2);
-    entity->GetComponent<Component::Transform>()->Rotation.x = -90;
-    entity->AddComponent(ComponentManager.Create<Component::Renderer>(entity, rMesh));
-    entity->AddComponent(ComponentManager.Create<Component::MaterialHolder>(entity, &shinyMat, 1));
-
-
-    Asset::Material* ssrMat = new Asset::PBRMaterial(this, ssrShader);
-    entity = EntityManager.Create<Entity>(this);
-    CREATE_TRANSFORM(entity);
-    entity->GetComponent<Component::Transform>()->Scale = glm::vec3(2);
-    entity->GetComponent<Component::Transform>()->Rotation.x = -90;
-
-    entity->AddComponent(ComponentManager.Create<Component::Renderer>(entity, rMeshCopy));
-    entity->AddComponent(ComponentManager.Create<Component::MaterialHolder>(entity, &ssrMat, 1));
-
-    entity = EntityManager.Create<Entity>(this);
-    CREATE_TRANSFORM(entity);
-    entity->AddComponent(CameraManager->Create<Component::PerspectiveCamera>(entity, 80, glm::vec2(0.1, 1000)));
-    entity->GetComponent<Component::PerspectiveCamera>()->Use();
-    entity->AddComponent(BehaviorManager.Create<Component::CameraMovement>(entity));
-
-    entity = EntityManager.Create<Entity>(this);
-    CREATE_TRANSFORM(entity);
-    entity->AddComponent(Sun = LightManager.Create<Component::DirectionalLight>(entity, 1024));
-
-    auto* eT = entity->GetComponent<Component::Transform>();
-    eT->Location = glm::vec3(0, 10, 0);
-    eT->Rotation = glm::vec3(-80, 0, 0);
+    entity = EntityManager.Create<DynamicEntity>();
+    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-80, 0, 0), glm::vec3(1)));
+    Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 10);
 }
 
 void gE::DemoWindow::Update(double delta)
@@ -122,13 +119,13 @@ void gE::DemoWindow::Update(double delta)
     BehaviorManager.OnUpdate(delta);
     EntityManager.OnUpdate(0);
     LightManager.OnUpdate(0);
+    TransformManager->OnRender(0);
 }
 
 void gE::DemoWindow::Render(double delta)
 {
     Stage = Windowing::Stage::Shadow;
 
-    TransformManager->OnRender(0);
     Component::Camera* prevCam = CameraManager->GetCamera();
     LightManager.OnRender(0);
     {
@@ -161,19 +158,20 @@ void gE::DemoWindow::Render(double delta)
 
     Stage = Windowing::Stage::PostProcess;
 
-    HiZComputeShader->Use(); // TODO: Change to ping-pong system instead of copies
-
+    BlitBuffer->Bind();
     glCopyImageSubData(FrameTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, PrevFrameTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, GetSize().x, GetSize().y, 1);
-    glCopyImageSubData(DepthTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, PrevDepthTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, GetSize().x, GetSize().y, 1);
+    PassthroughShader->Use();
+    glProgramUniform1i(PassthroughShader->Get(), 0, DepthTex->Use(1));
+    PassthroughVAO->Draw(1);
 
+    HiZComputeShader->Use();
     for(uint8_t i = 1; i < PrevDepthTex->GetMipCount(); i++)
     {
-        auto mipSize = glm::uvec3(PrevDepthTex->GetSize(i - 1), i - 1);
+        auto mipSize = PrevDepthTex->GetSize(i - 1);
 
-        PrevDepthTex->Bind(1, Asset::AccessMode::WRITE, i);
         PrevDepthTex->Bind(0, Asset::AccessMode::READ, i - 1);
+        PrevDepthTex->Bind(1, Asset::AccessMode::WRITE, i);
 
-        glProgramUniform3uiv(HiZComputeShader->Get(), 2, 1, (GLuint*) &mipSize);
         glDispatchCompute(CEIL_DIV(mipSize.x, HIZ_WORK_GROUP_SIZE), CEIL_DIV(mipSize.y, HIZ_WORK_GROUP_SIZE), 1);
     }
 

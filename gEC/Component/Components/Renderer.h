@@ -26,6 +26,7 @@ namespace gE::Component
         bool IsInView;
 
         Asset::RenderMesh* GetRenderMesh() const { return p_renderMesh; }
+        void SetRenderMesh(Asset::RenderMesh* mesh);
         const Asset::VAO* const GetVAO(uint32_t i) const { return p_renderMesh->Renderers[i]; }
     };
 }

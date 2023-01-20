@@ -121,7 +121,7 @@ public:
 
 public:
 
-    //! w,x,y,z components of the quaternion
+    //! w,x,y,z Components of the quaternion
     TReal w, x, y, z;
 } ;
 

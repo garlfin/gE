@@ -14,11 +14,11 @@ namespace gE::Component
     class Component
     {
     protected:
+        explicit Component(Entity* owner) : p_Owner(owner), p_Flagged(false) {};
         Entity* p_Owner;
         bool p_Flagged;
-        const bool p_Managed;
+
     public:
-        explicit Component(Entity* owner, bool managed = false) : p_Owner(owner), p_Flagged(false), p_Managed(managed) {};
         virtual ~Component();
 
         [[nodiscard]] Window* GetWindow() const;
@@ -27,23 +27,22 @@ namespace gE::Component
         virtual void OnLoad() = 0;
         virtual void OnRender(double delta) = 0;
         virtual void OnUpdate(double delta) = 0;
-        virtual void OnDestroy() = 0;
+        virtual void OnDestroy() {};
 
         void FlagDeletion() { p_Flagged = true; }
         [[nodiscard]] bool IsFlagged() const { return p_Flagged; }
-        [[nodiscard]] bool IsManaged() const { return p_Managed; }
     };
 
     template<typename T>
-    class   ComponentManager : public Asset::AssetManager<T>
+    class ComponentManager : public Asset::AssetManager<T, false>
     {
     private:
-        typedef Asset::AssetManager<T> Base;
+        typedef Asset::AssetManager<T, false> Base;
     public:
-        ComponentManager() : Base()
+        ComponentManager(gE::Window* pWindow) : Base(pWindow)
         {
             static_assert(std::is_base_of<Component, T>::value, "'T' must inherit from 'Component'");
-        };
+        }
 
         void OnUpdate(double delta) override
         {

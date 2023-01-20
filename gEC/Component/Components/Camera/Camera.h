@@ -50,11 +50,10 @@ namespace gE::Component
     private:
         Buffer<CameraData> p_CameraBuffer;
         Camera* p_CurrentCamera;
-        Window* p_Window;
         Math::Frustum p_ViewFrustum;
     public:
-        explicit CameraManager(Window* window) : ComponentManager<Camera>(), p_CurrentCamera(nullptr),
-                                        p_CameraBuffer(window), p_Window(window), p_ViewFrustum(glm::mat4(1))
+        explicit CameraManager(Window* window) : ComponentManager<Camera>(window), p_CurrentCamera(nullptr),
+                                                 p_CameraBuffer(window), p_ViewFrustum(glm::mat4(1))
         {
             p_CameraBuffer.Bind(0, BufferTarget::UNIFORM);
         }

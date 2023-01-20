@@ -9,8 +9,7 @@
 
 namespace gE::Component
 {
-    DirectionalLight::DirectionalLight(Entity* entity, uint32_t size) : OrthographicCamera(entity, 20, glm::vec2(0.01, 100)), Light(entity,
-                          GetWindow()->AssetManager.Create<Asset::Texture2D>(GetWindow(), size, size, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::LINEAR))
+    DirectionalLight::DirectionalLight(Entity* entity, uint32_t size, float cameraSize) : OrthographicCamera(entity, cameraSize, glm::vec2(0.01, 100)), Light(entity, GetWindow()->AssetManager.Create<Asset::Texture2D>(size, size, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::LINEAR))
     {
 
     }

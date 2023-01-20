@@ -2,7 +2,6 @@
 // Created by scion on 12/8/2022.
 //
 
-#include <iostream>
 #include "MeshManager.h"
 #include "../../Component/Components/Transform.h"
 #include "glm/gtc/matrix_inverse.hpp"
@@ -11,7 +10,7 @@
 #include "../../Component/Components/MaterialHolder.h"
 #include "glm/ext/matrix_transform.hpp"
 
-void DrawSubMesh(gE::Window* window,  const gE::Entity* e, const gE::Asset::VAO* subMesh, uint32_t count);
+void DrawSubMesh(gE::Window* window, const gE::Entity* e, const gE::Asset::VAO* subMesh, uint32_t count);
 void SortVisibleEntities(const gE::Entity** entities, uint32_t count, gE::Window* window, gE::Asset::RenderMesh* mesh);
 
 namespace gE::Asset
@@ -51,6 +50,8 @@ namespace gE::Asset
     {
         for(Pair *pair: Base::p_Assets)
         {
+            if(!pair->first) continue;
+
             uint32_t count = 0;
             for (uint32_t i = 0; i < pair->second.size(); i++)
                 if (pair->second[i]->GetComponent<Component::Renderer>()->IsInView)
@@ -86,7 +87,7 @@ namespace gE::Asset
 
         for(Pair *pair: Base::p_Assets)
         {
-            memcpy(p_EligibleEntities, pair->second.data(), pair->second.size() * sizeof(Entity*));
+            memcpy(p_EligibleEntities, pair->second.data(), pair->second.size() * sizeof(DynamicEntity*));
             count = pair->second.size();
 
             SortVisibleEntities(p_EligibleEntities, count, p_Window, pair->first);
@@ -106,7 +107,7 @@ void SortVisibleEntities(const gE::Entity** entities, uint32_t count, gE::Window
     }
 }
 
-void DrawSubMesh(gE::Window* window,  const gE::Entity* e, const gE::Asset::VAO* subMesh, uint32_t count)
+void DrawSubMesh(gE::Window* window, const gE::Entity* e, const gE::Asset::VAO* subMesh, uint32_t count)
 {
     gE::Asset::Material* renderMaterial = nullptr;
 

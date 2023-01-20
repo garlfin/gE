@@ -17,10 +17,11 @@ in FragInfo
 #include "../res/shader/camera.glsl"
 #include "../res/shader/ray.glsl"
 
+
 out vec4 FragColor;
 
-#define ITERATIONS 200
-#define MAX_LENGTH 10.0
+#define ITERATIONS 150
+#define MAX_LENGTH 5.0
 #define ROUGHNESS 0.1
 
 void main()
@@ -29,11 +30,11 @@ void main()
     const vec3 viewDir = normalize(FragPos - Position);
     const vec2 screenUV = gl_FragCoord.xy / Info.xy;
     const vec3 rayDir = reflect(viewDir, normal);
-    vec3 rayPos = screenToWorld(vec3(screenUV, textureLod(FrameDepthTex, screenUV, 0).r), true);
+    vec3 rayPos = screenToWorld(vec3(screenUV, textureLod(FrameDepthTex, screenUV, 0).r), true) + normalize(vec3(vogelDiskSample(int(interleavedGradientNoise() * 64), 64, interleavedGradientNoise()), 0)) * 0.005;
 
     vec2 reflection = castRay(rayPos, rayDir, MAX_LENGTH, ITERATIONS);
     if (reflection.x == -1.0)
-         FragColor = pow(texture(SkyboxTex, -reflect(viewDir, normal)), vec4(1.0 / 2.2));
+         FragColor = pow(texture(SkyboxTex, reflect(viewDir, normal)), vec4(1.0 / 2.2));
     else
          FragColor = texture(FrameColorTex, reflection);
 }

@@ -128,7 +128,7 @@ namespace glm
 	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.4 Floating-Point Pack and Unpack Functions</a>
 	GLM_FUNC_DECL vec4 unpackSnorm4x8(uint p);
 
-	/// Returns a double-qualifier value obtained by packing the components of v into a 64-bit value.
+	/// Returns a double-qualifier value obtained by packing the Components of v into a 64-bit value.
 	/// If an IEEE 754 Inf or NaN is created, it will not signal, and the resulting floating point value is unspecified.
 	/// Otherwise, the bit- level representation of v is preserved.
 	/// The first vector component specifies the 32 least significant bits;
@@ -147,7 +147,7 @@ namespace glm
 	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.4 Floating-Point Pack and Unpack Functions</a>
 	GLM_FUNC_DECL uvec2 unpackDouble2x32(double v);
 
-	/// Returns an unsigned integer obtained by converting the components of a two-component floating-point vector
+	/// Returns an unsigned integer obtained by converting the Components of a two-component floating-point vector
 	/// to the 16-bit floating-point representation found in the OpenGL Specification,
 	/// and then packing these two 16- bit integers into a 32-bit unsigned integer.
 	/// The first vector component specifies the 16 least-significant bits of the result;
@@ -157,7 +157,7 @@ namespace glm
 	/// @see <a href="http://www.opengl.org/registry/doc/GLSLangSpec.4.20.8.pdf">GLSL 4.20.8 specification, section 8.4 Floating-Point Pack and Unpack Functions</a>
 	GLM_FUNC_DECL uint packHalf2x16(vec2 const& v);
 
-	/// Returns a two-component floating-point vector with components obtained by unpacking a 32-bit unsigned integer into a pair of 16-bit values,
+	/// Returns a two-component floating-point vector with Components obtained by unpacking a 32-bit unsigned integer into a pair of 16-bit values,
 	/// interpreting those values as 16-bit floating-point numbers according to the OpenGL Specification,
 	/// and converting them to 32-bit floating-point values.
 	/// The first component of the vector is obtained from the 16 least-significant bits of v;

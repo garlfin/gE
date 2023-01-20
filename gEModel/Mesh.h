@@ -79,7 +79,7 @@ namespace gE
         glm::vec3* Colors = nullptr;
         glm::u32vec3* Indices = nullptr;
 
-        SubMesh() : Fields(false, false, false, false), VertexCount(), FaceCount() { }
+        SubMesh() : VertexCount(),  Fields(false, false, false, false), FaceCount() { }
         ~SubMesh() { delete[] Positions; delete[] UVs; delete[] Normals; delete[] Tangents; delete[] Colors; delete[] Indices; }
 
         [[nodiscard]] void* GetField(uint8_t i) const

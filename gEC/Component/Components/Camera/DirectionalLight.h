@@ -12,7 +12,7 @@ namespace gE::Component
     class DirectionalLight : public OrthographicCamera, public Light
     {
     public:
-        DirectionalLight(Entity* entity, uint32_t size);
+        DirectionalLight(Entity* entity, uint32_t size, float cameraSize);
 
         void OnRender(double delta) override;
         void Use() final;

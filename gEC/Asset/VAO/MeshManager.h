@@ -13,12 +13,11 @@
 
 namespace gE::Asset
 {
-    class MeshManager final : public AssetManager<std::pair<RenderMesh*, std::vector<Entity*>>>
+    class MeshManager final : public AssetManager<std::pair<RenderMesh*, std::vector<Entity*>>, false>
     {
     private:
         typedef std::pair<RenderMesh*, std::vector<Entity*>> Pair;
-        typedef AssetManager<Pair> Base;
-        Window* p_Window;
+        typedef AssetManager<Pair, false> Base;
         const Entity** p_EligibleEntities;
         uint32_t p_PreviousCount;
 
@@ -26,7 +25,7 @@ namespace gE::Asset
         void Destruct(Pair *t) override;
 
     public:
-        explicit MeshManager(Window* window) : Base(), p_Window(window), p_EligibleEntities(nullptr)
+        explicit MeshManager(Window* window) : Base(window), p_EligibleEntities(nullptr)
                                                     , p_PreviousCount(0) {}
 
         Pair* Register(RenderMesh* mesh)
@@ -41,5 +40,7 @@ namespace gE::Asset
         void OnUpdate(double delta) override;
 
         void OnRender();
+
+        ~MeshManager() { delete[] p_EligibleEntities; }
     };
 }

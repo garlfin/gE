@@ -59,7 +59,7 @@ namespace gE
         Buffer<DemoUBO>* DemoUniformBuffer;
         Component::DirectionalLight* Sun;
 
-        Asset::Framebuffer* RenderFrameBuffer;
+        Asset::Framebuffer* RenderFrameBuffer, *BlitBuffer;
         Asset::Shader* PassthroughShader, *HiZComputeShader;
         Asset::VAO* PassthroughVAO;
         Asset::Texture* PrevFrameTex, *FrameTex, *DepthTex, *PrevDepthTex;

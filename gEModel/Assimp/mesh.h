@@ -458,7 +458,7 @@ struct aiAnimMesh {
     /** Replacement for aiMesh::mVertices. If this array is non-nullptr,
      *  it *must* contain mNumVertices entries. The corresponding
      *  array in the host mesh must be non-nullptr as well - animation
-     *  meshes may neither add or nor remove vertex components (if
+     *  meshes may neither add or nor remove vertex Components (if
      *  a replacement array is nullptr and the corresponding source
      *  array is not, the source data is taken instead)*/
     C_STRUCT aiVector3D *mVertices;
@@ -686,7 +686,7 @@ struct aiMesh {
     */
     C_STRUCT aiVector3D *mTextureCoords[AI_MAX_NUMBER_OF_TEXTURECOORDS];
 
-    /** Specifies the number of components for a given UV channel.
+    /** Specifies the number of Components for a given UV channel.
     * Up to three channels are supported (UVW, for accessing volume
     * or cube maps). If the value is 2 for a given channel n, the
     * component p.z of mTextureCoords[n][p] is set to 0.0f.
@@ -739,7 +739,7 @@ struct aiMesh {
 
     /** Attachment meshes for this mesh, for vertex-based animation.
      *  Attachment meshes carry replacement data for some of the
-     *  mesh'es vertex components (usually positions, normals).
+     *  mesh'es vertex Components (usually positions, normals).
      *  Note! Currently only works with Collada loader.*/
     C_STRUCT aiAnimMesh **mAnimMeshes;
 

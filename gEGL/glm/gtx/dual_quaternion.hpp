@@ -48,7 +48,7 @@ namespace glm
 		// -- Component accesses --
 
 		typedef length_t length_type;
-		/// Return the count of components of a dual quaternion
+		/// Return the count of Components of a dual quaternion
 		GLM_FUNC_DECL static GLM_CONSTEXPR length_type length(){return 2;}
 
 		GLM_FUNC_DECL part_type & operator[](length_type i);

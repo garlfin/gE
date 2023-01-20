@@ -24,7 +24,7 @@ namespace glm
 	/// @addtogroup ext_vector_float1
 	/// @{
 
-	/// 1 components vector of single-precision floating-point numbers.
+	/// 1 Components vector of single-precision floating-point numbers.
 	typedef vec<1, float, defaultp>		vec1;
 
 	/// @}

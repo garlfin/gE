@@ -86,7 +86,7 @@ namespace glm
 
 		// -- Component accesses --
 
-		/// Return the count of components of the vector
+		/// Return the count of Components of the vector
 		typedef length_t length_type;
 		GLM_FUNC_DECL static GLM_CONSTEXPR length_type length(){return 3;}
 

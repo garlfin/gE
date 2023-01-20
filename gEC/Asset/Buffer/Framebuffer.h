@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define BIND_COUNT 10
+
 #include "GLAD/glad.h"
 #include "../GLAsset.h"
 
@@ -43,6 +45,6 @@ namespace gE::Asset
         Attachable* GetAttachment(uint32_t i) { return p_attachments[i]; }
 
     private:
-        Attachable* p_attachments[10];
+        Attachable* p_attachments[BIND_COUNT];
     };
 }

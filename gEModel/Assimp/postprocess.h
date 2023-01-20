@@ -131,9 +131,9 @@ enum aiPostProcessSteps
 
     // -------------------------------------------------------------------------
     /** <hr>Removes some parts of the data structure (animations, materials,
-     *  light sources, cameras, textures, vertex components).
+     *  light sources, cameras, textures, vertex Components).
      *
-     * The  components to be removed are specified in a separate
+     * The  Components to be removed are specified in a separate
      * importer property, <tt>#AI_CONFIG_PP_RVC_FLAGS</tt>. This is quite useful
      * if you don't need all parts of the output structure. Vertex colors
      * are rarely used today for example... Calling this step to remove unneeded
@@ -150,7 +150,7 @@ enum aiPostProcessSteps
      * shared, thus the #aiProcess_JoinIdenticalVertices step fails to
      * optimize the data because of these nasty little vertex colors.
      * Most apps don't even process them, so it's all for nothing. By using
-     * this step, unneeded components are excluded as early as possible
+     * this step, unneeded Components are excluded as early as possible
      * thus opening more room for internal optimizations.
      */
     aiProcess_RemoveComponent = 0x10,

@@ -16,7 +16,7 @@ namespace gE::Component
         glm::dvec2 prevMousePos = glm::dvec2(0);
 
     public:
-        CameraMovement(Entity* owner) : Behavior(owner) {}
+        explicit CameraMovement(Entity* owner) : Behavior(owner) {}
         void OnLoad() override;
         void OnUpdate(double delta) override;
     };

@@ -96,7 +96,7 @@ namespace glm
 	template<length_t L, qualifier Q>
 	GLM_FUNC_DECL GLM_CONSTEXPR bool any(vec<L, bool, Q> const& v);
 
-	/// Returns true if all components of x are true.
+	/// Returns true if all Components of x are true.
 	///
 	/// @tparam L An integer between 1 and 4 included that qualify the dimension of the vector.
 	///

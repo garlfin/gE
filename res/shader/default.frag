@@ -27,25 +27,58 @@ float interleavedGradientNoise()
 
 vec2 vogelDiskSample(int sampleIndex, int samplesCount, float phi)
 {
-
-    float r = sqrt(float(sampleIndex) + 0.5f) / sqrt(float(samplesCount));
-    float theta = sampleIndex * 2.4 + phi;
+    float r = sqrt(sampleIndex + 0.5f) / sqrt(samplesCount);
+    float theta = sampleIndex * 2.4f + phi;
 
     return vec2(r * cos(theta), r * sin(theta));
 }
 
-#define SAMPLE_COUNT 64
+#define SAMPLE_COUNT 4
+#define CAM_SIZE 10
+#define MAX_SEARCH 0.1
+#define LIGHT_SIZE 0.1
+
+float linearizeDepth(float z, vec2 planes)
+{
+    return 2.0 * planes.x * planes.y / (planes.y + planes.x - (z * 2 - 1) * (planes.y - planes.x));
+}
+
+float calcPenumbra(vec3 projCoord)
+{
+    float avgDepth = 0;
+    uint count = 0;
+
+    for(int i = 0; i < SAMPLE_COUNT; i++)
+    {
+        float sampleDepth = texture(sampler2D(ShadowTex), projCoord.xy + vogelDiskSample(i, SAMPLE_COUNT, interleavedGradientNoise() * 2 * 3.14159) * MAX_SEARCH / CAM_SIZE).r;
+        sampleDepth = linearizeDepth(sampleDepth, vec2(0.01, 100));
+
+        if(sampleDepth > projCoord.z) continue;
+
+        count++;
+        avgDepth += sampleDepth;
+    }
+
+    if(count == 0) return 0;
+    avgDepth /= float(count);
+
+    return avgDepth;//(FragPosLightSpace.z - avgDepth) * LIGHT_SIZE / avgDepth;
+}
+
 
 float calcShadow()
 {
     vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    //float shadow = 0;
-    //for(int i = 0; i < SAMPLE_COUNT; i++)
-        return texture(ShadowTex, vec3(projCoords.xy, projCoords.z - 0.005));
+    float penumbra = calcPenumbra(projCoords);
+    return penumbra;
 
-    // return shadow / SAMPLE_COUNT;
+    float shadow = 0;
+    for(int i = 0; i < SAMPLE_COUNT; i++)
+        shadow += texture(sampler2DShadow(ShadowTex), vec3(projCoords.xy + vogelDiskSample(i, SAMPLE_COUNT, interleavedGradientNoise() * 2 * 3.14159) * penumbra / CAM_SIZE, projCoords.z - 0.0005));
+
+    return shadow / SAMPLE_COUNT;
 }
 
 void main()
@@ -55,7 +88,7 @@ void main()
     float shadow = calcShadow();
 
     float light = dot(normal, SunInfo.xyz) * 0.5 + 0.5;
-    light = min(min(shadow + 0.5, 1), light);
+    light = min(shadow * 0.5 + 0.5, light);
     light *= light;
 
     vec3 spec = pow(max(dot(reflect(-SunInfo.xyz, normal), normalize(Position - FragPos)), 0.0), 256.0).rrr;

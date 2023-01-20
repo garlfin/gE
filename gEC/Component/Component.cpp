@@ -11,6 +11,6 @@ gE::Window* gE::Component::Component::GetWindow() const
 
 gE::Component::Component::~Component()
 {
-    p_Owner->RemoveComponent(this);
+    if(typeid(*p_Owner) == typeid(DynamicEntity)) ((DynamicEntity*) p_Owner)->DeleteComponent(this);
 }
 

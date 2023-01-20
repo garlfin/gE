@@ -23,7 +23,7 @@ namespace glm
 	/// @addtogroup ext_vector_bool1
 	/// @{
 
-	/// 1 components vector of boolean.
+	/// 1 Components vector of boolean.
 	typedef vec<1, bool, defaultp>		bvec1;
 
 	/// @}
