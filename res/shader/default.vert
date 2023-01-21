@@ -20,7 +20,8 @@ out FragInfo
     mat3 TBN;
 };
 
-void main() {
+void main()
+{
     FragPos = (Model[gl_InstanceID] * vec4(vPos, 1.0)).xyz;
     Normal = normalize(mat3(NormalMatrix[gl_InstanceID]) * vNor);
     TexCoord = vUV;

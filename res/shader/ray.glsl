@@ -1,3 +1,7 @@
+#ifndef RAY_INCLUDE
+#define RAY_INCLUDE 1
+
+#include "../res/shader/noise.glsl"
 #define RAY_THRESHOLD 0.005
 #define RAY_OBJ_THICKNESS 0.2
 
@@ -6,22 +10,24 @@ vec3 worldToScreen(vec3 pos);
 vec2 binaryRefine(inout vec3 rayPos, vec3 dir, uint steps);
 vec3 screenToWorld(vec3 pos, bool ndc);
 
-vec2 castRay(inout vec3 rayPos, vec3 dir, float maxLen, uint steps)
+#define RAY_MODE_EXPENSIVE 0
+#define RAY_MODE_CHEAP 1
+
+vec2 castRay(inout vec3 rayPos, vec3 dir, float maxLen, uint steps, int mode)
 {
     dir = normalize(dir);
     dir *= maxLen / steps;
-    //rayPos += dir;
 
     for(uint i = 0; i < steps; i++)
     {
         const vec3 screenPos = worldToScreen(rayPos);
+        if(screenPos.z < 0 || max(screenPos.x, screenPos.y) > 1 || min(screenPos.x, screenPos.y) < 0) break; // Early exit
         const float screenDepth = linearizeDepth(textureLod(FrameDepthTex, screenPos.xy, 0).r, Info.zw);
         const float delta = screenPos.z - screenDepth;
 
-        if(screenPos.z < 0 || max(screenPos.x, screenPos.y) > 1 || min(screenPos.x, screenPos.y) < 0) return vec2(-1.0); // Early exit
-
-        if(abs(delta) <= RAY_THRESHOLD) return screenPos.xy;
-        if(delta > 0 && delta < RAY_OBJ_THICKNESS) return binaryRefine(rayPos, dir, steps);
+        if (abs(delta) <= RAY_THRESHOLD || (mode == RAY_MODE_CHEAP && delta < 0 && delta > -RAY_OBJ_THICKNESS)) return screenPos.xy;
+        if (delta > 0 && delta < RAY_OBJ_THICKNESS) return binaryRefine(rayPos, dir, steps);
+        if (mode == RAY_MODE_CHEAP && delta > 0) return vec2(1.0);
 
         rayPos += dir;
     }
@@ -76,27 +82,4 @@ vec3 screenToWorld(vec3 pos, bool ndc)
     return outVal.xyz;
 }
 
-float interleavedGradientNoise()
-{
-    const vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
-    return fract(magic.z * fract(dot(gl_FragCoord.xy, magic.xy)));
-}
-
-vec2 vogelDiskSample(int sampleIndex, int samplesCount, float phi)
-{
-
-    float r = sqrt(float(sampleIndex) + 0.5f) / sqrt(float(samplesCount));
-    float theta = sampleIndex * 2.4 + phi;
-
-    return vec2(r * cos(theta), r * sin(theta));
-}
-
-vec3 randCone(vec3 incoming, float radius)
-{
-    vec3 h = vec3(interleavedGradientNoise(), max(interleavedGradientNoise(), 0.1), interleavedGradientNoise());
-    h.xz = h.xy * 2 - 1;
-    h = normalize(h);
-    h.xz *= radius;
-
-    return reflect(incoming, normalize(h));
-}
+#endif

@@ -56,5 +56,6 @@ namespace gE
         glm::u32vec2 Size;
         GLFWwindow* GLFWWindow;
         Windowing::Stage Stage;
+        int32_t Frame;
     };
 }

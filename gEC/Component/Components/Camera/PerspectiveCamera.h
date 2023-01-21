@@ -12,13 +12,13 @@ namespace gE::Component
     private:
         float FOV;
     public:
-        PerspectiveCamera(Entity* owner, float fov, glm::vec2 clipPlane);
-
         enum FOVType : uint8_t
         {
             Vertical,
             Horizontal
         };
+
+        PerspectiveCamera(Entity* owner, float fov, glm::vec2 clipPlane, FOVType type = Horizontal);
 
         void SetFOV(float fovDegrees, FOVType type = Horizontal);
         void OnRender(double delta) override {};

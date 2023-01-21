@@ -2,6 +2,7 @@
 #extension GL_ARB_bindless_texture: enable
 #include "../res/shader/demowindow.glsl"
 #include "../res/shader/camera.glsl"
+#include "../res/shader/noise.glsl"
 
 layout(early_fragment_tests) in;
 
@@ -19,24 +20,10 @@ in FragInfo
 
 out vec4 FragColor;
 
-float interleavedGradientNoise()
-{
-    const vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
-    return fract(magic.z * fract(dot(gl_FragCoord.xy, magic.xy)));
-}
-
-vec2 vogelDiskSample(int sampleIndex, int samplesCount, float phi)
-{
-    float r = sqrt(sampleIndex + 0.5f) / sqrt(samplesCount);
-    float theta = sampleIndex * 2.4f + phi;
-
-    return vec2(r * cos(theta), r * sin(theta));
-}
-
 #define SAMPLE_COUNT 4
 #define CAM_SIZE 10
 #define MAX_SEARCH 0.1
-#define LIGHT_SIZE 0.1
+#define LIGHT_SIZE 0.05
 
 float linearizeDepth(float z, vec2 planes)
 {
@@ -71,12 +58,9 @@ float calcShadow()
     vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    float penumbra = calcPenumbra(projCoords);
-    return penumbra;
-
     float shadow = 0;
     for(int i = 0; i < SAMPLE_COUNT; i++)
-        shadow += texture(sampler2DShadow(ShadowTex), vec3(projCoords.xy + vogelDiskSample(i, SAMPLE_COUNT, interleavedGradientNoise() * 2 * 3.14159) * penumbra / CAM_SIZE, projCoords.z - 0.0005));
+        shadow += texture(sampler2DShadow(ShadowTex), vec3(projCoords.xy + vogelDiskSample(i, SAMPLE_COUNT, interleavedGradientNoise() * 2 * 3.14159) * LIGHT_SIZE / CAM_SIZE, projCoords.z - 0.0005));
 
     return shadow / SAMPLE_COUNT;
 }

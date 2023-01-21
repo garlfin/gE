@@ -36,13 +36,14 @@ namespace gE
     {
     public:
         DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, gE::Asset::Texture* prevFrame,
-                gE::Asset::Texture* depthTex);
+                gE::Asset::Texture* depthTex, int32_t frame);
         uint64_t SkyboxID;
         uint64_t ShadowID;
         glm::vec4 SunInfo; // Direction, ShadowSize
         glm::mat4 SunMatrix;
         uint64_t ColorID;
         uint64_t DepthID;
+        int32_t Frame;
     };
 
     class DemoWindow : public Window

@@ -8,6 +8,8 @@
 #include "../../../Windowing/Window.h"
 #include "../Transform.h"
 
+#define FOV_H_TO_V(fov) atan(tan((fov) / 2) / GetWindow()->GetAspectRatio()) * 2
+
 namespace gE::Component
 {
     void PerspectiveCamera::UpdateProjection()
@@ -21,8 +23,8 @@ namespace gE::Component
         UpdateProjection();
     }
 
-    PerspectiveCamera::PerspectiveCamera(Entity* owner, float fov, glm::vec2 planes) : Camera(owner, planes), FOV(fov)
+    PerspectiveCamera::PerspectiveCamera(Entity* owner, float fov, glm::vec2 planes, FOVType fovType) : Camera(owner, planes), FOV(fov)
     {
-        UpdateProjection();
+        SetFOV(fov, fovType);
     }
 }

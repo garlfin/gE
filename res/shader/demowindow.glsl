@@ -6,4 +6,5 @@ layout(std140, binding = 2) uniform DemoWindow
     mat4 SunMatrix;
     sampler2D FrameColorTex;
     sampler2D FrameDepthTex;
+    int Frame;
 };

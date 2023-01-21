@@ -79,33 +79,37 @@ void gE::DemoWindow::Load()
     
     auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
     auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
+    auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
-    auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
+    //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
 
     Asset::Material* shinyMat = AssetManager.Create<Asset::PBRMaterial>(shinyShader);
     Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader);
+    Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader);
+
+    Asset::Material* mats[2]{ssrMat, shinyMat};
 
     uint64_t handle = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../x.pvr", nullptr)))->GetHandle();
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) &handle);
-    
-    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(1)), rMesh, &shinyMat, 1);
-    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) &handle);
+
+    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(3)), rMesh, mats, 2);
+    //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
     auto* entity = EntityManager.Create<DynamicEntity>();
     entity->CreateComponent<Component::Transform>(TransformManager);
     entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 80, glm::vec2(0.1, 1000))->Use();
-    entity->GetComponent<Component::PerspectiveCamera>()->SetFOV(80, Component::PerspectiveCamera::Vertical);
     entity->CreateComponent<Component::CameraMovement>(&BehaviorManager);
 
     entity = EntityManager.Create<DynamicEntity>(entity);
     entity->CreateComponent<Component::Transform>(TransformManager);
     entity->CreateComponent<Component::Renderer>(&ComponentManager, nullptr);
-    entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &ssrMat, 1);
+    entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
     entity->CreateComponent<Component::InventoryScript>(&BehaviorManager)->Weapon = new Weapon(
                 AssetManager.Create<Asset::RenderMesh>(LoadgEMeshFromIntermediate("../gun.dae")),
                 nullptr, 0,
-                Transform(glm::vec3(0.97, -0.7, -1.45), glm::vec3(4, 0, 5.72), glm::vec3(1)) * 0.4,
-                Transform(glm::vec3(0, -0.39, -1.24), glm::vec3(0), glm::vec3(1)) * 0.4,
+                Transform(glm::vec3(1.82343, -1.10008, -1.45051), glm::vec3(4, 0, 5.72), glm::vec3(1)) * 0.4,
+                Transform(glm::vec3(0, -0.436711, -1.23802), glm::vec3(0), glm::vec3(1)) * 0.4,
                 0.25
             );
 
@@ -129,7 +133,7 @@ void gE::DemoWindow::Render(double delta)
     Component::Camera* prevCam = CameraManager->GetCamera();
     LightManager.OnRender(0);
     {
-        DemoUBO buf(Skybox.SkyboxTexture, Sun, PrevFrameTex, PrevDepthTex);
+        DemoUBO buf(Skybox.SkyboxTexture, Sun, PrevFrameTex, PrevDepthTex, Frame);
         DemoUniformBuffer->ReplaceData(&buf);
     }
     prevCam->Use();
@@ -181,10 +185,10 @@ void gE::DemoWindow::Render(double delta)
     PassthroughVAO->Draw(1);
 }
 
-gE::DemoUBO::DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, gE::Asset::Texture* prevFrame, gE::Asset::Texture* depthTex) :
+gE::DemoUBO::DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, gE::Asset::Texture* prevFrame, gE::Asset::Texture* depthTex, int32_t frame) :
                     ShadowID(sun->GetShadowMap()->GetHandle()), SkyboxID(sky->GetHandle()),
                     ColorID(prevFrame->GetHandle()), DepthID(depthTex->GetHandle()),
-                    SunMatrix(*sun->GetProjection() * sun->GetView())
+                    SunMatrix(*sun->GetProjection() * sun->GetView()), Frame(frame)
 {
     Component::Transform* transform = sun->GetOwner()->GetComponent<Component::Transform>();
 
@@ -196,3 +200,4 @@ gE::DemoUBO::DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* s
 
     SunInfo = glm::vec4(sunDir, sun->GetShadowMap()->GetSize().x);
 }
+
