@@ -6,7 +6,7 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-#define FPS_TARGET 144
+#define FPS_TARGET 60
 
 namespace gE
 {
@@ -58,10 +58,8 @@ namespace gE
             double nTime = glfwGetTime();
             Update(nTime - pTime); // TODO: Multithread
 
-
             if(nTime > Frame * (1.0 / FPS_TARGET))
             {
-                nTime = glfwGetTime();
                 Render(nTime - pTime);
                 Frame++;
 

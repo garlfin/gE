@@ -18,38 +18,38 @@ in FragInfo
     mat3 TBN;
 };
 
+#include "../res/shader/ray.glsl"
+#include "../res/shader/ssao.glsl"
+
 out vec4 FragColor;
 
-#define SAMPLE_COUNT 4
+#define SAMPLE_COUNT 8
 #define CAM_SIZE 10
-#define MAX_SEARCH 0.1
-#define LIGHT_SIZE 0.05
-
-float linearizeDepth(float z, vec2 planes)
-{
-    return 2.0 * planes.x * planes.y / (planes.y + planes.x - (z * 2 - 1) * (planes.y - planes.x));
-}
+#define LIGHT_SIZE 0.5
 
 float calcPenumbra(vec3 projCoord)
 {
-    float avgDepth = 0;
+    float avgDepth = 30;
     uint count = 0;
 
+    float searchSize = max(0, projCoord.z - linearizeDepth(texture(sampler2D(ShadowTex), projCoord.xy).r, vec2(0.01, 30)));
+    if(searchSize < 0.01) return 0.01;
+
+    #pragma unroll
     for(int i = 0; i < SAMPLE_COUNT; i++)
     {
-        float sampleDepth = texture(sampler2D(ShadowTex), projCoord.xy + vogelDiskSample(i, SAMPLE_COUNT, interleavedGradientNoise() * 2 * 3.14159) * MAX_SEARCH / CAM_SIZE).r;
-        sampleDepth = linearizeDepth(sampleDepth, vec2(0.01, 100));
+        float sampleDepth = texture(sampler2D(ShadowTex), projCoord.xy + vogelDiskSample(i, SAMPLE_COUNT, interleavedGradientSample * 2 * PI) * searchSize / CAM_SIZE).r;
+        sampleDepth += linearizeDepth(sampleDepth, vec2(0.005, 30));
 
         if(sampleDepth > projCoord.z) continue;
 
         count++;
-        avgDepth += sampleDepth;
+        avgDepth = min(avgDepth, sampleDepth);
     }
-
     if(count == 0) return 0;
-    avgDepth /= float(count);
 
-    return avgDepth;//(FragPosLightSpace.z - avgDepth) * LIGHT_SIZE / avgDepth;
+    //avgDepth /= count;
+    return max((projCoord.z - avgDepth) * LIGHT_SIZE / avgDepth, 0.01);
 }
 
 
@@ -58,9 +58,16 @@ float calcShadow()
     vec3 projCoords = FragPosLightSpace.xyz / FragPosLightSpace.w;
     projCoords = projCoords * 0.5 + 0.5;
 
+    float penumbra = calcPenumbra(projCoords);
+    if(penumbra == 0) return 1;
+
     float shadow = 0;
+    #pragma unroll
     for(int i = 0; i < SAMPLE_COUNT; i++)
-        shadow += texture(sampler2DShadow(ShadowTex), vec3(projCoords.xy + vogelDiskSample(i, SAMPLE_COUNT, interleavedGradientNoise() * 2 * 3.14159) * LIGHT_SIZE / CAM_SIZE, projCoords.z - 0.0005));
+    {
+        vec2 vogelSample = vogelDiskSample(i, SAMPLE_COUNT, interleavedGradientNoise() * 2 * 3.14159) * penumbra;
+        shadow += texture(sampler2DShadow(ShadowTex), vec3(projCoords.xy + vogelSample / CAM_SIZE, projCoords.z - 0.005));
+    }
 
     return shadow / SAMPLE_COUNT;
 }
@@ -71,13 +78,14 @@ void main()
 
     float shadow = calcShadow();
 
-    float light = dot(normal, SunInfo.xyz) * 0.5 + 0.5;
+    float light = clamp(pow(dot(normal, normalize(SunInfo.xyz)) * 0.5 + 0.5, 2), 0, 1);
     light = min(shadow * 0.5 + 0.5, light);
-    light *= light;
+    light = mix(0.1, 1, light);
 
     vec3 spec = pow(max(dot(reflect(-SunInfo.xyz, normal), normalize(Position - FragPos)), 0.0), 256.0).rrr;
     spec = mix(vec3(0), spec, shadow);
 
     FragColor = vec4(texture(sampler2D(Albedo), TexCoord).rgb * light + spec, 1);
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
+    FragColor *= ComputeSSAO();
 }

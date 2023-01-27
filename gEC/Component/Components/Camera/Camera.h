@@ -14,11 +14,12 @@ namespace gE::Component
     class Camera : public Component
     {
     protected:
+        Camera(gE::Entity* owner, glm::vec2 clipPlanes) : Component(owner), Projection(1.0), ClipPlanes(clipPlanes) {}
+        virtual void UpdateProjection() = 0;
         glm::mat4 Projection;
         glm::vec2 ClipPlanes;
-    public:
-        Camera(gE::Entity* owner, glm::vec2 clipPlanes) : Component(owner), Projection(1.0), ClipPlanes(clipPlanes) {}
 
+    public:
         void OnLoad() override { OnUpdate(0); UpdateProjection(); }
         void OnUpdate(double delta) final { }
         void OnDestroy() final { }
@@ -28,8 +29,6 @@ namespace gE::Component
         [[nodiscard]] glm::vec2 GetClipPlanes() const { return ClipPlanes; }
 
         virtual void Use();
-    protected:
-        virtual void UpdateProjection() = 0;
     };
 
     struct CameraData

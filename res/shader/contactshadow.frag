@@ -18,6 +18,7 @@ uniform uvec2 Albedo;
 #include "../res/shader/demowindow.glsl"
 #include "../res/shader/camera.glsl"
 #include "../res/shader/ray.glsl"
+#include "../res/shader/ssao.glsl"
 
 
 out vec4 FragColor;
@@ -50,15 +51,16 @@ void main()
     float shadow = calcShadow();
     vec2 occlusion = castRay(rayPos, rayDir, MAX_LENGTH, ITERATIONS, RAY_MODE_CHEAP);
 
-    float light = pow(dot(normal, SunInfo.xyz) * 0.5 + 0.5, 2);
+    float light = clamp(pow(dot(normal, normalize(SunInfo.xyz)) * 0.5 + 0.5, 2), 0, 1);
     light = min(min(shadow, occlusion.x == -1 ? 1 : 0) * 0.5 + 0.5, light);
-    light *= light;
+    light = mix(0.1, 1, light);
 
     vec3 spec = pow(max(dot(reflect(-SunInfo.xyz, normal), normalize(Position - FragPos)), 0.0), 256.0).rrr;
     spec = mix(vec3(0), spec, shadow);
 
     FragColor = vec4(texture(sampler2D(Albedo), TexCoord).rgb * light + spec, 1);
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
+    FragColor *= ComputeSSAO();
 }
 
 

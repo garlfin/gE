@@ -12,7 +12,7 @@
 
 namespace gE
 {
-    class StaticRenderer : public StaticEntity<Component::Transform, Component::Renderer, Component::MaterialHolder>
+    class StaticRenderer : public StaticEntity<0, Component::Transform, Component::Renderer, Component::MaterialHolder>
     {
     public:
         StaticRenderer(Window* window, const Transform& transform, Asset::RenderMesh* mesh, Asset::Material** materials,

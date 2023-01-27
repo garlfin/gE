@@ -20,6 +20,13 @@ namespace gE::Asset
         NEAREST = 1,
     };
 
+    enum class TextureWrapMode
+    {
+        REPEAT = GL_REPEAT,
+        EDGE = GL_CLAMP_TO_EDGE,
+        MIRROR = GL_MIRRORED_REPEAT
+    };
+
     enum class TextureType : uint64_t
     {
         COMPRESSED_DX1 = 7,
