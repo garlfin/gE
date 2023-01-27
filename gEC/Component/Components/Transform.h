@@ -20,7 +20,6 @@ namespace gE::Component
         Transform(Entity* owner) : Component::Component(owner), Location(0.0), Rotation(0.0), Scale(1.0) {};
         Transform(Entity* owner, gE::Transform const& t) : Component::Component(owner), Location(t.Location), Rotation(t.Rotation), Scale(t.Scale) {};
 
-
         glm::vec3 Location;
         glm::vec3 Rotation;
         glm::vec3 Scale;
@@ -31,6 +30,13 @@ namespace gE::Component
         void OnRender(double delta) override;
         void OnUpdate(double delta) override;
         void OnDestroy() override {}
+
+        void Set(const gE::Transform& t)
+        {
+            Location = t.Location;
+            Rotation = t.Rotation;
+            Scale = t.Scale;
+        }
     };
 
     struct ObjectInfo

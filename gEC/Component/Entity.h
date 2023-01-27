@@ -7,6 +7,7 @@
 #include "Component.h"
 #include <vector>
 #include <typeinfo>
+#include <cstring>
 
 namespace gE
 {
@@ -20,6 +21,9 @@ namespace gE
         Window const* OwningWindow;
         Entity* Parent;
         const char* Name;
+
+        Entity** Children;
+        uint32_t ChildrenCount;
 
         Component::Component** Components;
         uint32_t ComponentCount;
@@ -35,6 +39,13 @@ namespace gE
             return nullptr;
         };
 
+        Entity* GetChild(const char* name)
+        {
+            for (uint32_t i = 0; i < ChildrenCount; i++)
+                if(!strcmp(Children[i]->Name, name)) return Children[i];
+            return nullptr;
+        }
+
         [[nodiscard]] const char* const GetName()
         { return Name; }
 
@@ -48,11 +59,15 @@ namespace gE
     class DynamicEntity final : public Entity
     {
     private:
-        std::vector<Component::Component*> ComponentArray;
-        void UpdateComponentData() { Components = ComponentArray.data(); ComponentCount = ComponentArray.size(); }
+        std::vector<Component::Component*> _componentArray;
+        std::vector<Entity*> _childrenArray;
+
+        void UpdateComponentData() { Components = _componentArray.data(); ComponentCount = _componentArray.size(); }
+        void UpdateChildrenData() { Children = _childrenArray.data(); ChildrenCount = _childrenArray.size(); }
 
     public:
-        explicit DynamicEntity(Window* window, Entity* parent = nullptr, const char* name = nullptr) : Entity(window, parent, name), ComponentArray() { Components = ComponentArray.data(); }
+        explicit DynamicEntity(Window* window, DynamicEntity* parent = nullptr, const char* name = nullptr) : Entity(window, parent, name), _componentArray(), _childrenArray() { UpdateChildrenData(); UpdateComponentData(); if(parent)
+                parent->AddChild(this); }
 
         template<typename T, typename I, typename... Args>
         T* CreateComponent(Component::ComponentManager<I>* manager, Args&&... args)
@@ -64,27 +79,31 @@ namespace gE
         T* AddComponent(T* c)
         {
             if(!GetComponent<T>())
-                ComponentArray.push_back(c);
+                _componentArray.push_back(c);
             UpdateComponentData();
             return c;
         }
 
         template<typename T>
         void RemoveComponent() { if(T* c = GetComponent<T>()) RemoveComponent(c); }
-        void RemoveComponent(Component::Component* c) { std::erase(ComponentArray, c); UpdateComponentData(); }
+        void RemoveComponent(Component::Component* c) { std::erase(_componentArray, c); UpdateComponentData(); }
 
         template<typename T>
         void DeleteComponent() { if(T* c = GetComponent<T>()) DeleteComponent(c); }
         void DeleteComponent(Component::Component* c) { c->FlagDeletion(); } // Yeah It can be static no i dont care
+
+        void AddChild(Entity* entity) { _childrenArray.push_back(entity); UpdateChildrenData(); }
+        void Remove(Entity* entity) { std::erase(_childrenArray, entity); UpdateChildrenData();  }
     };
 
-    template<typename... ComponentPack>
+    template<int TChildrenCount, typename... ComponentPack>
     class StaticEntity : public Entity
     {
     private:
         Component::Component* _componentArray[sizeof...(ComponentPack)];
+        Entity* _childrenArray[TChildrenCount] {};
     protected:
-        typedef StaticEntity<ComponentPack...> Base;
-        explicit StaticEntity(Window* window, Entity* parent = nullptr, const char* name = nullptr) : Entity(window, parent, name) { Components = _componentArray; ComponentCount = sizeof...(ComponentPack); };
+        typedef StaticEntity<TChildrenCount, ComponentPack...> Base;
+        explicit StaticEntity(Window* window, Entity* parent = nullptr, const char* name = nullptr) : Entity(window, parent, name) { Components = _componentArray; ComponentCount = sizeof...(ComponentPack); Children = _childrenArray; ChildrenCount = TChildrenCount; }
     };
 }

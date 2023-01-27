@@ -27,7 +27,7 @@ const float PassthroughVertices[]
             1, -1, 0
         };
 
-#define LOG(msg) std::cout << "LOG: " << msg << std::endl)
+#define LOG(msg) std::cout << "LOG: " << msg << std::endl
 #define CEIL_DIV(x, y) ((((x) + (y) - 1) / (y)) ?: 1)
 #define HIZ_WORK_GROUP_SIZE 32
 
@@ -62,10 +62,10 @@ void gE::DemoWindow::Load()
     AssetManager.Add(Skybox.SkyboxVAO = gE::Utility::CreateSkyboxVAO(this));
     Skybox.SkyboxTexture = (Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../sky.pvr", nullptr));
 
-    DepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST);
-    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RED_32F, 0, Asset::TextureFilterMode::NEAREST);
-    FrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1);
-    PrevFrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1);
+    DepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::EDGE);
+    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RED_32F, 0, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::EDGE);
+    FrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
+    PrevFrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
 
     RenderFrameBuffer = AssetManager.Create<Asset::Framebuffer>();
     RenderFrameBuffer->Attach(DepthTex, Asset::Framebuffer::DEPTH);
@@ -105,13 +105,27 @@ void gE::DemoWindow::Load()
     entity->CreateComponent<Component::Transform>(TransformManager);
     entity->CreateComponent<Component::Renderer>(&ComponentManager, nullptr);
     entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
-    entity->CreateComponent<Component::InventoryScript>(&BehaviorManager)->Weapon = new Weapon(
-                AssetManager.Create<Asset::RenderMesh>(LoadgEMeshFromIntermediate("../gun.dae")),
-                nullptr, 0,
-                Transform(glm::vec3(1.82343, -1.10008, -1.45051), glm::vec3(4, 0, 5.72), glm::vec3(1)) * 0.4,
-                Transform(glm::vec3(0, -0.436711, -1.23802), glm::vec3(0), glm::vec3(1)) * 0.4,
-                0.25
-            );
+
+    auto* gunGETF = LoadgEMeshFromIntermediate("../gun.dae");
+    entity->CreateComponent<Component::InventoryScript>(&BehaviorManager)->Weapon = new Weapon
+    (
+        0.2, FireSelectMode::Single,
+        Transform(glm::vec3(1.82343, -1.10008, -1.45051), glm::vec3(4, 0, 5.72), glm::vec3(1)),
+        Transform(glm::vec3(0, 0.332703, -0.0976), glm::vec3(0), glm::vec3(1)), // Sight point
+            new SightAttachment
+            (
+                AssetManager.Create<Asset::RenderMesh>(gunGETF), nullptr,
+                Transform(glm::vec3(0, 0.12513, -1), glm::vec3(0), glm::vec3(1)),
+                80
+            ),
+        AssetManager.Create<Asset::RenderMesh>(gunGETF + 1),
+        nullptr, 0
+    );
+
+    entity = EntityManager.Create<DynamicEntity>(entity, "Sight");
+    entity->CreateComponent<Component::Transform>(TransformManager);
+    entity->CreateComponent<Component::Renderer>(&ComponentManager, nullptr);
+    entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
 
     entity = EntityManager.Create<DynamicEntity>();
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-80, 0, 0), glm::vec3(1)));
@@ -133,7 +147,7 @@ void gE::DemoWindow::Render(double delta)
     Component::Camera* prevCam = CameraManager->GetCamera();
     LightManager.OnRender(0);
     {
-        DemoUBO buf(Skybox.SkyboxTexture, Sun, PrevFrameTex, PrevDepthTex, Frame);
+        DemoUBO buf(Skybox.SkyboxTexture, Sun, PrevFrameTex, DepthTex, Frame);
         DemoUniformBuffer->ReplaceData(&buf);
     }
     prevCam->Use();

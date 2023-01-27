@@ -14,25 +14,38 @@ namespace gE::Component
     void InventoryScript::OnLoad()
     {
         p_Owner->GetComponent<Renderer>()->SetRenderMesh(Weapon->Mesh);
+        auto* sight = p_Owner->GetChild("Sight");
+        sight->GetComponent<Renderer>()->SetRenderMesh(Weapon->Sight->Mesh);
+        sight->GetComponent<gE::Component::Transform>()->Set(Weapon->SightAttachmentPoint);
+        sight->GetComponent<gE::Component::Transform>()->Scale = glm::vec3(1);
 
-        auto* t = p_Owner->GetComponent<gE::Component::Transform>();
-        t->Location = Weapon->IdleOffset.Location;
-        t->Rotation = Weapon->IdleOffset.Rotation;
-        t->Scale = Weapon->IdleOffset.Scale;
+        _transform = p_Owner->GetComponent<gE::Component::Transform>();
+        _transform->Set(Weapon->IdleOffset);
     }
 
     void InventoryScript::OnUpdate(double delta)
     {
         _swayValue += delta;
+        _lerpValue = std::clamp(_lerpValue + float(delta / Weapon->BaseADSSpeed) * (glfwGetKey(GetWindow()->GetWindow(), GLFW_KEY_F) ? 1.0f : -1.0f), 0.0f, 1.0f);
 
-        auto* t = p_Owner->GetComponent<gE::Component::Transform>();
+        p_Owner->GetParent()->GetComponent<gE::Component::PerspectiveCamera>()->SetFOV(std::lerp(80, Weapon->Sight->ADSFov, _lerpValue), PerspectiveCamera::Horizontal);
+        gE::Transform lerpPos = gE::Lerp
+        (
+            Weapon->IdleOffset,
+            gE::Transform
+            (
+                glm::vec3
+                (
+                    0,
+                    -(Weapon->SightAttachmentPoint.Location.y + Weapon->Sight->ADSPoint.Location.y),
+                    Weapon->Sight->ADSPoint.Location.z + Weapon->SightAttachmentPoint.Location.z
+                ),
+                glm::vec3(0), Weapon->SightAttachmentPoint.Scale
+            ),
+            _lerpValue
+        );
 
-        _lerpValue = std::clamp(_lerpValue + float(delta / Weapon->ADSTime) * (glfwGetKey(GetWindow()->GetWindow(), GLFW_KEY_F) ? 1.0f : -1.0f), 0.0f, 1.0f);
-
-        p_Owner->GetParent()->GetComponent<gE::Component::PerspectiveCamera>()->SetFOV(std::lerp(80, 65, _lerpValue), PerspectiveCamera::Horizontal);
-
-        gE::Transform lerpPos = gE::Lerp(Weapon->IdleOffset, Weapon->AimOffset, _lerpValue);
-        t->Location = lerpPos.Location + glm::vec3(0, sin(_swayValue * std::numbers::pi) * 0.02 * Weapon->IdleOffset.Scale.y * (1 - _lerpValue), 0);
-        t->Rotation = lerpPos.Rotation + glm::vec3(sin(_swayValue * std::numbers::pi + std::numbers::pi * 1.25) * (1 - _lerpValue), 0, 0);
+        _transform->Location = lerpPos.Location + glm::vec3(0, sin(_swayValue * std::numbers::pi) * 0.02 * Weapon->IdleOffset.Scale.x * (1 - _lerpValue), 0);
+        _transform->Rotation = lerpPos.Rotation + glm::vec3(sin(_swayValue * std::numbers::pi + std::numbers::pi * 1.45) * (1 - _lerpValue), 0, 0);
     }
 }

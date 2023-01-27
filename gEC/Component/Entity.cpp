@@ -6,7 +6,7 @@
 #include "../Windowing/Window.h"
 
 gE::Entity::Entity(gE::Window* window, gE::Entity* parent, const char* name)
-    : OwningWindow(window), Parent(parent), Name(name), Components(nullptr), ComponentCount(0)
+    : OwningWindow(window), Parent(parent), Name(name), Components(nullptr), ComponentCount(0), ChildrenCount(0)
 {
 
 }

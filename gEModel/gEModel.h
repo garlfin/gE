@@ -38,6 +38,21 @@ namespace gE
             return Transform(Location * b, Rotation, Scale * b);
         };
 
+        Transform operator +(const Transform& b)
+        {
+            return Transform(Location + b.Location, Rotation + b.Rotation, Scale);
+        };
+
+        Transform operator -(const Transform& b)
+        {
+            return Transform(Location - b.Location, Rotation - b.Rotation, Scale);
+        };
+
+        Transform operator -()
+        {
+            return Transform(Location * -1.0f, Rotation, Scale);
+        };
+
     };
 
 #ifndef GEMODEL_LERP

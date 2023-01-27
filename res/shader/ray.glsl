@@ -62,7 +62,7 @@ vec2 binaryRefine(inout vec3 rayPos, vec3 dir, uint steps)
 
 float linearizeDepth(float z, vec2 planes)
 {
-    return 2.0 * planes.x * planes.y / (planes.y + planes.x - (z * 2 - 1) * (planes.y - planes.x));
+    return 2.0 * planes.x * planes.y / (planes.y + (z * 2.0 - 1.0) * (planes.x - planes.y));
 }
 
 vec3 worldToScreen(vec3 pos)
@@ -71,6 +71,20 @@ vec3 worldToScreen(vec3 pos)
     outVal.xy /= outVal.w;
     outVal.xy = outVal.xy * 0.5 + 0.5;
     return outVal.xyz;
+}
+
+vec3 worldToScreenNDC(vec3 pos)
+{
+    vec4 outVal = Projection * View * vec4(pos, 1.0);
+    outVal.xyz /= outVal.w;
+    outVal.xy = outVal.xy * 0.5 + 0.5;
+    //outVal.z = outVal.z * 2 - 1;
+    return outVal.xyz;
+}
+
+vec3 worldToView(vec3 pos)
+{
+    return (View * vec4(pos, 1.0)).xyz;
 }
 
 vec3 screenToWorld(vec3 pos, bool ndc)
