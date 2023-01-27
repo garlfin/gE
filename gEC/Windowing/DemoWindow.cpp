@@ -87,7 +87,7 @@ void gE::DemoWindow::Load()
     Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader);
     Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader);
 
-    Asset::Material* mats[2]{ssrMat, shinyMat};
+    Asset::Material* mats[2]{ shinyMat, shinyMat};
 
     uint64_t handle = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../x.pvr", nullptr)))->GetHandle();
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) &handle);
@@ -128,7 +128,7 @@ void gE::DemoWindow::Load()
     entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
 
     entity = EntityManager.Create<DynamicEntity>();
-    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-80, 0, 0), glm::vec3(1)));
+    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-70, 45, 0), glm::vec3(1)));
     Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 10);
 }
 
