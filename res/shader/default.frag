@@ -74,12 +74,15 @@ float calcShadow()
 
 void main()
 {
-    vec3 normal = normalize(Normal);
+    const vec3 normal = normalize(Normal);
+    const vec3 rayDir = normalize(SunInfo.xyz) * (1.0 / 25);
+    vec3 rayPos = FragPos + rayDir * (1 + interleavedGradientNoise());
 
     float shadow = calcShadow();
+    vec2 occlusion = castRay(rayPos, rayDir, 1.0, 25, RAY_MODE_CHEAP);
 
     float light = clamp(pow(dot(normal, normalize(SunInfo.xyz)) * 0.5 + 0.5, 2), 0, 1);
-    light = min(shadow * 0.5 + 0.5, light);
+    light = min(min(shadow, occlusion.x == -1 ? 1 : 0) * 0.5 + 0.5, light);
     light = mix(0.1, 1, light);
 
     vec3 spec = pow(max(dot(reflect(-SunInfo.xyz, normal), normalize(Position - FragPos)), 0.0), 256.0).rrr;

@@ -25,7 +25,7 @@ vec2 castRay(inout vec3 rayPos, vec3 dir, float maxLen, uint steps, int mode)
         const float screenDepth = linearizeDepth(textureLod(FrameDepthTex, screenPos.xy, 0).r, Info.zw);
         const float delta = screenPos.z - screenDepth;
 
-        if (abs(delta) <= RAY_THRESHOLD || (mode == RAY_MODE_CHEAP && delta < 0 && delta > -RAY_OBJ_THICKNESS)) return screenPos.xy;
+        if (abs(delta) <= RAY_THRESHOLD || (mode == RAY_MODE_CHEAP && screenPos.z > screenDepth && abs(screenPos.z - screenDepth) < RAY_OBJ_THICKNESS)) return screenPos.xy;
         if (delta > 0 && delta < RAY_OBJ_THICKNESS) return binaryRefine(rayPos, dir, steps);
         if (mode == RAY_MODE_CHEAP && delta > 0) return vec2(1.0);
 
