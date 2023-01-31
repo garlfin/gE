@@ -15,6 +15,7 @@ namespace gE::Component
 
     public:
         OrthographicCamera(Entity* owner, float size, glm::vec2 clipPlanes) : Camera(owner, clipPlanes), Size(size) {}
+        float GetSize() const { return Size; }
 
     private:
         void UpdateProjection() override;
