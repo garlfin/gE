@@ -24,7 +24,8 @@ namespace gE::Asset
     {
         REPEAT = GL_REPEAT,
         EDGE = GL_CLAMP_TO_EDGE,
-        MIRROR = GL_MIRRORED_REPEAT
+        MIRROR = GL_MIRRORED_REPEAT,
+        BORDER = GL_CLAMP_TO_BORDER
     };
 
     enum class TextureType : uint64_t

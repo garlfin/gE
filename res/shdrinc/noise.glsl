@@ -12,7 +12,7 @@ float interleavedGradientNoise()
     return interleavedGradientNoise(gl_FragCoord.xy);
 }
 
-vec2 vogelDiskSample(int sampleIndex, int samplesCount, float phi)
+vec2 vogelDiskSample(uint sampleIndex, int samplesCount, float phi)
 {
     float r = sqrt(float(sampleIndex) + 0.5f) / sqrt(float(samplesCount));
     float theta = sampleIndex * 2.4 + phi;
