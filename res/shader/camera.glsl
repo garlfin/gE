@@ -6,12 +6,24 @@ layout(std140, binding = 0) uniform SceneInfo
     vec3 Position;
 };
 
+#define UP    vec4(0, 1, 0, 0)
+#define LEFT  vec4(1, 0, 0, 0)
+#define FRONT vec4(0, 0, 1, 0)
 
-/** TODO: implement cubemap
-mat4 GetView(out CameraCubemap camera, uint side)
+mat4 GetView(vec3 pos, uint side)
 {
-    if (bool(side))
-    return View[side - 1];
-    else
-    return Base.View;
-}*/
+    // X+, X-, Y+, Y-, Z+ Z-
+
+    if(side == 0)
+        return View;
+    if(side == 1)
+        return mat4(-FRONT, UP, -LEFT, vec4(pos, 1));
+    if(side == 2)
+        return mat4(-LEFT, FRONT, UP, vec4(pos, 1));
+    if(side == 3)
+        return mat4(-LEFT, -FRONT, -UP, vec4(pos, 1));
+    if(side == 4)
+        return mat4(LEFT, UP, FRONT, vec4(pos, 1));
+    if(side == 5)
+        return mat4(-LEFT, UP, -FRONT, vec4(pos, 1));
+}

@@ -18,7 +18,6 @@
 #define SEARCH_SIZE 0.3
 #endif
 
-#define PI2 6.28318
 #define PENUMBRA_THRESHOLD 0.01
 #define SHADOW_MAX 50
 

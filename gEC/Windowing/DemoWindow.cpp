@@ -63,7 +63,7 @@ void gE::DemoWindow::Load()
     Skybox.SkyboxTexture = (Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../sky.pvr", nullptr));
 
     DepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::EDGE);
-    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RED_32F, 0, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::BORDER);
+    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RED_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::BORDER);
     FrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
     PrevFrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
 
@@ -78,16 +78,16 @@ void gE::DemoWindow::Load()
     // Scene Setup
     
     auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
-    //auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
 
     Asset::Material* shinyMat = AssetManager.Create<Asset::PBRMaterial>(shinyShader);
-    //Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader);
+    Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader);
     Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader);
 
-    Asset::Material* mats[2]{ shinyMat, shinyMat};
+    Asset::Material* mats[2]{ ssrMat, shinyMat};
 
     uint64_t handle = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../x.pvr", nullptr)))->GetHandle();
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) &handle);
@@ -171,7 +171,7 @@ void gE::DemoWindow::Render(double delta)
     glProgramUniform1i(PassthroughShader->Get(), 0, DepthTex->Use(1));
     PassthroughVAO->Draw(1);
 
-    HiZComputeShader->Use();
+/*    HiZComputeShader->Use();
     for(uint8_t i = 1; i < PrevDepthTex->GetMipCount(); i++)
     {
         auto mipSize = PrevDepthTex->GetSize(i - 1);
@@ -180,7 +180,7 @@ void gE::DemoWindow::Render(double delta)
         PrevDepthTex->Bind(1, Asset::AccessMode::WRITE, i);
 
         glDispatchCompute(CEIL_DIV(mipSize.x, HIZ_WORK_GROUP_SIZE), CEIL_DIV(mipSize.y, HIZ_WORK_GROUP_SIZE), 1);
-    }
+    }*/
 
     Stage = Windowing::Stage::Render;
     RenderFrameBuffer->Bind();

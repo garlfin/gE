@@ -1,6 +1,8 @@
 #ifndef NOISE_INCLUDE
 #define NOISE_INCLUDE 1
 
+#define PI2 6.28318
+
 float interleavedGradientNoise(vec2 pos)
 {
     const vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);

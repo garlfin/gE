@@ -31,11 +31,11 @@ void main()
     const vec3 normal = normalize(Normal);
     const vec3 light = normalize(SunInfo.xyz);
     const vec3 incoming = normalize(FragPos - Position);
-    vec3 rayPos = FragPos + light * 0.02 * (1 + interleavedGradientSample) + 0.01 * normal;
+    vec3 rayPos = FragPos + light * 0.03 * (1 + interleavedGradientSample) + 0.01 * normal;
 
     float ambient = max(dot(normal, light), 0);
     // ambient *= ambient;
-    ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 10, 0.1, RAY_MODE_CHEAP).x == -1 ? 1 : 0);
+    ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP).x == -1 ? 1 : 0);
     ambient = min(ambient, CalculateShadow(0.1));
     FragColor = texture(sampler2D(Albedo), TexCoord) * mix(0.3, 1.0, ambient);
     FragColor = pow(FragColor, vec4(1.0 / 2.2));

@@ -1,7 +1,12 @@
 #version 460 core
 #extension GL_ARB_bindless_texture: enable
 
+#include "../res/shader/demowindow.glsl"
+#include "../res/shader/camera.glsl"
+
 layout(early_fragment_tests) in;
+
+uniform uvec2 Albedo;
 
 in FragInfo
 {
@@ -13,18 +18,10 @@ in FragInfo
     mat3 TBN;
 };
 
-#include "../res/shader/demowindow.glsl"
-#include "../res/shader/camera.glsl"
-#include "../res/shader/ray.glsl"
-
+#include "../res/shdrinc/noise.glsl"
+#include "../res/shdrinc/ray.glsl"
 
 out vec4 FragColor;
-
-#define ITERATIONS 50
-#define MAX_LENGTH 5.0
-#define ROUGHNESS 0.1
-#define PI 3.14159
-#define VOGEL_SAMPLE 64
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
 vec2 Hammersley(uint i, uint N);
@@ -33,19 +30,12 @@ void main()
 {
     const vec3 normal = normalize(Normal);
     const vec3 viewDir = normalize(FragPos - Position);
-    const vec2 screenUV = gl_FragCoord.xy / Info.xy;
+    const vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 32), 32), reflect(viewDir, normal), 0.1);
 
-    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * VOGEL_SAMPLE), VOGEL_SAMPLE), reflect(viewDir, normal), ROUGHNESS);
-    vec2 reflection = vec2(-1);
+    vec3 RayPos = FragPos;
+    vec2 reflection = CastRay(RayPos, rayDir, 150, 5, RAY_MODE_ACCURATE);
 
-    vec3 rayPos = FragPos;
-    reflection = castRay(rayPos, rayDir, MAX_LENGTH, ITERATIONS, RAY_MODE_EXPENSIVE);
-
-
-    if (reflection.x == -1.0)
-         FragColor = pow(texture(SkyboxTex, rayDir), vec4(1.0 / 2.2));
-    else
-         FragColor = texture(FrameColorTex, reflection);
+    FragColor = mix(pow(texture(SkyboxTex, rayDir), vec4(1.0 / 2.2)), texture(FrameColorTex, reflection), reflection.x >= 0);
 }
 
 float RadicalInverse_VdC(uint bits)
@@ -65,22 +55,19 @@ vec2 Hammersley(uint i, uint N)
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 {
-    float a = roughness*roughness;
-    float phi = 2.0 * PI * Xi.x;
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
-    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+    float a = roughness * roughness;
+    float phi = 2.0 * 3.14159 * Xi.x;
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 
     vec3 H;
     H.x = cos(phi) * sinTheta;
     H.y = sin(phi) * sinTheta;
     H.z = cosTheta;
 
-    vec3 up        = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
-    vec3 tangent   = normalize(cross(up, N));
+    vec3 up = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+    vec3 tangent = normalize(cross(up, N));
     vec3 bitangent = cross(N, tangent);
-    vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
-
-    return normalize(sampleVec);
+    return tangent * H.x + bitangent * H.y + N * H.z;
 }
-
 

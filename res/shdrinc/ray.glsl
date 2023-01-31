@@ -5,11 +5,11 @@
 #define RAY_MODE_ACCURATE 1
 
 #ifndef RAY_THICKNESS
-#define RAY_THICKNESS 0.2
+#define RAY_THICKNESS 0.1
 #endif
 
 #ifndef RAY_THRESHOLD
-#define RAY_THRESHOLD 0.05
+#define RAY_THRESHOLD 0.005
 #endif
 
 // "Public" functions
@@ -33,8 +33,8 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
         float rayDepth = _linearizeDepth(textureLod(FrameDepthTex, rayScreen.xy, 0).r, Info.zw);
         float delta = rayMode == RAY_MODE_CHEAP ? rayDepth - rayScreen.z : rayScreen.z - rayDepth;
 
-        if(abs(delta) <= RAY_THRESHOLD) return rayScreen.xy;
         if(rayScreen.x < 0 || rayScreen.x > 1 || rayScreen.y < 0 || rayScreen.y > 1) break;
+        if(delta >= 0 && delta <= RAY_THRESHOLD) return rayScreen.xy;
         if(delta > 0 && delta <= RAY_THICKNESS)
             if(rayMode == RAY_MODE_CHEAP)
                 return rayScreen.xy;
@@ -49,16 +49,18 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
 
 vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir, uint iteration)
 {
+    rayPos -= rayDir;
     for(uint i = 0; i < iteration; i++)
     {
         rayDir *= 0.5;
-        rayPos += rayDir * 0.5;
+        rayPos += rayDir;
         vec3 rayScreen = _worldToScreen(rayPos);
         float rayDepth = _linearizeDepth(textureLod(FrameDepthTex, rayScreen.xy, 0).r, Info.zw);
 
-        if(abs(rayDepth - rayScreen.z) <= RAY_THRESHOLD) return rayScreen.xy;
-        if(rayScreen.z < rayDepth) rayPos += rayDir * 0.5;
-        else rayPos -= rayDir * 0.5;
+        if(abs(rayScreen.z - rayDepth) <= RAY_THRESHOLD) return rayScreen.xy;
+
+        if(rayScreen.z > rayDepth) rayPos -= rayDir;
+
     }
     return vec2(-1);
 }
