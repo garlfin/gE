@@ -20,8 +20,8 @@ namespace gE::Component
         glTextureParameterfv(shadowMap->Get(), GL_TEXTURE_BORDER_COLOR, BORDER_COLOR);
         glTextureParameteri(shadowMap->Get(), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTextureParameteri(shadowMap->Get(), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-        glTextureParameteri(shadowMap->Get(), GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-        glTextureParameteri(shadowMap->Get(), GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+        /*glTextureParameteri(shadowMap->Get(), GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+        glTextureParameteri(shadowMap->Get(), GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);*/
 
         glNamedFramebufferReadBuffer(Framebuffer.Get(), GL_NONE);
         glNamedFramebufferDrawBuffer(Framebuffer.Get(), GL_NONE);

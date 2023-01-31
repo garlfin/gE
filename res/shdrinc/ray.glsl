@@ -18,7 +18,7 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
 // "Private" functions
 vec3 _worldToScreen(vec3);
 vec3 _worldToView(vec3);
-vec3 _screenToWorld(vec3, bool ndc);
+vec3 _screenToWorld(vec3, bool);
 vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir, uint iteration);
 float _linearizeDepth(float z, vec2 p);
 

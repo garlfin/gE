@@ -79,19 +79,19 @@ void gE::DemoWindow::Load()
     
     auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
     //auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
-    //auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
+    auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
 
     Asset::Material* shinyMat = AssetManager.Create<Asset::PBRMaterial>(shinyShader);
     //Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader);
-    //Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader);
+    Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader);
 
     Asset::Material* mats[2]{ shinyMat, shinyMat};
 
     uint64_t handle = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../x.pvr", nullptr)))->GetHandle();
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) &handle);
-    //glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) &handle);
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) &handle);
 
     EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(3)), rMesh, mats, 2);
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
@@ -104,7 +104,7 @@ void gE::DemoWindow::Load()
     entity = EntityManager.Create<DynamicEntity>(entity);
     entity->CreateComponent<Component::Transform>(TransformManager);
     entity->CreateComponent<Component::Renderer>(&ComponentManager, nullptr);
-    entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &shinyMat, 1);
+    entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
 
     auto* gunGETF = LoadgEMeshFromIntermediate("../gun.dae");
     entity->CreateComponent<Component::InventoryScript>(&BehaviorManager)->Weapon = new Weapon
@@ -125,7 +125,7 @@ void gE::DemoWindow::Load()
     entity = EntityManager.Create<DynamicEntity>(entity, "Sight");
     entity->CreateComponent<Component::Transform>(TransformManager);
     entity->CreateComponent<Component::Renderer>(&ComponentManager, nullptr);
-    entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &shinyMat, 1);
+    entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
 
     entity = EntityManager.Create<DynamicEntity>();
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-70, 45, 0), glm::vec3(1)));
