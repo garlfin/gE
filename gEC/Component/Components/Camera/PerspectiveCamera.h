@@ -21,7 +21,8 @@ namespace gE::Component
         PerspectiveCamera(Entity* owner, float fov, glm::vec2 clipPlane, FOVType type = Horizontal);
 
         void SetFOV(float fovDegrees, FOVType type = Horizontal);
-        void OnRender(double delta) override {};
+    protected:
+        void RenderPass(double delta) override;
 
     protected:
         void UpdateProjection() override;

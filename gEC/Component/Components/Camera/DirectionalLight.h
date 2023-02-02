@@ -5,16 +5,14 @@
 #pragma once
 
 #include "OrthographicCamera.h"
-#include "Light.h"
 
 namespace gE::Component
 {
-    class DirectionalLight : public OrthographicCamera, public Light
+    class DirectionalLight : public OrthographicCamera
     {
     public:
         DirectionalLight(Entity* entity, uint32_t size, float cameraSize);
 
-        void OnRender(double delta) override;
-        void Use() final;
+        void RenderPass(double delta) override;
     };
 }

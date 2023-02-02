@@ -13,14 +13,8 @@ namespace gE::Component
 {
     class CubemapCamera final : public Camera
     {
-    private:
-        Asset::Framebuffer* _frameBuffer;
-        Asset::TextureCube* _cubeMap;
-        Asset::Renderbuffer* _renderBuffer;
-
     public:
         CubemapCamera(Entity* owner, uint32_t size, glm::vec2 clipPlanes);
-        void OnRender(double delta) override;
 
     protected:
         void UpdateProjection() override;

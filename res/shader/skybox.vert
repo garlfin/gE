@@ -1,4 +1,5 @@
 #version 460 core
+#extension GL_ARB_bindless_texture: enable
 #include "../res/shader/camera.glsl"
 
 layout(location = 0) in vec3 vPos;

@@ -42,10 +42,16 @@ namespace gE
         Asset::AssetManager<Asset::Asset> AssetManager;
         Component::ComponentManager<Component::Behavior> BehaviorManager;
 
+        Asset::Framebuffer* BlitBuffer;
+        Asset::Shader* PassthroughShader;
+        Asset::VAO* PassthroughVAO;
+
         [[nodiscard]] float GetAspectRatio() const { return (float) Size.x / Size.y; }
         [[nodiscard]] glm::u32vec2 GetSize() const { return Size; }
         [[nodiscard]] Windowing::Stage GetStage() const {return Stage; }
         [[nodiscard]] const Asset::Shader* GetDefaultShader() const { return p_MissingShader; }
+
+        void SetStage(Windowing::Stage stage);
 
     protected:
         virtual void Load() = 0;

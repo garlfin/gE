@@ -56,24 +56,14 @@ void gE::DemoWindow::Load()
 
     PassthroughVAO = AssetManager.Create<Asset::VAO>(gE::FieldInfo(false, false, false, false), 6, (void*) &PassthroughVertices);
     PassthroughShader = AssetManager.Create<Asset::Shader>("../gEC/Resource/passthrough.vert", "../gEC/Resource/passthrough.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
-    HiZComputeShader = AssetManager.Create<Asset::Shader>("../res/shader/highz.comp");
+    //HiZComputeShader = AssetManager.Create<Asset::Shader>("../res/shader/highz.comp");
     Skybox.SkyboxShader = AssetManager.Create<Asset::Shader>("../res/shader/skybox.vert", "../res/shader/skybox.frag", Asset::CullMode::NEVER, Asset::DepthFunction::LEQUAL);
 
     AssetManager.Add(Skybox.SkyboxVAO = gE::Utility::CreateSkyboxVAO(this));
     Skybox.SkyboxTexture = (Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../sky.pvr", nullptr));
 
-    DepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::EDGE);
-    PrevDepthTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RED_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::BORDER);
-    FrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
-    PrevFrameTex = AssetManager.Create<Asset::Texture2D>(GetSize().x, GetSize().y, Asset::TextureType::RGBAf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
-
-    RenderFrameBuffer = AssetManager.Create<Asset::Framebuffer>();
-    RenderFrameBuffer->Attach(DepthTex, Asset::Framebuffer::DEPTH);
-    RenderFrameBuffer->Attach(FrameTex, 0);
-
     BlitBuffer = AssetManager.Create<Asset::Framebuffer>();
     BlitBuffer->Attach(AssetManager.Create<Asset::Renderbuffer>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F), Asset::Framebuffer::DEPTH);
-    BlitBuffer->Attach(PrevDepthTex, 0);
 
     // Scene Setup
     
@@ -142,69 +132,26 @@ void gE::DemoWindow::Update(double delta)
 
 void gE::DemoWindow::Render(double delta)
 {
-    Stage = Windowing::Stage::Shadow;
-
-    Component::Camera* prevCam = CameraManager->GetCamera();
-    LightManager.OnRender(0);
     {
-        DemoUBO buf(Skybox.SkyboxTexture, Sun, PrevFrameTex, DepthTex, Frame);
-        DemoUniformBuffer->ReplaceData(&buf);
+        DemoUBO ubo(Skybox.SkyboxTexture, Sun, Frame);
+        DemoUniformBuffer->ReplaceData(&ubo);
     }
-    prevCam->Use();
 
-    Stage = Windowing::Stage::PreZ;
+    Sun->OnRender(delta);
+    CameraManager->GetCamera()->OnRender(delta);
 
-    CameraManager->OnUpdate(0);
-    MeshManager->OnUpdate(0);
-
-    RenderFrameBuffer->Bind();
     glViewport(0, 0, GetSize().x, GetSize().y);
-    glColorMask(false, false, false, false);
-    glDepthMask(true);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    MeshManager->OnRender();
 
     Stage = Windowing::Stage::PostProcess;
-    BlitBuffer->Bind();
-    PassthroughShader->Use();
-    glProgramUniform1i(PassthroughShader->Get(), 0, DepthTex->Use(1));
-    PassthroughVAO->Draw(1);
-
-/*    HiZComputeShader->Use();
-    for(uint8_t i = 1; i < PrevDepthTex->GetMipCount(); i++)
-    {
-        auto mipSize = PrevDepthTex->GetSize(i - 1);
-
-        PrevDepthTex->Bind(0, Asset::AccessMode::READ, i - 1);
-        PrevDepthTex->Bind(1, Asset::AccessMode::WRITE, i);
-
-        glDispatchCompute(CEIL_DIV(mipSize.x, HIZ_WORK_GROUP_SIZE), CEIL_DIV(mipSize.y, HIZ_WORK_GROUP_SIZE), 1);
-    }*/
-
-    Stage = Windowing::Stage::Render;
-    RenderFrameBuffer->Bind();
-    glColorMask(true, true, true, true);
-    glDepthMask(false);
-    glDepthFunc(GL_EQUAL);
-
-    MeshManager->OnRender();
-    Skybox.Render();
-
-    Stage = Windowing::Stage::PostProcess;
-
-    glCopyImageSubData(FrameTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, PrevFrameTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, GetSize().x, GetSize().y, 1);
-
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     PassthroughShader->Use();
-    glProgramUniform1i(PassthroughShader->Get(), 0, FrameTex->Use(1));
+    glProgramUniform1i(PassthroughShader->Get(), 0, CameraManager->GetCamera()->GetColor()->Use(1));
     PassthroughVAO->Draw(1);
 }
 
-gE::DemoUBO::DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, gE::Asset::Texture* prevFrame, gE::Asset::Texture* depthTex, int32_t frame) :
-                    ShadowID(sun->GetShadowMap()->GetHandle()), SkyboxID(sky->GetHandle()),
-                    ColorID(prevFrame->GetHandle()), DepthID(depthTex->GetHandle()),
-                    SunMatrix(*sun->GetProjection() * sun->GetView()), Frame(frame)
+gE::DemoUBO::DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, int32_t frame) :
+                    ShadowID(sun->GetDepth()->GetHandle()), SkyboxID(sky->GetHandle()),
+                    SunMatrix(sun->GetProjection() * sun->GetView()), Frame(frame)
 {
     Component::Transform* transform = sun->GetOwner()->GetComponent<Component::Transform>();
 

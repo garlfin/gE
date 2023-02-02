@@ -40,7 +40,7 @@ void main()
     if(dot(rayDir, normal) < 0) reflection = vec2(-1);
     else reflection = CastRay(RayPos, rayDir, 150, 5, RAY_MODE_ACCURATE);
 
-    FragColor = mix(pow(texture(SkyboxTex, rayDir), vec4(1.0 / 2.2)), texture(FrameColorTex, reflection), reflection.x >= 0);
+    FragColor = mix(pow(texture(SkyboxTex, rayDir), vec4(1.0 / 2.2)), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 }
 
 float RadicalInverse_VdC(uint bits)

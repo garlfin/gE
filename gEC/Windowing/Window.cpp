@@ -6,7 +6,7 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-#define FPS_TARGET 144
+#define FPS_TARGET 60
 
 namespace gE
 {
@@ -68,6 +68,11 @@ namespace gE
 
             pTime = nTime;
         }
+    }
+
+    void Window::SetStage(Windowing::Stage stage)
+    {
+        Stage = stage;
     }
 
     Result Init(int32_t major, int32_t minor, bool debug)
