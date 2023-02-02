@@ -5,7 +5,7 @@
 #define RAY_MODE_ACCURATE 1
 
 #ifndef RAY_THICKNESS
-#define RAY_THICKNESS 0.1
+#define RAY_THICKNESS 0.2
 #endif
 
 #ifndef RAY_THRESHOLD
@@ -34,7 +34,7 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
         float delta = rayMode == RAY_MODE_CHEAP ? rayDepth - rayScreen.z : rayScreen.z - rayDepth;
 
         if(rayScreen.x < 0 || rayScreen.x > 1 || rayScreen.y < 0 || rayScreen.y > 1) break;
-        if(delta >= 0 && delta <= RAY_THRESHOLD) return rayScreen.xy;
+        if(abs(delta) <= RAY_THRESHOLD) return rayScreen.xy;
         if(delta > 0 && delta <= RAY_THICKNESS)
             if(rayMode == RAY_MODE_CHEAP)
                 return rayScreen.xy;
@@ -58,7 +58,6 @@ vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir, uint iteration)
         float rayDepth = _linearizeDepth(textureLod(FrameDepthTex, rayScreen.xy, 0).r, Info.zw);
 
         if(abs(rayScreen.z - rayDepth) <= RAY_THRESHOLD) return rayScreen.xy;
-
         if(rayScreen.z > rayDepth) rayPos -= rayDir;
 
     }
