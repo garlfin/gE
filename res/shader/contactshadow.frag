@@ -19,6 +19,8 @@ in FragInfo
 };
 
 #define SHADOW_SAMPLES 8
+#define SHADOW_BIAS 0.01
+#define RAY_THICKNESS 0.2
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
@@ -31,7 +33,7 @@ void main()
     const vec3 normal = normalize(Normal);
     const vec3 light = normalize(SunInfo.xyz);
     const vec3 incoming = normalize(FragPos - Position);
-    vec3 rayPos = FragPos + light * 0.03 * (1 + interleavedGradientSample) + 0.01 * normal;
+    vec3 rayPos = FragPos + normal * 0.01 + TBN * vec3(vogelDiskSample(int(interleavedGradientSample * 64), 64, 0), 0) * 0.005;
 
     float ambient = max(dot(normal, light), 0);
     // ambient *= ambient;

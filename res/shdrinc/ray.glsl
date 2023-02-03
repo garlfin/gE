@@ -12,6 +12,10 @@
 #define RAY_THRESHOLD 0.005
 #endif
 
+#ifndef RAY_REFINE
+#define RAY_REFINE 20
+#endif
+
 // "Public" functions
 vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint rayMode);
 
@@ -19,7 +23,7 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
 vec3 _worldToScreen(vec3);
 vec3 _worldToView(vec3);
 vec3 _screenToWorld(vec3, bool);
-vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir, uint iteration);
+vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir);
 float _linearizeDepth(float z, vec2 p);
 
 vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint rayMode)
@@ -39,7 +43,7 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
             if(rayMode == RAY_MODE_CHEAP)
                 return rayScreen.xy;
             else
-                return _binaryRefine(rayPos, rayDir, iteration);
+                return _binaryRefine(rayPos, rayDir);
 
         rayPos += rayDir;
     }
@@ -47,10 +51,10 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
     return vec2(-1);
 }
 
-vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir, uint iteration)
+vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir)
 {
     rayPos -= rayDir;
-    for(uint i = 0; i < iteration; i++)
+    for(uint i = 0; i < RAY_REFINE; i++)
     {
         rayDir *= 0.5;
         rayPos += rayDir;

@@ -18,6 +18,15 @@ in FragInfo
     mat3 TBN;
 };
 
+#define SHADOW_SAMPLES 16
+#define SUN_SIZE 0.8
+#define PENUMBRA_MIN 0.02
+#define SEARCH_SIZE 0.5
+#define SHADOW_BIAS 0.001
+#define RAY_THRESHOLD 0.01
+#define RAY_THICKNESS 0.1
+//#define SHADOW_MODE_MIN
+
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
 #include "../res/shdrinc/shadow.glsl"

@@ -12,10 +12,10 @@
 #define PENUMBRA_MIN 0.01
 #endif
 #ifndef SHADOW_BIAS
-#define SHADOW_BIAS 0.0001
+#define SHADOW_BIAS 0.0005
 #endif
 #ifndef SEARCH_SIZE
-#define SEARCH_SIZE 0.3
+#define SEARCH_SIZE 0.4
 #endif
 
 #define PENUMBRA_THRESHOLD 0.01
@@ -32,13 +32,15 @@ float CalculateShadow()
 {
     const vec3 shadowCoord = vec3(FragPosLightSpace.xy / FragPosLightSpace.w, FragPosLightSpace.z) * 0.5 + 0.5;
     const float penumbra = _calculatePenumbra(SEARCH_SIZE);
+    //return penumbra;
     float shadowAvg = 0;
 
     if(penumbra == 0) return 1;
 
     for(uint i = 0; i < SHADOW_SAMPLES; i++)
     {
-        float shadowDepth = texture(sampler2D(ShadowTex), shadowCoord.xy + vogelDiskSample(i, SHADOW_SAMPLES, interleavedGradientSample * PI2) * penumbra / SunInfo.w).r;
+        vec2 offset = vogelDiskSample(i, SHADOW_SAMPLES, interleavedGradientSample * PI2) * penumbra;
+        float shadowDepth = texture(sampler2D(ShadowTex), shadowCoord.xy + offset / SunInfo.w ).r;
         shadowAvg += shadowDepth > shadowCoord.z - SHADOW_BIAS ? 1 : 0;
     }
 
@@ -73,10 +75,11 @@ float _calculatePenumbra(float searchSize)
 
     for(uint i = 0; i < SHADOW_SAMPLES; i++)
     {
-        float shadowSample = texture(sampler2D(ShadowTex), shadowCoord.xy + vogelDiskSample(i, SHADOW_SAMPLES, interleavedGradientSample * PI2) * searchSize / SunInfo.w).r;
-        shadowSample = shadowSample * SHADOW_MAX;
+        vec2 offset = vogelDiskSample(i, SHADOW_SAMPLES, interleavedGradientSample * PI2) * SEARCH_SIZE;
+        float shadowSample = texture(sampler2D(ShadowTex), shadowCoord.xy + offset / SunInfo.w).r;
+        shadowSample *= SHADOW_MAX;//(SHADOW_BIAS + (TBN * vec3(offset, 0)).z / SHADOW_MAX);
 
-        if(shadowSample > shadowCoord.z - SHADOW_BIAS) continue;
+        if(shadowSample > shadowCoord.z - SHADOW_BIAS * SHADOW_MAX) continue;
 
         count++;
     #ifdef SHADOW_MODE_MIN

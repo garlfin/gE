@@ -25,7 +25,7 @@ namespace gE::Component
         Framebuffer->Bind();
         {
             auto* c = GetColor();
-            CameraData d(GetView(), GetProjection(), GetOwner()->GetComponent<Transform>()->Location, glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
+            CameraData d(GetView(), GetProjection(), glm::vec3(GetOwner()->GetComponent<Transform>()->Model[3]), glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
             GetWindow()->CameraManager->GetBuffer()->ReplaceData(&d);
         }
 

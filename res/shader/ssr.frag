@@ -18,7 +18,7 @@ in FragInfo
     mat3 TBN;
 };
 
-#define RAY_THICKNESS 0.5
+#define RAY_THICKNESS 0.2
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
@@ -34,11 +34,11 @@ void main()
     const vec3 viewDir = normalize(FragPos - Position);
 
     vec3 RayPos = FragPos;
-    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(viewDir, normal), 0.1);
+    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(viewDir, normal), 0.3);
     vec2 reflection;
 
     if(dot(rayDir, normal) < 0) reflection = vec2(-1);
-    else reflection = CastRay(RayPos, rayDir, 150, 5, RAY_MODE_ACCURATE);
+    else reflection = CastRay(RayPos, rayDir, 150, 10, RAY_MODE_ACCURATE);
 
     FragColor = mix(pow(texture(SkyboxTex, rayDir), vec4(1.0 / 2.2)), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 }

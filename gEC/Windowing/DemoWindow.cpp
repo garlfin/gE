@@ -77,13 +77,13 @@ void gE::DemoWindow::Load()
     Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader);
     Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader);
 
-    Asset::Material* mats[2]{ ssrMat, shinyMat};
+    Asset::Material* mats[2]{ssrMat, shinyMat};
 
     uint64_t handle = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../x.pvr", nullptr)))->GetHandle();
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) &handle);
     glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) &handle);
 
-    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(3)), rMesh, mats, 2);
+    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(6)), rMesh, mats, 2);
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
     auto* entity = EntityManager.Create<DynamicEntity>();
@@ -119,7 +119,7 @@ void gE::DemoWindow::Load()
 
     entity = EntityManager.Create<DynamicEntity>();
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-70, 45, 0), glm::vec3(1)));
-    Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 10);
+    Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 20);
 }
 
 void gE::DemoWindow::Update(double delta)

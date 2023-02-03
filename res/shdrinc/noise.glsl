@@ -30,7 +30,7 @@ float dither(vec2 pos)
     return _thresholdMatrix[int(pos.x) % 4][int(pos.y) % 4];
 }
 int fRot = Frame % 64;
-float interleavedGradientSample = interleavedGradientNoise(gl_FragCoord.xy + Frame % 64);
+float interleavedGradientSample = interleavedGradientNoise(gl_FragCoord.xy);
 float ditherSample = dither(gl_FragCoord.xy);
 
 #endif
