@@ -38,6 +38,7 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
         float delta = rayMode == RAY_MODE_CHEAP ? rayDepth - rayScreen.z : rayScreen.z - rayDepth;
 
         if(rayScreen.x < 0 || rayScreen.x > 1 || rayScreen.y < 0 || rayScreen.y > 1) break;
+
         if(abs(delta) <= RAY_THRESHOLD) return rayScreen.xy;
         if(delta > 0 && delta <= RAY_THICKNESS)
             if(rayMode == RAY_MODE_CHEAP)

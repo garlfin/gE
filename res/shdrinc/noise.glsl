@@ -3,7 +3,7 @@
 
 #define PI2 6.28318
 
-mat4 _thresholdMatrix =
+const mat4 _thresholdMatrix =
 mat4(
 1.0 / 17.0,  9.0 / 17.0,  3.0 / 17.0, 11.0 / 17.0,
 13.0 / 17.0,  5.0 / 17.0, 15.0 / 17.0,  7.0 / 17.0,
@@ -29,8 +29,8 @@ float dither(vec2 pos)
 {
     return _thresholdMatrix[int(pos.x) % 4][int(pos.y) % 4];
 }
-int fRot = Frame % 64;
-float interleavedGradientSample = interleavedGradientNoise(gl_FragCoord.xy);
+
+float interleavedGradientSample = interleavedGradientNoise(gl_FragCoord.xy);// + vec2(Frame % int(Info.x), Frame % int(Info.y)));
 float ditherSample = dither(gl_FragCoord.xy);
 
 #endif
