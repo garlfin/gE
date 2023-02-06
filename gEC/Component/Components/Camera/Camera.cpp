@@ -20,7 +20,7 @@ namespace gE::Component
 
     void Camera::OnRender(double delta)
     {
-        if(Color)
+        if(Color && InternalColor)
             glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Color->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);
         Framebuffer->Bind();
         {
@@ -50,7 +50,7 @@ namespace gE::Component
             InternalColor = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
             Color = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
             Depth = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y,
-                                                                       Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::BORDER);
+                                                                       Asset::TextureType::RED_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::BORDER);
             Framebuffer->Attach(InternalColor, 0);
         }
 

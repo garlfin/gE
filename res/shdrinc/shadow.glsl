@@ -31,8 +31,8 @@ float _linearizeDepthOrtho(float z, vec2 p);
 float CalculateShadow()
 {
     const vec3 shadowCoord = vec3(FragPosLightSpace.xy / FragPosLightSpace.w, FragPosLightSpace.z) * 0.5 + 0.5;
-    const float penumbra = _calculatePenumbra(SEARCH_SIZE);
-    //return penumbra;
+    const float penumbra = min(_calculatePenumbra(SEARCH_SIZE), SEARCH_SIZE);
+
     float shadowAvg = 0;
 
     if(penumbra == 0) return 1;
@@ -64,7 +64,7 @@ float CalculateShadow(float radius)
 float _calculatePenumbra(float searchSize)
 {
     vec3 shadowCoord = vec3(FragPosLightSpace.xyz / FragPosLightSpace.w) * 0.5 + 0.5;
-    shadowCoord.z = shadowCoord.z * SHADOW_MAX;
+    shadowCoord.z *= SHADOW_MAX;
 
     #ifdef SHADOW_MODE_MIN
     float shadowAvg = SHADOW_MAX;

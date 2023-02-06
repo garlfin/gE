@@ -19,6 +19,7 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 1.0
+#define RAY_THRESHOLD 0.02
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
@@ -34,7 +35,7 @@ void main()
     const vec3 viewDir = normalize(FragPos - Position);
 
     vec3 RayPos = FragPos + 0.01 * normal;
-    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(viewDir, normal), 0.2);
+    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(viewDir, normal), 0.1);
     vec2 reflection;
 
     //if(dot(rayDir, normal) < 0.03) reflection = vec2(-1); else

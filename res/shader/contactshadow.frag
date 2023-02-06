@@ -33,7 +33,7 @@ void main()
     const vec3 normal = normalize(Normal);
     const vec3 light = normalize(SunInfo.xyz);
     const vec3 incoming = normalize(FragPos - Position);
-    vec3 rayPos = FragPos + normal * 0.01 + TBN * vec3(vogelDiskSample(int(interleavedGradientSample * 64), 64, 0), 0) * 0.005;
+    vec3 rayPos = FragPos + normal * 0.01 + SunInfo.xyz * (0.1 / 25) * (1 + interleavedGradientSample);
 
     float ambient = max(dot(normal, light), 0);
     // ambient *= ambient;

@@ -33,6 +33,7 @@ void gE::Asset::Shader::Use(gE::Asset::DepthFunction dOverride, CullMode cOverri
         glDisable(GL_CULL_FACE);
 
     if(GetWindow()->GetStage() & (Windowing::Stage::PreZ | Windowing::Stage::Shadow | Windowing::Stage::PostProcess)) glDepthFunc((uint32_t) dOverride ?: (uint32_t) p_DepthFunc);
+    if(GetWindow()->GetStage() == Windowing::Stage::Shadow) glDisable(GL_CULL_FACE);
 
     glUseProgram(ID);
 }

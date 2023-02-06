@@ -19,7 +19,7 @@ in FragInfo
 };
 
 #define SHADOW_SAMPLES 16
-#define SUN_SIZE 0.8
+#define SUN_SIZE 0.2
 #define PENUMBRA_MIN 0.02
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
@@ -45,5 +45,6 @@ void main()
     ambient = min(ambient, CalculateShadow());
 
     FragColor = texture(sampler2D(Albedo), TexCoord) * mix(0.3, 1.0, ambient);
+    FragColor += vec4(pow(max(dot(reflect(light, normal), incoming), 0), 256)) * ambient;
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
 }

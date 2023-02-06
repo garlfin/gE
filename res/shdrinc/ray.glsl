@@ -5,15 +5,15 @@
 #define RAY_MODE_ACCURATE 1
 
 #ifndef RAY_THICKNESS
-#define RAY_THICKNESS 0.2
+#define RAY_THICKNESS 0.03
 #endif
 
 #ifndef RAY_THRESHOLD
-#define RAY_THRESHOLD 0.005
+#define RAY_THRESHOLD 0.01
 #endif
 
 #ifndef RAY_REFINE
-#define RAY_REFINE 20
+#define RAY_REFINE 40
 #endif
 
 // "Public" functions
@@ -64,7 +64,6 @@ vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir)
 
         if(abs(rayScreen.z - rayDepth) <= RAY_THRESHOLD) return rayScreen.xy;
         if(rayScreen.z > rayDepth) rayPos -= rayDir;
-
     }
     return vec2(-1);
 }
@@ -80,5 +79,4 @@ vec3 _screenToWorld(vec3 pos, bool ndc)
     return (View * val).xyz;
 }
 float _linearizeDepth(float z, vec2 p) { return 2.0 * p.x * p.y / (p.y + p.x - (z * 2 - 1) * (p.y - p.x));}
-float _linearizeDepthNDC(float z, vec2 p) { return p.x * p.y / (p.y + p.x - z * (p.y - p.x));}
 #endif

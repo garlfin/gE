@@ -86,8 +86,8 @@ void gE::DemoWindow::Load()
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
     auto* entity = EntityManager.Create<DynamicEntity>();
-    entity->CreateComponent<Component::Transform>(TransformManager);
-    entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 80, glm::vec2(0.1, 100))->Use();
+    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(2.2), glm::vec3(0), glm::vec3(1)));
+    entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 80, glm::vec2(0.1, 1000))->Use();
     entity->CreateComponent<Component::CameraMovement>(&BehaviorManager);
 
     entity = EntityManager.Create<DynamicEntity>(entity);
@@ -117,7 +117,7 @@ void gE::DemoWindow::Load()
     entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
 
     entity = EntityManager.Create<DynamicEntity>();
-    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-145, 45, 0), glm::vec3(1)));
+    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-145, 65, 0), glm::vec3(1)));
     Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 20);
 
     auto* sunTransform = entity->GetComponent<Component::Transform>();

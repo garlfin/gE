@@ -6,7 +6,7 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-#define FPS_TARGET 1000
+#define FPS_TARGET 144
 char fps_buf[6] {};
 
 namespace gE
