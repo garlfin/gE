@@ -15,6 +15,7 @@
 #include "../Asset/Buffer/Renderbuffer.h"
 #include "../../res/script/StaticRenderer.h"
 #include "../../res/script/InventoryScript.h"
+#include "../Asset/Texture/Texture2D.h"
 
 const float PassthroughVertices[]
         {
@@ -50,6 +51,14 @@ void gE::DemoWindow::Load()
     //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     //glDebugMessageCallback(DebugCallback, nullptr);
 
+    BRDF = AssetManager.Create<Asset::Texture2D>(512, 512, Asset::TextureType::RGf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
+    {
+        Asset::Shader brdfCompute(this, "../res/shader/brdf.comp");
+        brdfCompute.Use();
+        BRDF->Bind(0, Asset::AccessMode::WRITE);
+        glDispatchCompute(16, 16, 1);
+    }
+
     DemoUniformBuffer = AssetManager.Create<Buffer<DemoUBO>>();
     DemoUniformBuffer->Bind(2, BufferTarget::UNIFORM);
 
@@ -78,9 +87,13 @@ void gE::DemoWindow::Load()
 
     Asset::Material* mats[2]{ssrMat, shinyMat};
 
-    uint64_t handle = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../x.pvr", nullptr)))->GetHandle();
-    glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) &handle);
-    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) &handle);
+    uint64_t handleAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile.pvr", nullptr)))->GetHandle();
+    uint64_t handleRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_rough.pvr", nullptr)))->GetHandle();
+    uint64_t handleNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_nor.pvr", nullptr)))->GetHandle();
+    glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
+    glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Roughness"), 1, (GLuint*) & handleRough);
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
+    glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
 
     EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(6)), rMesh, mats, 2);
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
@@ -119,14 +132,6 @@ void gE::DemoWindow::Load()
     entity = EntityManager.Create<DynamicEntity>();
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-145, 65, 0), glm::vec3(1)));
     Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 20);
-
-    auto* sunTransform = entity->GetComponent<Component::Transform>();
-
-    glm::vec3 sunDir;
-    sunDir.x =  cos(glm::radians(sunTransform->Rotation.x)) * sin(glm::radians(sunTransform->Rotation.y));
-    sunDir.y = -sin(glm::radians(sunTransform->Rotation.x));
-    sunDir.z =  cos(glm::radians(sunTransform->Rotation.x)) * cos(glm::radians(sunTransform->Rotation.y));
-    sunTransform->Location = glm::normalize(sunDir) * 10.0f;
 }
 
 void gE::DemoWindow::Update(double delta)
@@ -140,9 +145,20 @@ void gE::DemoWindow::Update(double delta)
 void gE::DemoWindow::Render(double delta)
 {
     {
-        DemoUBO ubo(Skybox.SkyboxTexture, Sun, Frame);
+        DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, Frame);
         DemoUniformBuffer->ReplaceData(&ubo);
     }
+
+    auto* sunTransform = Sun->GetOwner()->GetComponent<Component::Transform>();
+
+    glm::vec3 sunDir;
+    sunDir.x =  cos(glm::radians(sunTransform->Rotation.x)) * sin(glm::radians(sunTransform->Rotation.y));
+    sunDir.y = -sin(glm::radians(sunTransform->Rotation.x));
+    sunDir.z =  cos(glm::radians(sunTransform->Rotation.x)) * cos(glm::radians(sunTransform->Rotation.y));
+    sunTransform->Location = glm::normalize(sunDir) * 10.0f;
+
+#define JUMP_MULTIPLE 1.0f
+    sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location / JUMP_MULTIPLE) * JUMP_MULTIPLE;
 
     Sun->OnRender(delta);
     CameraManager->GetCamera()->OnRender(delta);
@@ -156,9 +172,9 @@ void gE::DemoWindow::Render(double delta)
     PassthroughVAO->Draw(1);
 }
 
-gE::DemoUBO::DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, int32_t frame) :
+gE::DemoUBO::DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, gE::Asset::Texture* brdf, int32_t frame) :
                     ShadowID(sun->GetDepth()->GetHandle()), SkyboxID(sky->GetHandle()),
-                    SunMatrix(sun->GetProjection() * sun->GetView()), Frame(frame)
+                    SunMatrix(sun->GetProjection() * sun->GetView()), Frame(frame), BRDFID(brdf->GetHandle())
 {
     Component::Transform* transform = sun->GetOwner()->GetComponent<Component::Transform>();
 

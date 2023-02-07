@@ -5,7 +5,7 @@
 #define RAY_MODE_ACCURATE 1
 
 #ifndef RAY_THICKNESS
-#define RAY_THICKNESS 0.03
+#define RAY_THICKNESS 0.05
 #endif
 
 #ifndef RAY_THRESHOLD
@@ -78,5 +78,5 @@ vec3 _screenToWorld(vec3 pos, bool ndc)
     val *= val.w;
     return (View * val).xyz;
 }
-float _linearizeDepth(float z, vec2 p) { return 2.0 * p.x * p.y / (p.y + p.x - (z * 2 - 1) * (p.y - p.x));}
+float _linearizeDepth(float z, vec2 p) { return 2 * p.x * p.y / (p.y + p.x - (z * 2 - 1) * (p.y - p.x));}
 #endif

@@ -22,13 +22,14 @@ out FragInfo
 
 void main()
 {
+    mat3 normalMatrix = mat3(NormalMatrix[gl_InstanceID % ObjectCount]);
     FragPos = (Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0)).xyz;
-    Normal = normalize(mat3(NormalMatrix[gl_InstanceID % ObjectCount]) * vNor);
+    Normal = normalize(normalMatrix * vNor);
     TexCoord = vUV;
 
     gl_Position = Projection * GetView(Position, gl_InstanceID / ObjectCount) * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
     FragPosLightSpace = SunMatrix * vec4(FragPos, 1.0);
 
-    vec3 tan = normalize(mat3(NormalMatrix[gl_InstanceID % ObjectCount]) * vTan);
+    vec3 tan = normalize(normalMatrix * vTan);
     TBN = mat3(tan, normalize(cross(Normal, tan)), Normal);
 }

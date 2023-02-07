@@ -33,13 +33,15 @@ namespace gE
 
     struct DemoUBO
     {
-    public:;
-        DemoUBO(Asset::Texture* sky, Component::DirectionalLight* sun, int32_t frame);
+    public:
+        DemoUBO(Asset::Texture* sky, Component::DirectionalLight* sun, Asset::Texture* brdf, int32_t frame);
 
         uint64_t SkyboxID;
         uint64_t ShadowID;
         glm::vec4 SunInfo; // Direction, ShadowSize
         glm::mat4 SunMatrix;
+        uint64_t BRDFID;
+        uint64_t pad;
         int32_t Frame;
     };
 
@@ -56,5 +58,6 @@ namespace gE
         Component::ComponentManager<Component::Camera> LightManager;
         Buffer<DemoUBO>* DemoUniformBuffer;
         Component::DirectionalLight* Sun;
+        Asset::Texture* BRDF;
     };
 }

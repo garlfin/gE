@@ -50,7 +50,7 @@ namespace gE::Component
             InternalColor = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
             Color = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
             Depth = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y,
-                                                                       Asset::TextureType::RED_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::BORDER);
+                                                                       Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::BORDER);
             Framebuffer->Attach(InternalColor, 0);
         }
 

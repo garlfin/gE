@@ -94,7 +94,7 @@ float _calculatePenumbra(float searchSize)
     shadowAvg /= count;
 #endif
 
-    return max(SUN_SIZE * (shadowCoord.z - shadowAvg) / shadowAvg, PENUMBRA_MIN);
+    return mix(PENUMBRA_MIN, searchSize, (SUN_SIZE * (shadowCoord.z - shadowAvg) / shadowAvg) / searchSize);
 }
 
 float _linearizeDepthOrtho(float z, vec2 p)

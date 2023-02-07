@@ -69,6 +69,8 @@ namespace gE::Asset
                 return GL_DEPTH_COMPONENT32F;
             case gE::Asset::TextureType::RED_32F:
                 return GL_R32F;
+            case gE::Asset::TextureType::RGf_32:
+                return GL_RG32F;
             default:
                 return GL_RGBA32UI;
         };
@@ -77,6 +79,7 @@ namespace gE::Asset
     GLenum FormatToPixelType(gE::Asset::TextureType type)
     {
         if (type == TextureType::RGBf_32) return GL_RGB;
+        if (type == TextureType::RGf_32) return GL_RG;
         if (type == TextureType::RED_32F) return GL_RED;
         return GL_RGBA; // TODO
     }
@@ -97,6 +100,7 @@ namespace gE::Asset
 
     uint8_t FormatToPixelSize(TextureType t) {
         if(t == TextureType::RGBf_32) return 12;
+        if(t == TextureType::RGf_32) return 8;
         return 1;
     }
 }
