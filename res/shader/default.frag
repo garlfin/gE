@@ -22,7 +22,7 @@ in FragInfo
 
 #define SHADOW_SAMPLES 16
 #define SUN_SIZE 0.5
-#define PENUMBRA_MIN 0.03
+#define PENUMBRA_MIN 0.01
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
 #define RAY_THICKNESS 1.0
@@ -46,7 +46,7 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 void main()
 {
     vec3 nor = pow(texture(sampler2D(NormalTex), TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
-    nor *= vec3(1, -1, 1);
+    //nor *= vec3(1, -1, 1);
     const vec3 normal = normalize(TBN * nor);
     const vec3 light = normalize(SunInfo.xyz);
     const vec3 incoming = normalize(Position - FragPos);
@@ -63,13 +63,13 @@ void main()
     vec2 reflection = vec2(-1);
     if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, 150, 10, RAY_MODE_ACCURATE);
 
-    vec2 brdf = texture(BRDFLut, vec2(max(0, dot(incoming, normal)), roughness)).rg;
+    vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
     vec3 spec = mix(textureLod(SkyboxTex, reflect(-incoming, normal), roughness * textureQueryLevels(SkyboxTex)), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
-    spec = spec * kS * brdf.x + brdf.y;
+    spec *= kS * brdf.x + brdf.y;
 
     float ambient = max(dot(normal, light), 0);
     ambient = min(ambient, CalculateShadow());
-    spec += vec3(pow(max(0, dot(reflect(light, normal), -incoming)), 256)) * ambient;
+    spec += vec3(pow(max(0, dot(reflect(light, normal), -incoming)), pow(2 - roughness, 16))) * ambient;
 
     FragColor = vec4(albedo, 1) * mix(0.3, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);

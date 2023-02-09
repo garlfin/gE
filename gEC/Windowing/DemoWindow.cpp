@@ -144,11 +144,6 @@ void gE::DemoWindow::Update(double delta)
 
 void gE::DemoWindow::Render(double delta)
 {
-    {
-        DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, Frame);
-        DemoUniformBuffer->ReplaceData(&ubo);
-    }
-
     auto* sunTransform = Sun->GetOwner()->GetComponent<Component::Transform>();
 
     glm::vec3 sunDir;
@@ -159,6 +154,10 @@ void gE::DemoWindow::Render(double delta)
 
 #define JUMP_MULTIPLE 1.0f
     sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location / JUMP_MULTIPLE) * JUMP_MULTIPLE;
+    {
+        DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, Frame);
+        DemoUniformBuffer->ReplaceData(&ubo);
+    }
 
     Sun->OnRender(delta);
     CameraManager->GetCamera()->OnRender(delta);
