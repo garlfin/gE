@@ -4,9 +4,12 @@ layout(std140, binding = 0) uniform SceneInfo
     mat4 Projection;
     vec4 Info; // Width, Height, Near, Far
     vec3 Position;
-
+#ifndef FORWARD
     sampler2D FrameColorTex;
     sampler2D FrameDepthTex;
+#else
+    vec4 _pad;
+#endif
 };
 
 #define UP    vec4(0, 1, 0, 0)

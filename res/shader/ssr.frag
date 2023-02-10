@@ -1,12 +1,9 @@
-#version 460 core
 #extension GL_ARB_bindless_texture: enable
 
 #include "../res/shader/demowindow.glsl"
 #include "../res/shader/camera.glsl"
 
 layout(early_fragment_tests) in;
-
-uniform uvec2 Albedo;
 
 in FragInfo
 {
@@ -19,10 +16,12 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 1.0
-#define RAY_THRESHOLD 0.02
+#define ROUGHNESS 0.3
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
+
+uniform uvec2 NormalTex;
 
 out vec4 FragColor;
 
@@ -31,17 +30,20 @@ vec2 Hammersley(uint i, uint N);
 
 void main()
 {
-    const vec3 normal = normalize(Normal);
+    vec3 nor = pow(texture(sampler2D(NormalTex), TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
+
+    const vec3 normal = normalize(TBN * nor);
     const vec3 viewDir = normalize(FragPos - Position);
+    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(viewDir, normal), ROUGHNESS);
+    vec2 reflection = vec2(-1);
 
-    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(viewDir, normal), 0.1);
-    vec3 RayPos = FragPos;
-    vec2 reflection;
-
-    //if(dot(rayDir, normal) < 0.03) reflection = vec2(-1); else
-    reflection = CastRay(RayPos, rayDir, 150, 10, RAY_MODE_ACCURATE);
-
-    FragColor = mix(pow(texture(SkyboxTex, rayDir), vec4(1.0 / 2.2)), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
+#ifndef FORWARD
+    vec3 rayPos = FragPos;
+    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150.0, 50.0, ROUGHNESS)), 10, RAY_MODE_ACCURATE, mix(0.02, 0.1, ROUGHNESS));
+    FragColor = mix(pow(textureLod(SkyboxTex, reflect(viewDir, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)), vec4(1.0 / 2.2)), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
+#else
+    FragColor = pow(textureLod(SkyboxTex, reflect(viewDir, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)), vec4(1.0 / 2.2));
+#endif
 }
 
 float RadicalInverse_VdC(uint bits)

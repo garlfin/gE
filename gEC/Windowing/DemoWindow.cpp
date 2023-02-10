@@ -46,10 +46,10 @@ void gE::DemoWindow::Load()
     glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    //glDebugMessageCallback(DebugCallback, nullptr);
+    glDebugMessageCallback(DebugCallback, nullptr);
 
     BRDF = AssetManager.Create<Asset::Texture2D>(512, 512, Asset::TextureType::RGf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
     {
@@ -75,24 +75,26 @@ void gE::DemoWindow::Load()
 
     // Scene Setup
     
-    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
+    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag", Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
 
-    Asset::Material* shinyMat = AssetManager.Create<Asset::PBRMaterial>(shinyShader);
-    Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader);
-    Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader);
+    Asset::Material* shinyMat = AssetManager.Create<Asset::PBRMaterial>(shinyShader, shinyShader);
+    Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader, ssrShader);
+    Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader, ssrShader);
 
     Asset::Material* mats[2]{ssrMat, shinyMat};
 
     uint64_t handleAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile.pvr", nullptr)))->GetHandle();
     uint64_t handleRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_rough.pvr", nullptr)))->GetHandle();
     uint64_t handleNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_nor.pvr", nullptr)))->GetHandle();
+    uint64_t foilNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/marble_nor.pvr", nullptr)))->GetHandle();
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Roughness"), 1, (GLuint*) & handleRough);
     glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
+    glProgramUniform2uiv(ssrShader->Get(), glGetUniformLocation(ssrShader->Get(), "NormalTex"), 1, (GLuint*) & foilNor);
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
 
     EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(6)), rMesh, mats, 2);
@@ -151,9 +153,8 @@ void gE::DemoWindow::Render(double delta)
     sunDir.y = -sin(glm::radians(sunTransform->Rotation.x));
     sunDir.z =  cos(glm::radians(sunTransform->Rotation.x)) * cos(glm::radians(sunTransform->Rotation.y));
     sunTransform->Location = glm::normalize(sunDir) * 10.0f;
+    sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location / 0.1f) * 0.1f;
 
-#define JUMP_MULTIPLE 1.0f
-    sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location / JUMP_MULTIPLE) * JUMP_MULTIPLE;
     {
         DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, Frame);
         DemoUniformBuffer->ReplaceData(&ubo);

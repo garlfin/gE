@@ -1,4 +1,3 @@
-#version 460 core
 #extension GL_ARB_bindless_texture: enable
 
 #include "../res/shader/demowindow.glsl"
@@ -26,7 +25,6 @@ in FragInfo
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
 #define RAY_THICKNESS 1.0
-#define RAY_THRESHOLD 0.02
 #define METALLIC 0.0
 //#define SHADOW_MODE_MIN
 
@@ -46,7 +44,6 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 void main()
 {
     vec3 nor = pow(texture(sampler2D(NormalTex), TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
-    //nor *= vec3(1, -1, 1);
     const vec3 normal = normalize(TBN * nor);
     const vec3 light = normalize(SunInfo.xyz);
     const vec3 incoming = normalize(Position - FragPos);
@@ -59,21 +56,28 @@ void main()
     const vec3 kD = (vec3(1) - kS) * (1 - METALLIC);
 
     vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(-incoming, normal), roughness);
-    vec3 rayPos = FragPos;
     vec2 reflection = vec2(-1);
-    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, 150, 10, RAY_MODE_ACCURATE);
 
-    vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
-    vec3 spec = mix(textureLod(SkyboxTex, reflect(-incoming, normal), roughness * textureQueryLevels(SkyboxTex)), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
-    spec *= kS * brdf.x + brdf.y;
+#ifndef FORWARD
+    vec3 rayPos = FragPos;
+    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150, 10, roughness)), 10, RAY_MODE_ACCURATE, mix(0.02, 0.1, roughness));
+#endif
 
     float ambient = max(dot(normal, light), 0);
     ambient = min(ambient, CalculateShadow());
+
+    vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
+#ifndef FORWARD
+    vec3 spec = mix(textureLod(SkyboxTex, reflect(-incoming, normal), roughness * textureQueryLevels(SkyboxTex)), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
+#else
+    vec3 spec = textureLod(SkyboxTex, reflect(-incoming, normal), roughness * textureQueryLevels(SkyboxTex)).rgb;
+#endif
     spec += vec3(pow(max(0, dot(reflect(light, normal), -incoming)), pow(2 - roughness, 16))) * ambient;
+    spec *= kS * brdf.x + brdf.y;
 
     FragColor = vec4(albedo, 1) * mix(0.3, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
-    //xFragColor = FragColor / (FragColor + 1);
+    //FragColor = FragColor / (FragColor + 1);
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
     //FragColor = vec4(kS, 1);
 }

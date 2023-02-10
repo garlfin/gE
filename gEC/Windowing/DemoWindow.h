@@ -41,7 +41,6 @@ namespace gE
         glm::vec4 SunInfo; // Direction, ShadowSize
         glm::mat4 SunMatrix;
         uint64_t BRDFID;
-        uint64_t pad;
         int32_t Frame;
     };
 

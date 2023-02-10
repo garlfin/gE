@@ -9,10 +9,10 @@
 
 namespace gE::Asset
 {
-    class PBRMaterial final : public Material
+    class PBRMaterial final : public DeferredMaterial
     {
     public:
-        PBRMaterial(gE::Window* pWindow, Shader* pShader);
+        PBRMaterial(gE::Window* pWindow, Shader* pShader, Shader* forwardShader);
 
         void MandatorySetup() override;
         void RenderStageSetup() override;

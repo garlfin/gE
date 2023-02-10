@@ -20,10 +20,10 @@ namespace gE::Asset
         glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &ID);
         glTextureStorage2D(ID, MipMapCount, GL_RGB32F, size, size);
 
-        glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
         glTextureParameteri(ID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(ID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTextureParameteri(ID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(ID, GL_TEXTURE_CUBE_MAP_SEAMLESS, GL_TRUE);
     }
 
     TextureCube::TextureCube(Window* const window, uint32_t size, TextureFilterMode filter,

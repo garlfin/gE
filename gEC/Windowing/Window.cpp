@@ -6,7 +6,7 @@
 #include "GLAD/glad.h"
 #include "GLFW/glfw3.h"
 
-#define FPS_TARGET 60
+#define FPS_TARGET 144
 char fps_buf[6] {};
 
 namespace gE
@@ -50,7 +50,7 @@ namespace gE
         Load();
 
         glfwSetTime(0);
-        double pTime = glfwGetTime();
+        double pTime = 0, fTime = 0;
         Frame = 0;
 
         while (!glfwWindowShouldClose(GLFWWindow))
@@ -60,17 +60,19 @@ namespace gE
             double nTime = glfwGetTime();
             Update(nTime - pTime); // TODO: Multithread
 
-            if(nTime > Frame / float(FPS_TARGET))
+            if(fTime  > (float) 1 / FPS_TARGET)
             {
-                Render(nTime - pTime);
-                Frame += 1;
+                Render(fTime);
 
-                if(Frame % unsigned(0.1 * FPS_TARGET) == 0) snprintf(fps_buf, sizeof fps_buf, "%u", int(1.0 / (nTime - pTime)) );
+                if(Frame % int(0.3 * FPS_TARGET) == 0) snprintf(fps_buf, sizeof fps_buf - 1, "%u", unsigned(1.0 / (fTime)) );
 
                 glfwSetWindowTitle(GLFWWindow, fps_buf);
                 glfwSwapBuffers(GLFWWindow);
+                fTime = 0;
+                Frame++;
             }
 
+            fTime += nTime - pTime;
             pTime = nTime;
         }
     }

@@ -8,13 +8,16 @@
 #include "ShaderStage.h"
 #include "../../Windowing/Window.h"
 
-gE::Asset::ShaderStage::ShaderStage(gE::Window* window, const char* const path, gE::Asset::StageType type) : GLAsset(window)
+gE::Asset::ShaderStage::ShaderStage(gE::Window* window, const char* const path, gE::Asset::StageType type, CompileFlags flags) : GLAsset(window)
 {
     if (!std::filesystem::exists(path)) throw std::runtime_error("Could not find requested file!");
 
     const char* shaderSource = window->IncludeManager.LoadIncludesRecurse(path);
     ID = glCreateShader((GLenum) type);
-    glShaderSource(ID, 1, &shaderSource, nullptr);
+
+    const char* sources[2] {flags == CompileFlags::FORWARD ? "#version 460 core\n#define FORWARD\n" : "#version 460 core\n", shaderSource};
+    glShaderSource(ID, 2, sources, nullptr);
+
     glCompileShader(ID);
 
     GLint status, length;
@@ -25,7 +28,7 @@ gE::Asset::ShaderStage::ShaderStage(gE::Window* window, const char* const path, 
 
     char* log = new char[length + 1]{};
     glGetShaderInfoLog(ID, length, nullptr, log);
-    std::cout << log << shaderSource << std::endl;
+    std::cout << log << sources[0] << shaderSource << std::endl;
 }
 
 gE::Asset::ShaderStage::~ShaderStage()

@@ -15,10 +15,16 @@ namespace gE::Asset
         Compute = 0x91B9
     };
 
+    enum class CompileFlags : uint8_t
+    {
+        NONE = 0,
+        FORWARD = 1,
+    };
+
     class ShaderStage : public GLAsset
     {
     public:
-        ShaderStage(gE::Window* window, const char* const, gE::Asset::StageType);
+        ShaderStage(gE::Window* window, const char* const, gE::Asset::StageType, CompileFlags flags);
         ~ShaderStage() override;
     };
 }

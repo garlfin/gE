@@ -11,16 +11,28 @@ namespace gE::Asset
 {
     class Material : public Asset
     {
-    private:
-        const Shader* p_Shader;
+    protected:
         const Shader* p_DepthShader;
+        const Shader* p_Shader;
     public:
         Material(Window* window, const Shader* shader, const Shader* depthShader = nullptr) : Asset(window), p_Shader(shader),
                                                                                             p_DepthShader(depthShader) {}
 
-        void Use();
+        virtual void Use();
 
         virtual void MandatorySetup() = 0;
         virtual void RenderStageSetup() = 0;
     };
+
+    class DeferredMaterial : public Material
+    {
+    protected:
+        const Shader* _forwardShader;
+    public:
+        DeferredMaterial(Window* window, const Shader* shader, const Shader* forwardShader, const Shader* depthShader = nullptr)
+        : Material(window, shader, depthShader), _forwardShader(forwardShader) {};
+        void Use() override;
+    };
 } // Asset
+
+

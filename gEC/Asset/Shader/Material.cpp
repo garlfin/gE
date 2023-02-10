@@ -10,12 +10,21 @@ namespace gE::Asset
     void Material::Use()
     {
         MandatorySetup();
+
         if(GetWindow()->GetStage() & (Windowing::Stage::PreZ | Windowing::Stage::Shadow))
-            (p_DepthShader ?: GetWindow()->GetDefaultShader())->Use(p_Shader->GetDepthFunc(), p_Shader->GetCullMode());
-        else
-        {
-            p_Shader->Use();
-            RenderStageSetup();
-        }
+            return (p_DepthShader ?: GetWindow()->GetDefaultShader())->Use(p_Shader->GetDepthFunc(), p_Shader->GetCullMode());
+
+        p_Shader->Use();
+        RenderStageSetup();
+    }
+
+    void DeferredMaterial::Use()
+    {
+        MandatorySetup();
+        if(GetWindow()->GetStage() & (Windowing::Stage::PreZ | Windowing::Stage::Shadow))
+            return (p_DepthShader ?: GetWindow()->GetDefaultShader())->Use(p_Shader->GetDepthFunc(), p_Shader->GetCullMode());
+
+        (GetWindow()->GetStage() == Windowing::Stage::Cubemap ? _forwardShader : p_Shader)->Use();
+        RenderStageSetup();
     }
 }

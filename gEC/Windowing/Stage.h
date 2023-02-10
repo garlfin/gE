@@ -14,6 +14,7 @@ namespace gE::Windowing
         Render      = 8,
         Shadow      = 16,
         PostProcess = 32,
+        Cubemap = 64,
     };
 
     inline Stage operator|(Stage a, Stage b)

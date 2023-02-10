@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "../GLAsset.h"
 #include "ShaderStage.h"
 
@@ -34,7 +33,7 @@ namespace gE::Asset
     public:
         Shader(gE::Window* window, gE::Asset::ShaderStage*,
                gE::Asset::ShaderStage*, CullMode cullMode = CullMode::BACKFACE, DepthFunction depthFunc = DepthFunction::LESS);
-        Shader(gE::Window* window, const char*, const char*, CullMode cullMode = CullMode::BACKFACE, DepthFunction depthFunc = DepthFunction::LESS);
+        Shader(gE::Window* window, const char*, const char*, CullMode cullMode = CullMode::BACKFACE, DepthFunction depthFunc = DepthFunction::LESS, CompileFlags flags = CompileFlags::NONE);
         Shader(gE::Window* window, const char*);
         ~Shader() override;
 
