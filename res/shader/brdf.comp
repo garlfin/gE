@@ -7,20 +7,15 @@ const float PI = 3.14159265359;
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 {
-    float a = roughness*roughness;
+    float a = roughness * roughness;
 
     float phi = 2.0 * PI * Xi.x;
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
-    float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
+    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 
-    // from spherical coordinates to cartesian coordinates - halfway vector
-    vec3 H;
-    H.x = cos(phi) * sinTheta;
-    H.y = sin(phi) * sinTheta;
-    H.z = cosTheta;
+    vec3 H = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
 
-    // from tangent-space H vector to world-space sample vector
-    vec3 up          = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+    vec3 up = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
     vec3 tangent   = normalize(cross(up, N));
     vec3 bitangent = cross(N, tangent);
 
@@ -53,35 +48,32 @@ float GeometrySchlickGGX(float NdotV, float roughness)
 
 float G_Smith(float roughness, float NdotV, float NdotL)
 {
-    return GeometrySchlickGGX(NdotV, roughness) * GeometrySchlickGGX(NdotL, roughness);
+    return GeometrySchlickGGX(max(NdotV, 0.0), roughness) * GeometrySchlickGGX(max(NdotL, 0.0), roughness);
 }
 
-vec2 IntegrateBRDF(float NoV, float Roughness) {
-    vec3 V;
-    V.x = sqrt(1.0f - NoV * NoV); // sin
-    V.y = 0; V.z = NoV; // cos
-    float A = 0;
-    float B = 0;
+vec2 IntegrateBRDF(float NoV, float Roughness)
+{
+    vec3 V = vec3(sqrt(1.0f - NoV * NoV), 0, NoV);
+    vec2 totSample;
 
     for (uint i = 0; i < SAMPLES; i++)
     {
-        vec2 Xi = Hammersley(i, SAMPLES);
-        vec3 H = ImportanceSampleGGX(Xi, vec3(0, 0, 1), Roughness);
+        vec3 H = ImportanceSampleGGX(Hammersley(i, SAMPLES), vec3(0, 0, 1), Roughness);
         vec3 L = 2 * dot(V, H) * H - V;
+
         float NoL = clamp(L.z, 0, 1);
         float NoH = clamp(H.z, 0, 1);
         float VoH = clamp(dot(V, H), 0, 1);
+
         if (NoL > 0)
         {
-             float G = G_Smith(Roughness, NoV, NoL);
-             float G_Vis = G * VoH / (NoH * NoV);
+             float G_Vis = G_Smith(Roughness, NoV, NoL) * VoH / (NoH * NoV);
              float Fc = pow(1 - VoH, 5);
 
-             A += (1 - Fc) * G_Vis;
-             B += Fc * G_Vis;
+             totSample += vec2((1 - Fc) * G_Vis, Fc * G_Vis);
         }
     }
-    return vec2(A, B) / SAMPLES;
+    return clamp(totSample / SAMPLES, 0, 1);
 }
 
 void main() {

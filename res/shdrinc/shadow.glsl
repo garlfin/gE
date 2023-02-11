@@ -1,10 +1,9 @@
 #ifndef INCLUDE_SHADOW
 #define INCLUDE_SHADOW 1
 
+#define LIGHT_DIRECTIONAL 1
+#define LIGHT_POINT 2
 
-#ifndef SUN_SIZE
-#define SUN_SIZE 0.5
-#endif
 #ifndef SHADOW_SAMPLES
 #define SHADOW_SAMPLES 16
 #endif
@@ -23,15 +22,15 @@
 
 //#define SHADOW_MODE_MIN 1
 
-float CalculateShadow();
+float CalculateShadow(uint lightType, float lightRadius);
 float CalculateShadow(float radius);
-float _calculatePenumbra(float searchSize);
+float _calculatePenumbra(float searchSize, uint lightType, float lightSize);
 float _linearizeDepthOrtho(float z, vec2 p);
 
-float CalculateShadow()
+float CalculateShadow(uint lightType, float lightRadius)
 {
     const vec3 shadowCoord = vec3(FragPosLightSpace.xy / FragPosLightSpace.w, FragPosLightSpace.z) * 0.5 + 0.5;
-    const float penumbra = min(_calculatePenumbra(SEARCH_SIZE), SEARCH_SIZE);
+    const float penumbra = _calculatePenumbra(SEARCH_SIZE, lightType, lightRadius);
 
     float shadowAvg = 0;
 
@@ -61,9 +60,9 @@ float CalculateShadow(float radius)
     return shadowAvg / SHADOW_SAMPLES;
 }
 
-float _calculatePenumbra(float searchSize)
+float _calculatePenumbra(float searchSize, uint lightType, float lightSize)
 {
-    vec3 shadowCoord = vec3(FragPosLightSpace.xyz / FragPosLightSpace.w) * 0.5 + 0.5;
+    vec3 shadowCoord = FragPosLightSpace.xyz / FragPosLightSpace.w * 0.5 + 0.5;
     shadowCoord.z *= SHADOW_MAX;
 
     #ifdef SHADOW_MODE_MIN
@@ -83,7 +82,7 @@ float _calculatePenumbra(float searchSize)
 
         count++;
     #ifdef SHADOW_MODE_MIN
-        shadowAvg = min(shadowSample, shadowAvg);
+        shadowAvg = min(shadowSample, shawdowAvg);
     #else
         shadowAvg += shadowSample;
     #endif
@@ -94,12 +93,10 @@ float _calculatePenumbra(float searchSize)
     shadowAvg /= count;
 #endif
 
-    return mix(PENUMBRA_MIN, searchSize, (SUN_SIZE * (shadowCoord.z - shadowAvg) / shadowAvg) / searchSize);
-}
-
-float _linearizeDepthOrtho(float z, vec2 p)
-{
-    return z * -2 / (p.y - p.x) - (p.y + p.x) / (p.y - p.x);
+    if(lightType == LIGHT_DIRECTIONAL)
+        return clamp((shadowCoord.z - shadowAvg) * lightSize, PENUMBRA_MIN, searchSize);
+    else
+        return clamp((shadowCoord.z - shadowAvg) * lightSize / shadowAvg, PENUMBRA_MIN, searchSize);
 }
 
 #endif

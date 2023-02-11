@@ -20,7 +20,6 @@ in FragInfo
 };
 
 #define SHADOW_SAMPLES 16
-#define SUN_SIZE 0.5
 #define PENUMBRA_MIN 0.01
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
@@ -49,7 +48,7 @@ void main()
     const vec3 incoming = normalize(Position - FragPos);
 
     const vec3 albedo = texture(sampler2D(Albedo), TexCoord).rgb;
-    const float roughness = pow(texture(sampler2D(Roughness), TexCoord).r, 1.0/2.2);
+    const float roughness = min(1, pow(texture(sampler2D(Roughness), TexCoord).r, 1.0/2.2) * 0.5);
 
     const vec3 f0 = mix(vec3(0.04), albedo, METALLIC);
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, incoming)), f0, roughness);
@@ -60,11 +59,11 @@ void main()
 
 #ifndef FORWARD
     vec3 rayPos = FragPos;
-    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150, 10, roughness)), 10, RAY_MODE_ACCURATE, mix(0.02, 0.1, roughness));
+    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150, 10, roughness)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, roughness));
 #endif
 
     float ambient = max(dot(normal, light), 0);
-    ambient = min(ambient, CalculateShadow());
+    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.05));
 
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 #ifndef FORWARD
@@ -79,7 +78,6 @@ void main()
     FragColor += vec4(spec, 1);
     //FragColor = FragColor / (FragColor + 1);
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
-    //FragColor = vec4(kS, 1);
 }
 
 float RadicalInverse_VdC(uint bits)

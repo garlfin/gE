@@ -20,14 +20,20 @@ in FragInfo
 #define SHADOW_SAMPLES 8
 #define SHADOW_BIAS 0.001
 #define RAY_THICKNESS 0.2
-#define ROUGHNESS 0.1
 #define METALLIC 0
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
 #include "../res/shdrinc/shadow.glsl"
 
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
 out vec4 FragColor;
+
+#define ROUGHNESS 0.2
 
 void main()
 {
@@ -43,7 +49,13 @@ void main()
     ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP, 0.02).x == -1 ? 1 : 0);
     #endif
 
+
+    const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, -incoming)), vec3(0.04), ROUGHNESS);
+    vec2 brdf = texture(BRDFLut, vec2(clamp(dot(-incoming, normal), 0, 1), ROUGHNESS)).rg;
+    vec3 spec = textureLod(SkyboxTex, reflect(incoming, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)).rgb;
+    spec *= kS * brdf.x + brdf.y;
+
     ambient = min(ambient, CalculateShadow(0.1));
-    FragColor = albedo * mix(0.3, 1.0, ambient);
+    FragColor = albedo * mix(0.3, 1.0, ambient) + vec4(spec, 0);
     FragColor = pow(FragColor, vec4(1.0 / 2.2));
 }

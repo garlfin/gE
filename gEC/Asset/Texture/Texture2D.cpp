@@ -22,10 +22,12 @@ namespace gE
             glCreateTextures(GL_TEXTURE_2D, 1, &ID);
             glTextureStorage2D(ID, MipMapCount, FormatToSizedFormat(type), width, height);
 
-            glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_NEAREST + (filter == TextureFilterMode::LINEAR) + (MipMapCount > 1) * 0x100);
+            glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_NEAREST + (filter == TextureFilterMode::LINEAR) + (MipMapCount > 1) * 0x101);
             glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, GL_NEAREST + (filter == TextureFilterMode::LINEAR));
             glTextureParameteri(ID, GL_TEXTURE_WRAP_S, (GLenum) wrapMode);
             glTextureParameteri(ID, GL_TEXTURE_WRAP_T, (GLenum) wrapMode);
+
+            if(MipMapCount > 1 && filter == TextureFilterMode::LINEAR) glTextureParameterf(ID, GL_TEXTURE_MAX_ANISOTROPY, 4.0);
         }
 
         Texture2D::Texture2D(Window* const window, uint32_t width, uint32_t height, TextureFilterMode filter, TextureType type, uint8_t* data, uint8_t mipCount, uint8_t sentMips) : Texture2D(window, width, height, type, mipCount, filter)

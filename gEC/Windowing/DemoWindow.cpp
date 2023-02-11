@@ -46,10 +46,10 @@ void gE::DemoWindow::Load()
     glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_DEBUG_OUTPUT);
+    //glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(DebugCallback, nullptr);
+    //glDebugMessageCallback(DebugCallback, nullptr);
 
     BRDF = AssetManager.Create<Asset::Texture2D>(512, 512, Asset::TextureType::RGf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
     {
@@ -75,8 +75,8 @@ void gE::DemoWindow::Load()
 
     // Scene Setup
     
-    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag", Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
+    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag", Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::NONE);
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::NONE);
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
@@ -152,8 +152,8 @@ void gE::DemoWindow::Render(double delta)
     sunDir.x =  cos(glm::radians(sunTransform->Rotation.x)) * sin(glm::radians(sunTransform->Rotation.y));
     sunDir.y = -sin(glm::radians(sunTransform->Rotation.x));
     sunDir.z =  cos(glm::radians(sunTransform->Rotation.x)) * cos(glm::radians(sunTransform->Rotation.y));
-    sunTransform->Location = glm::normalize(sunDir) * 10.0f;
-    sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location / 0.1f) * 0.1f;
+    sunTransform->Location = glm::normalize(sunDir) * 25.0f;
+    sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location / 1.0f) * 1.0f;
 
     {
         DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, Frame);
