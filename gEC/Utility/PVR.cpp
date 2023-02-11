@@ -48,7 +48,6 @@ namespace gE::Utility
         fseek(file, header.MetaDataSize, SEEK_CUR);
 
         size = glm::uvec2(header.Width, header.Height);
-
         for(uint8_t i = 0; i < header.MipCount; i++, size /= 2)
             byteCount += FormatToCompressionRatio(header.PixelFormat).CalculateBytes(size) * header.FaceCount;
 
@@ -60,7 +59,7 @@ namespace gE::Utility
         auto pos = ftell(file);
 
         fseek(file, 0, SEEK_END);
-        if(ftell(file) - pos != 0) std::cout << "Remaining: " << ftell(file) - pos << std::endl;
+        if(ftell(file) - pos) std::cout << "Remaining: " << ftell(file) - pos << std::endl;
         fclose(file);
 
         if (header.FaceCount == 6 && header.Width != header.Height) throw std::runtime_error("Texture is a cubemap, but has a different width and height!");

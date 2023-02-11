@@ -32,14 +32,14 @@ void main()
 {
     vec3 nor = pow(texture(sampler2D(NormalTex), TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
 
-    const vec3 normal = normalize(TBN * nor);
+    const vec3 normal = normalize(TBN * nor) * mix(-1, 1, gl_FrontFacing);
     const vec3 viewDir = normalize(FragPos - Position);
     vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(viewDir, normal), ROUGHNESS);
     vec2 reflection = vec2(-1);
 
 #ifndef FORWARD
     vec3 rayPos = FragPos;
-    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150.0, 50.0, ROUGHNESS)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
+    if(dot(rayDir, normalize(Normal) * mix(-1, 1, gl_FrontFacing)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150.0, 50.0, ROUGHNESS)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
     FragColor = mix(pow(textureLod(SkyboxTex, reflect(viewDir, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)), vec4(1.0 / 2.2)), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 #else
     FragColor = pow(textureLod(SkyboxTex, reflect(viewDir, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)), vec4(1.0 / 2.2));

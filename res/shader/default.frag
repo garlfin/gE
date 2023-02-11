@@ -47,10 +47,10 @@ void main()
     const vec3 light = normalize(SunInfo.xyz);
     const vec3 incoming = normalize(Position - FragPos);
 
-    const vec3 albedo = texture(sampler2D(Albedo), TexCoord).rgb;
-    const float roughness = min(1, pow(texture(sampler2D(Roughness), TexCoord).r, 1.0/2.2) * 0.5);
+    const vec4 albedo = texture(sampler2D(Albedo), TexCoord);
 
-    const vec3 f0 = mix(vec3(0.04), albedo, METALLIC);
+    const float roughness = min(1, pow(texture(sampler2D(Roughness), TexCoord).r, 1.0/2.2) * 0.5);
+    const vec3 f0 = mix(vec3(0.04), albedo.rgb, METALLIC);
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, incoming)), f0, roughness);
     const vec3 kD = (vec3(1) - kS) * (1 - METALLIC);
 
@@ -74,7 +74,7 @@ void main()
     spec += vec3(pow(max(0, dot(reflect(light, normal), -incoming)), pow(2 - roughness, 16))) * ambient;
     spec *= kS * brdf.x + brdf.y;
 
-    FragColor = vec4(albedo, 1) * mix(0.3, 1.0, ambient) * vec4(kD, 1);
+    FragColor = vec4(albedo.rgb, 1) * mix(0.1, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
     //FragColor = FragColor / (FragColor + 1);
     FragColor = pow(FragColor, vec4(1.0 / 2.2));

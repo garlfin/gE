@@ -13,8 +13,3 @@ void gE::Asset::PBRMaterial::RenderStageSetup()
 {
 
 }
-
-gE::Asset::PBRMaterial::PBRMaterial(gE::Window* window, gE::Asset::Shader* shader, gE::Asset::Shader* forwardShader) : DeferredMaterial(window, shader, forwardShader)
-{
-
-}

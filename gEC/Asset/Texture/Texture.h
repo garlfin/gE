@@ -91,7 +91,7 @@ namespace gE::Asset
 
         CompressionRatio(uint8_t d, uint8_t m) : Divisor(d), Multiplier(m) {}
 
-        [[nodiscard]] inline uint32_t CalculateBytes(glm::uvec2 size) { return DIV_CEIL(size.x * size.y, Divisor) * Multiplier; }
+        [[nodiscard]] inline uint32_t CalculateBytes(glm::uvec2 size) { return DIV_CEIL(size.x, Divisor) * DIV_CEIL(size.y, Divisor) * Multiplier; }
     };
 
     [[nodiscard]] GLenum FormatToPixelFormat(TextureType);
