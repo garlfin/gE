@@ -6,5 +6,5 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = texture(Tex, gl_FragCoord.xy / Info.xy);
+    FragColor = pow(texture(Tex, gl_FragCoord.xy / Info.xy), vec4(1.0 / 2.2));
 }

@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "../../../Windowing/Window.h"
 #include "../../../Asset/Texture/Texture2D.h"
+#include "../../../Asset/Texture/TextureCube.h"
 
 namespace gE::Component
 {
@@ -20,6 +21,7 @@ namespace gE::Component
 
     void Camera::OnRender(double delta)
     {
+        UpdateProjection();
         if(Color && InternalColor)
             glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Color->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);
         Framebuffer->Bind();
@@ -37,32 +39,35 @@ namespace gE::Component
     Camera::Camera(gE::Entity* owner, glm::vec2 clipPlanes, glm::uvec2 dimensions, CameraFields fields, Asset::TextureType colorFormat) : Component(owner),
         Projection(1.0), ClipPlanes(clipPlanes) ,
         Framebuffer(owner->GetWindow()->AssetManager.Create<Asset::Framebuffer>()),
-        InternalDepth(owner->GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F)),
-        InternalColor(nullptr), Color(nullptr), Depth(nullptr)
+        InternalDepth(nullptr), InternalColor(nullptr), Color(nullptr), Depth(nullptr)
     {
-        if (fields == CameraFields::COLOR)
-        {
-            InternalColor = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
-            Framebuffer->Attach(InternalColor, 0);
-        }
-        else if (fields == CameraFields::SCREEN_SPACE_READY)
-        {
-            InternalColor = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
-            Color = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
-            Depth = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y,
-                                                                       Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST, Asset::TextureWrapMode::BORDER);
-            Framebuffer->Attach(InternalColor, 0);
-        }
+        if(fields & CameraFields::CUBEMAP)
+            InternalDepth = GetWindow()->AssetManager.Create<Asset::TextureCube>(dimensions.x, Asset::TextureType::DEPTH_32F);
+        else
+            InternalDepth = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F);
+        Framebuffer->Attach(InternalDepth, Asset::Framebuffer::DEPTH_STENCIL);
 
-        Framebuffer->Attach(InternalDepth, Asset::Framebuffer::DEPTH);
+        if(fields & CameraFields::COLOR)
+        {
+            if(fields & CameraFields::CUBEMAP)
+                InternalColor = GetWindow()->AssetManager.Create<Asset::TextureCube>(dimensions.x, colorFormat, 0);
+            else
+                InternalColor = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
+            Framebuffer->Attach(InternalColor, 0);
+        }
+        if(fields & CameraFields::COLOR_COPY)
+            Color = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, colorFormat);
+        if(fields & CameraFields::DEPTH_COPY)
+            Depth = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST);
+
     }
 
     Camera::~Camera()
     {
-        GetWindow()->AssetManager.Remove(InternalColor);
-        GetWindow()->AssetManager.Remove(InternalDepth);
-        GetWindow()->AssetManager.Remove(Depth);
-        GetWindow()->AssetManager.Remove(Color);
+        GetWindow()->AssetManager.Destroy(InternalColor);
+        GetWindow()->AssetManager.Destroy(InternalDepth);
+        GetWindow()->AssetManager.Destroy(Depth);
+        GetWindow()->AssetManager.Destroy(Color);
     }
 
     glm::mat4 CameraManager::GetView() const {

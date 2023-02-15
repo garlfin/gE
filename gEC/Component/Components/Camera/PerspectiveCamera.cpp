@@ -23,7 +23,7 @@ namespace gE::Component
         UpdateProjection();
     }
 
-    PerspectiveCamera::PerspectiveCamera(Entity* owner, float fov, glm::vec2 planes, FOVType fovType) : Camera(owner, planes, owner->GetWindow()->GetSize(), CameraFields::SCREEN_SPACE_READY, Asset::TextureType::RGBAf_32), FOV(fov)
+    PerspectiveCamera::PerspectiveCamera(Entity* owner, float fov, glm::vec2 planes, FOVType fovType) : Camera(owner, planes, owner->GetWindow()->GetSize(), CameraFields::SCREEN_SPACE_RDY, Asset::TextureType::RGBAf_32), FOV(fov)
     {
         SetFOV(fov, fovType);
     }

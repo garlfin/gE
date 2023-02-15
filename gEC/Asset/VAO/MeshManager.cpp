@@ -117,5 +117,5 @@ void DrawSubMesh(gE::Window* window, const gE::Entity* e, const gE::Asset::VAO* 
     if (renderMaterial != nullptr) renderMaterial->Use();
     else window->GetDefaultShader()->Use();
 
-    subMesh->Draw(count);
+    subMesh->Draw(count * (window->GetStage() == gE::Windowing::Stage::Cubemap ? 6 : 1));
 }

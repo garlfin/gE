@@ -1,5 +1,9 @@
-
+#extension GL_NV_viewport_array : enable
+#extension GL_NV_viewport_array2 : enable
+#extension GL_ARB_shader_viewport_layer_array : enable
+#extension GL_AMD_vertex_shader_layer : enable
 #extension GL_ARB_bindless_texture : enable
+
 #include "../res/shader/camera.glsl"
 #include "../res/shader/objectinfo.glsl"
 #include "../res/shader/demowindow.glsl"
@@ -22,12 +26,13 @@ out FragInfo
 
 void main()
 {
+    gl_Layer = int(gl_InstanceID / ObjectCount);
     mat3 normalMatrix = mat3(NormalMatrix[gl_InstanceID % ObjectCount]);
     FragPos = (Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0)).xyz;
     Normal = normalize(normalMatrix * vNor);
     TexCoord = vUV;
 
-    gl_Position = Projection * GetView(Position, gl_InstanceID / ObjectCount) * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
+    gl_Position = Projection * GetView(Position, gl_Layer) * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
     FragPosLightSpace = SunMatrix * vec4(FragPos, 1.0);
 
     vec3 tan = normalize(normalMatrix * vTan);

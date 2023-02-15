@@ -56,6 +56,7 @@ namespace gE::Component
             for (T* const component: Base::p_Assets)
                 if (component->IsFlagged())
                 {
+
                     deletionArr[deletionCount] = component;
                     deletionCount++;
                     component->OnDestroy();

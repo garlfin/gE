@@ -12,6 +12,8 @@
 #define DIV_CEIL(x, y) (((x) + (y) - 1) / (y))
 #define IS_COMPRESSED(t) (t <= TextureType::COMPRESSED_DX5 || (t >= TextureType::COMPRESSED_DX1_SRGB && t <= TextureType::COMPRESSED_DX5_SRGB))
 
+typedef uint64_t TextureHandle;
+
 namespace gE::Asset
 {
     enum class TextureFilterMode
@@ -71,7 +73,7 @@ namespace gE::Asset
         ~Texture() override;
 
         [[nodiscard]] glm::uvec2 GetSize(uint8_t mip = 0) const { return {Width >> mip, Height >> mip}; }
-        [[nodiscard]] uint64_t GetHandle() { if(!Handle) CreateHandle(); return Handle; }
+        [[nodiscard]] TextureHandle GetHandle() { if(!Handle) CreateHandle(); return Handle; }
 
         void CalculateMipCount();
         uint8_t GetMipCount() { return MipMapCount; }

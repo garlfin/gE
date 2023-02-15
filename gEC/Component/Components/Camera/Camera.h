@@ -13,18 +13,21 @@
 
 namespace gE::Component
 {
-    enum class CameraFields
+    enum class CameraFields : uint8_t
     {
-        COLOR,
-        SCREEN_SPACE_READY,
-        NONE
+        DEPTH            = 0b00000000,
+        COLOR            = 0b00000001,
+        DEPTH_COPY       = 0b00000010,
+        COLOR_COPY       = 0b00000100,
+        CUBEMAP          = 0b00001000,
+        SCREEN_SPACE_RDY = COLOR | DEPTH_COPY | COLOR_COPY,
+        CUBEMAP_RDY      = COLOR | CUBEMAP
     };
 
     class Camera : public Component
     {
     protected:
-        Camera(Entity* owner, glm::vec2 clipPlanes, glm::uvec2 dimensions, CameraFields fields,
-               Asset::TextureType colorFormat);
+        Camera(gE::Entity* owner, glm::vec2 clipPlanes, glm::uvec2 dimensions, CameraFields fields, Asset::TextureType colorFormat);
 
         virtual void RenderPass(double delta) = 0;
         virtual void UpdateProjection() = 0;
@@ -32,11 +35,8 @@ namespace gE::Component
         glm::mat4 Projection;
         glm::vec2 ClipPlanes;
 
-        Asset::Framebuffer *const Framebuffer;
-        Asset::Texture *const InternalDepth;
-        Asset::Texture* InternalColor;
-        Asset::Texture* Color;
-        Asset::Texture* Depth;
+        Asset::Framebuffer* const Framebuffer;
+        Asset::Texture* InternalDepth, *InternalColor, *Color, *Depth;
 
     public:
         void OnRender(double delta) final;
@@ -45,12 +45,12 @@ namespace gE::Component
         void OnDestroy() final { }
 
         [[nodiscard]] const glm::mat4& GetProjection() const { return Projection; }
-        [[nodiscard]] glm::mat4 GetView() const;
+        [[nodiscard]] virtual glm::mat4 GetView() const;
         [[nodiscard]] glm::vec2 GetClipPlanes() const { return ClipPlanes; }
 
         Asset::Texture* GetColor() { return Color ?: InternalColor; }
         Asset::Texture* GetDepth() { return Depth ?: InternalDepth; }
-        glm::uvec2 GetSize() { return Depth->GetSize(); }
+        glm::uvec2 GetSize() { return GetDepth()->GetSize(); }
 
         void Use();
 
@@ -91,4 +91,9 @@ namespace gE::Component
 
         glm::mat4 GetView() const;
     };
+
+    inline uint8_t operator&(CameraFields a, CameraFields b)
+    {
+        return ((uint8_t)(a) & (std::uint8_t)(b));
+    }
 }

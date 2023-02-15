@@ -27,7 +27,7 @@ namespace gE
             glDisable(GL_CULL_FACE);
 
             SkyboxShader->Use();
-            SkyboxVAO->Draw(1);
+            SkyboxVAO->Draw(SkyboxVAO->GetWindow()->GetStage() == Windowing::Stage::Cubemap ? 6 : 1);
         }
     };
 

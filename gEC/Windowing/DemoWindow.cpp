@@ -16,6 +16,7 @@
 #include "../../res/script/StaticRenderer.h"
 #include "../../res/script/InventoryScript.h"
 #include "../Asset/Texture/Texture2D.h"
+#include "../Component/Components/Camera/CubemapCamera.h"
 
 const float PassthroughVertices[]
         {
@@ -103,7 +104,7 @@ void gE::DemoWindow::Load()
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
     auto* entity = EntityManager.Create<DynamicEntity>();
-    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(2.2), glm::vec3(0), glm::vec3(1)));
+    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 2, 0), glm::vec3(0), glm::vec3(1)));
     entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 80, glm::vec2(0.1, 1000))->Use();
     entity->CreateComponent<Component::CameraMovement>(&BehaviorManager);
 
@@ -134,8 +135,19 @@ void gE::DemoWindow::Load()
     entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
 
     entity = EntityManager.Create<DynamicEntity>();
-    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(-145, 65, 0), glm::vec3(1)));
+    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0), glm::vec3(-145, 65, 0), glm::vec3(1)));
     Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 20);
+
+    entity = EntityManager.Create<DynamicEntity>();
+    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 2, 0), glm::vec3(0), glm::vec3(1)));
+    auto* cCam = entity->CreateComponent<Component::CubemapCamera>(CameraManager, 512, glm::vec2(0.1, 100));
+
+    Update(0);
+    MeshManager->OnUpdate(0);
+
+    cCam->OnRender(0);
+
+    Skybox.SkyboxTexture = cCam->GetColor();
 }
 
 void gE::DemoWindow::Update(double delta)

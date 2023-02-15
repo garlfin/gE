@@ -52,6 +52,7 @@ namespace gE
         [[nodiscard]] const Asset::Shader* GetDefaultShader() const { return p_MissingShader; }
 
         void SetStage(Windowing::Stage stage);
+        uint32_t GetFrame() const { return Frame; }
 
     protected:
         virtual void Load() = 0;

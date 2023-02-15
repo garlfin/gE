@@ -9,12 +9,12 @@ namespace gE::Windowing
 {
     enum class Stage : uint8_t
     {
-        Update      = 1,
-        PreZ        = 2,
-        Render      = 8,
-        Shadow      = 16,
-        PostProcess = 32,
-        Cubemap = 64,
+        Update      = 0b00000001,
+        PreZ        = 0b00000010,
+        Render      = 0b00000100,
+        Shadow      = 0b00001000,
+        PostProcess = 0b00010000,
+        Cubemap     = 0b00100000,
     };
 
     inline Stage operator|(Stage a, Stage b)

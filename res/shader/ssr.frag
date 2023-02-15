@@ -16,7 +16,7 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 1.0
-#define ROUGHNESS 0.2
+#define ROUGHNESS 0.1
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
@@ -40,9 +40,9 @@ void main()
 #ifndef FORWARD
     vec3 rayPos = FragPos;
     if(dot(rayDir, normalize(Normal) * mix(-1, 1, gl_FrontFacing)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150.0, 50.0, ROUGHNESS)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
-    FragColor = mix(pow(textureLod(SkyboxTex, reflect(viewDir, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)), vec4(1.0 / 2.2)), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
+    FragColor = mix(textureLod(SkyboxTex, reflect(viewDir, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 #else
-    FragColor = pow(textureLod(SkyboxTex, reflect(viewDir, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)), vec4(1.0 / 2.2));
+    FragColor = textureLod(SkyboxTex, reflect(viewDir, normal), ROUGHNESS * textureQueryLevels(SkyboxTex));
 #endif
 }
 

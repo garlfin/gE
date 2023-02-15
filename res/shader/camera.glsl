@@ -16,20 +16,43 @@ layout(std140, binding = 0) uniform SceneInfo
 #define LEFT  vec4(1, 0, 0, 0)
 #define FRONT vec4(0, 0, 1, 0)
 
+mat4 lookAt(vec3 eye, vec3 center, vec3 up)
+{
+    vec3 f = normalize(center - eye);
+    vec3 s = normalize(cross(up, f));
+    vec3 u = cross(f, s);
+
+    mat4 Result = mat4(1);
+    Result[0][0] = s.x;
+    Result[1][0] = s.y;
+    Result[2][0] = s.z;
+    Result[0][1] = u.x;
+    Result[1][1] = u.y;
+    Result[2][1] = u.z;
+    Result[0][2] = f.x;
+    Result[1][2] = f.y;
+    Result[2][2] = f.z;
+    Result[3][0] = -dot(s, eye);
+    Result[3][1] = -dot(u, eye);
+    Result[3][2] = -dot(f, eye);
+    return Result;
+}
+
 mat4 GetView(vec3 pos, uint side)
 {
     // X+, X-, Y+, Y-, Z+ Z-
-
-    if(side == 0)
-        return View;
     if(side == 1)
-        return mat4(-FRONT, UP, -LEFT, vec4(pos, 1));
+        return lookAt(pos, pos + vec3(1, 0, 0), vec3(0, -1, 0));
     if(side == 2)
-        return mat4(-LEFT, FRONT, UP, vec4(pos, 1));
+        return lookAt(pos, pos + vec3(0, -1, 0), vec3(0, 0, 1));
     if(side == 3)
-        return mat4(-LEFT, -FRONT, -UP, vec4(pos, 1));
+        return lookAt(pos, pos + vec3(0, 1, 0), vec3(0, 0, -1));
     if(side == 4)
-        return mat4(LEFT, UP, FRONT, vec4(pos, 1));
+        return lookAt(pos, pos + vec3(0, 0, -1), vec3(0, -1, 0));
     if(side == 5)
-        return mat4(-LEFT, UP, -FRONT, vec4(pos, 1));
+        return lookAt(pos, pos + vec3(0, 0, 1), vec3(0, -1, 0));
+
+    return View;
 }
+
+

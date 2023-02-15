@@ -57,5 +57,4 @@ void main()
 
     ambient = min(ambient, CalculateShadow(0.1));
     FragColor = albedo * mix(0.3, 1.0, ambient) + vec4(spec, 0);
-    FragColor = pow(FragColor, vec4(1.0 / 2.2));
 }

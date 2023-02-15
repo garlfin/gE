@@ -76,8 +76,6 @@ void main()
 
     FragColor = vec4(albedo.rgb, 1) * mix(0.1, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
-    //FragColor = FragColor / (FragColor + 1);
-    FragColor = pow(FragColor, vec4(1.0 / 2.2));
 }
 
 float RadicalInverse_VdC(uint bits)

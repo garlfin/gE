@@ -23,8 +23,8 @@ namespace gE::Asset
         MandatorySetup();
         if(GetWindow()->GetStage() & (Windowing::Stage::PreZ | Windowing::Stage::Shadow))
             return (p_DepthShader ?: GetWindow()->GetDefaultShader())->Use(p_Shader->GetDepthFunc(), p_Shader->GetCullMode());
-
-        (GetWindow()->GetStage() == Windowing::Stage::Cubemap ? _forwardShader : p_Shader)->Use();
+        else
+            (GetWindow()->GetStage() == Windowing::Stage::Cubemap ? _forwardShader : p_Shader)->Use();
         RenderStageSetup();
     }
 }

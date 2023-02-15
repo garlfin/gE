@@ -18,12 +18,15 @@ namespace gE::Asset
     {
         if(!mipCount) CalculateMipCount();
         glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &ID);
-        glTextureStorage2D(ID, MipMapCount, GL_RGB32F, size, size);
+        glTextureStorage2D(ID, MipMapCount, FormatToPixelFormat(type), size, size);
 
         glTextureParameteri(ID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(ID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTextureParameteri(ID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
         glTextureParameteri(ID, GL_TEXTURE_CUBE_MAP_SEAMLESS, GL_TRUE);
+
+        glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     TextureCube::TextureCube(Window* const window, uint32_t size, TextureFilterMode filter,
@@ -44,9 +47,6 @@ namespace gE::Asset
                 data += FormatToCompressionRatio(type).CalculateBytes(mipSize);
             }
         }
-
-        glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         if(sentMips < MipMapCount) glGenerateTextureMipmap(ID);
     }
