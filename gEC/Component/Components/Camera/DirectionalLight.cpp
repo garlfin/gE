@@ -9,7 +9,7 @@
 
 namespace gE::Component
 {
-    DirectionalLight::DirectionalLight(Entity* entity, uint32_t size, float cameraSize) : OrthographicCamera(entity, cameraSize, glm::vec2(0.01, size * 2), glm::uvec2(size), CameraFields::DEPTH, Asset::TextureType::RGBAf_32)
+    DirectionalLight::DirectionalLight(Entity* entity, uint32_t size, float cameraSize) : OrthographicCamera(entity, cameraSize, glm::vec2(0.01, cameraSize * 2), glm::uvec2(size), CameraFields::DEPTH, Asset::TextureType::RGBAf_32)
     {
 
     }

@@ -20,7 +20,7 @@ in FragInfo
 };
 
 #define SHADOW_SAMPLES 16
-#define PENUMBRA_MIN 0.01
+#define PENUMBRA_MIN 0.05
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
 #define RAY_THICKNESS 1.0
@@ -64,7 +64,7 @@ void main()
 #endif
 
     float ambient = max(dot(normal, light), 0);
-    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.1));
+    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.05));
 
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 #ifndef FORWARD

@@ -149,11 +149,11 @@ void gE::DemoWindow::Load()
     sunDir.x =  cos(glm::radians(sunTransform->Rotation.x)) * sin(glm::radians(sunTransform->Rotation.y));
     sunDir.y = -sin(glm::radians(sunTransform->Rotation.x));
     sunDir.z =  cos(glm::radians(sunTransform->Rotation.x)) * cos(glm::radians(sunTransform->Rotation.y));
+    sunTransform->Location = glm::normalize(sunDir) * Sun->GetSize() + cTransform->Location;
 
     Update(0);
     MeshManager->OnUpdate(0);
 
-    sunTransform->Location = glm::normalize(sunDir) * Sun->GetSize() + cTransform->Location;
     {
         DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, GetFrame());
         DemoUniformBuffer->ReplaceData(&ubo);
