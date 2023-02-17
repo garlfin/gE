@@ -45,7 +45,7 @@ namespace gE::Component
             InternalDepth = GetWindow()->AssetManager.Create<Asset::TextureCube>(dimensions.x, Asset::TextureType::DEPTH_32F);
         else
             InternalDepth = GetWindow()->AssetManager.Create<Asset::Texture2D>(dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F);
-        Framebuffer->Attach(InternalDepth, Asset::Framebuffer::DEPTH_STENCIL);
+        Framebuffer->Attach(InternalDepth, Asset::Framebuffer::DEPTH);
 
         if(fields & CameraFields::COLOR)
         {

@@ -12,6 +12,7 @@
 #include "../../res/script/CameraMovement.h"
 #include "../Asset/Shader/Shader.h"
 #include "../Component/Components/Camera/DirectionalLight.h"
+#include "../Component/Components/Camera/CubemapCamera.h"
 
 namespace gE
 {
@@ -58,5 +59,6 @@ namespace gE
         Buffer<DemoUBO>* DemoUniformBuffer;
         Component::DirectionalLight* Sun;
         Asset::Texture* BRDF;
+        Component::CubemapManager* CubemapManager;
     };
 }

@@ -28,16 +28,18 @@ namespace gE::Component
 
     struct CubemapData
     {
+        CubemapData(TextureHandle handle, const glm::vec3& center, const glm::vec3& extents) : CubemapHandle(handle), Center(center), Extent(extents) {}
+
         TextureHandle CubemapHandle;
         alignas(16) glm::vec3 Center;
         alignas(16) glm::vec3 Extent;
     };
 
-    class CubemapManager final : ComponentManager<CubemapCamera>
+    class CubemapManager final : public ComponentManager<CubemapCamera>
     {
-    private:
-        Buffer<CubemapData>* CubemapBuffer;
     public:
         CubemapManager(Window* window);
+
+        Buffer<CubemapData>* CubemapBuffer;
     };
 }

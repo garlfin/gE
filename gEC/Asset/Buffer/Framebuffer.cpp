@@ -2,6 +2,7 @@
 // Created by scion on 12/7/2022.
 //
 
+#include <iostream>
 #include "GLAD/glad.h"
 #include "Framebuffer.h"
 

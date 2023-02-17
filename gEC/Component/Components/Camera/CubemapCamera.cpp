@@ -27,26 +27,9 @@ namespace gE::Component
 
     void CubemapCamera::RenderPass(double delta)
     {
-        DemoWindow* window = (DemoWindow*) GetWindow();
-        auto* sunTransform = window->Sun->GetOwner()->GetComponent<gE::Component::Transform>();
-        glm::vec3 sunDir;
-        sunDir.x =  cos(glm::radians(sunTransform->Rotation.x)) * sin(glm::radians(sunTransform->Rotation.y));
-        sunDir.y = -sin(glm::radians(sunTransform->Rotation.x));
-        sunDir.z =  cos(glm::radians(sunTransform->Rotation.x)) * cos(glm::radians(sunTransform->Rotation.y));
-        sunTransform->Location = glm::normalize(sunDir) * 25.0f;
-        sunTransform->Location += glm::floor(GetOwner()->GetComponent<gE::Component::Transform>()->Location / 1.0f) * 1.0f;
-
-        {
-            DemoUBO ubo(window->Skybox.SkyboxTexture, window->Sun, window->BRDF, window->GetFrame());
-            window->DemoUniformBuffer->ReplaceData(&ubo);
-        }
-
-        window->Sun->OnRender(0);
-
-        Framebuffer->Bind();
         {
             auto* c = GetColor();
-            CameraData d(GetView(), GetProjection(), glm::vec3(GetOwner()->GetComponent<Transform>()->Model[3]), glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
+            CameraData d(GetView(), GetProjection(), GetOwner()->GetComponent<Transform>()->Location, glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
             GetWindow()->CameraManager->GetBuffer()->ReplaceData(&d);
         }
 
@@ -63,7 +46,8 @@ namespace gE::Component
         glGenerateTextureMipmap(InternalColor->Get());
     }
 
-    CubemapManager::CubemapManager(Window* window) : ComponentManager<CubemapCamera>(window), CubemapBuffer(window->AssetManager.Create<Buffer<CubemapData>>())
+    CubemapManager::CubemapManager(Window* window) : ComponentManager<CubemapCamera>(window), CubemapBuffer(window->AssetManager.Create<Buffer<CubemapData>>(CMMANAGER_MAX_CUBEMAPS))
     {
+        CubemapBuffer->Bind(3, BufferTarget::UNIFORM);
     }
 }

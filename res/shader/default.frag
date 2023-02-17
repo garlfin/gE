@@ -30,6 +30,7 @@ in FragInfo
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
 #include "../res/shdrinc/shadow.glsl"
+#include "../res/shdrinc/cubemap.glsl"
 
 out vec4 FragColor;
 
@@ -49,7 +50,7 @@ void main()
 
     const vec4 albedo = texture(sampler2D(Albedo), TexCoord);
 
-    const float roughness = min(1, pow(texture(sampler2D(Roughness), TexCoord).r, 1.0/2.2) * 0.5);
+    const float roughness = pow(texture(sampler2D(Roughness), TexCoord).r, 1.0/2.2);
     const vec3 f0 = mix(vec3(0.04), albedo.rgb, METALLIC);
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, incoming)), f0, roughness);
     const vec3 kD = (vec3(1) - kS) * (1 - METALLIC);
@@ -63,13 +64,13 @@ void main()
 #endif
 
     float ambient = max(dot(normal, light), 0);
-    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.05));
+    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.1));
 
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 #ifndef FORWARD
-    vec3 spec = mix(textureLod(SkyboxTex, reflect(-incoming, normal), roughness * textureQueryLevels(SkyboxTex)), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
+    vec3 spec = mix(SampleCubemap(Cubemaps[0], reflect(-incoming, normal), roughness), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
 #else
-    vec3 spec = textureLod(SkyboxTex, reflect(-incoming, normal), roughness * textureQueryLevels(SkyboxTex)).rgb;
+    vec3 spec = SampleCubemap(Cubemaps[0], reflect(-incoming, normal), roughness).rgb;
 #endif
     spec += vec3(pow(max(0, dot(reflect(light, normal), -incoming)), pow(2 - roughness, 16))) * ambient;
     spec *= kS * brdf.x + brdf.y;

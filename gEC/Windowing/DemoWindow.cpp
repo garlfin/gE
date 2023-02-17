@@ -53,6 +53,8 @@ void gE::DemoWindow::Load()
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(DebugCallback, nullptr);
 
+    CubemapManager = new Component::CubemapManager(this);
+
     BRDF = AssetManager.Create<Asset::Texture2D>(512, 512, Asset::TextureType::RGf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
     {
         Asset::Shader brdfCompute(this, "../res/shader/brdf.comp");
@@ -77,8 +79,8 @@ void gE::DemoWindow::Load()
 
     // Scene Setup
     
-    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag", Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::NONE);
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::NEVER, Asset::DepthFunction::LESS, Asset::CompileFlags::NONE);
+    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
@@ -100,7 +102,7 @@ void gE::DemoWindow::Load()
     glProgramUniform2uiv(ssrShader->Get(), glGetUniformLocation(ssrShader->Get(), "NormalTex"), 1, (GLuint*) & foilNor);
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
 
-    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(6)), rMesh, mats, 2);
+    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(10)), rMesh, mats, 2);
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
     auto* entity = EntityManager.Create<DynamicEntity>();
@@ -134,20 +136,38 @@ void gE::DemoWindow::Load()
     entity->CreateComponent<Component::Renderer>(&ComponentManager, nullptr);
     entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
 
-    entity = EntityManager.Create<DynamicEntity>();
+    entity = EntityManager.Create<DynamicEntity>(nullptr, "Sun");
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0), glm::vec3(-145, 65, 0), glm::vec3(1)));
-    Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 20);
+    Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 40);
 
     entity = EntityManager.Create<DynamicEntity>();
-    entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 2, 0), glm::vec3(0), glm::vec3(1)));
-    auto* cCam = entity->CreateComponent<Component::CubemapCamera>(CameraManager, 512, glm::vec2(0.1, 100));
+    auto* cTransform = entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(0), glm::vec3(1)));
+    auto* cCam = entity->CreateComponent<Component::CubemapCamera>(CubemapManager, 512, glm::vec2(0.1, 100));
+
+    auto* sunTransform = Sun->GetOwner()->GetComponent<gE::Component::Transform>();
+    glm::vec3 sunDir;
+    sunDir.x =  cos(glm::radians(sunTransform->Rotation.x)) * sin(glm::radians(sunTransform->Rotation.y));
+    sunDir.y = -sin(glm::radians(sunTransform->Rotation.x));
+    sunDir.z =  cos(glm::radians(sunTransform->Rotation.x)) * cos(glm::radians(sunTransform->Rotation.y));
 
     Update(0);
     MeshManager->OnUpdate(0);
 
+    sunTransform->Location = glm::normalize(sunDir) * Sun->GetSize() + cTransform->Location;
+    {
+        DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, GetFrame());
+        DemoUniformBuffer->ReplaceData(&ubo);
+    }
+
+    Sun->OnRender(0);
+
+    Component::CubemapData d(Skybox.SkyboxTexture->GetHandle(), cTransform->Location, glm::vec3(0));
+    CubemapManager->CubemapBuffer->ReplaceData(&d);
+
     cCam->OnRender(0);
 
-    Skybox.SkyboxTexture = cCam->GetColor();
+    d = Component::CubemapData(cCam->GetColor()->GetHandle(), cTransform->Location, glm::vec3(10.01));
+    CubemapManager->CubemapBuffer->ReplaceData(&d);
 }
 
 void gE::DemoWindow::Update(double delta)
@@ -166,8 +186,8 @@ void gE::DemoWindow::Render(double delta)
     sunDir.x =  cos(glm::radians(sunTransform->Rotation.x)) * sin(glm::radians(sunTransform->Rotation.y));
     sunDir.y = -sin(glm::radians(sunTransform->Rotation.x));
     sunDir.z =  cos(glm::radians(sunTransform->Rotation.x)) * cos(glm::radians(sunTransform->Rotation.y));
-    sunTransform->Location = glm::normalize(sunDir) * 25.0f;
-    sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location / 1.0f) * 1.0f;
+    sunTransform->Location = glm::normalize(sunDir) * 25.f;
+    sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location);
 
     {
         DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, Frame);

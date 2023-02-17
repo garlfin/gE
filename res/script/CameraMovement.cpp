@@ -40,6 +40,6 @@ namespace gE::Component
         direction += glm::vec3(CHECK_KEY(GLFW_KEY_D) - CHECK_KEY(GLFW_KEY_A)) * right;
         direction.y += CHECK_KEY(GLFW_KEY_E) - CHECK_KEY(GLFW_KEY_Q);
 
-        transform->Location += direction / (glm::length(direction) ?: 1) * glm::vec3(delta);
+        transform->Location += direction / (glm::length(direction) ?: 1) * glm::vec3(delta) * 3.f;
     }
 }
