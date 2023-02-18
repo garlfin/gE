@@ -17,6 +17,7 @@
 #include "../../res/script/InventoryScript.h"
 #include "../Asset/Texture/Texture2D.h"
 #include "../Component/Components/Camera/CubemapCamera.h"
+#include "glm/gtc/matrix_transform.hpp"
 
 const float PassthroughVertices[]
         {
@@ -70,17 +71,41 @@ void gE::DemoWindow::Load()
     PassthroughShader = AssetManager.Create<Asset::Shader>("../gEC/Resource/passthrough.vert", "../gEC/Resource/passthrough.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
     //HiZComputeShader = AssetManager.Create<Asset::Shader>("../res/shader/highz.comp");
     Skybox.SkyboxShader = AssetManager.Create<Asset::Shader>("../res/shader/skybox.vert", "../res/shader/skybox.frag", Asset::CullMode::NEVER, Asset::DepthFunction::LEQUAL);
-
     AssetManager.Add(Skybox.SkyboxVAO = gE::Utility::CreateSkyboxVAO(this));
-    Skybox.SkyboxTexture = (Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../sky.pvr", nullptr));
+    {
+        Asset::Texture* skybox = Utility::LoadPVR(this, "../sky.pvr", nullptr);
+        Skybox.SkyboxTexture = AssetManager.Create<Asset::TextureCube>(skybox->GetSize().x, Asset::TextureType::RGBf_32, 0);
 
+        Asset::Shader convolutionShader(this, "../res/shader/skybox.vert", "../res/shader/convolution.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
+        Asset::Framebuffer convolutionBuffer(this);
+        convolutionShader.Use();
+        glProgramUniform1i(convolutionShader.Get(), glGetUniformLocation(convolutionShader.Get(), "Skybox"), skybox->Use(0));
+
+        convolutionBuffer.Bind();
+        {
+            Component::CameraData data(glm::lookAt(glm::vec3(0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)), glm::perspectiveFov(1.5708f, 1.f, 1.f, 0.01f, 100.f), glm::vec3(0), glm::vec4(0), 0, 0);
+            CameraManager->GetBuffer()->ReplaceData(&data);
+        }
+        for(int i = 0; i < skybox->GetMipCount(); i++)
+        {
+            auto mipSize = skybox->GetSize(i);
+            glViewport(0, 0, mipSize.x, mipSize.y);
+            convolutionBuffer.Attach(Skybox.SkyboxTexture, 0, i);
+
+            glProgramUniform1f(convolutionShader.Get(), glGetUniformLocation(convolutionShader.Get(), "Roughness"), (float) i / skybox->GetMipCount());
+
+            Skybox.SkyboxVAO->Draw(6);
+        }
+
+        delete skybox;
+    }
     BlitBuffer = AssetManager.Create<Asset::Framebuffer>();
     BlitBuffer->Attach(AssetManager.Create<Asset::Renderbuffer>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F), Asset::Framebuffer::DEPTH);
 
     // Scene Setup
     
     auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::NEVER);
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));

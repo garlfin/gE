@@ -82,7 +82,7 @@ float _calculatePenumbra(float searchSize, uint lightType, float lightSize)
 
         count++;
     #ifdef SHADOW_MODE_MIN
-        shadowAvg = min(shadowSample, shawdowAvg);
+        shadowAvg = min(shadowSample, shadowAvg);
     #else
         shadowAvg += shadowSample;
     #endif

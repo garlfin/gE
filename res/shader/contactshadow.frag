@@ -25,6 +25,7 @@ in FragInfo
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
 #include "../res/shdrinc/shadow.glsl"
+#include "../res/shdrinc/cubemap.glsl"
 
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 {
@@ -49,10 +50,9 @@ void main()
     ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP, 0.02).x == -1 ? 1 : 0);
     #endif
 
-
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, -incoming)), vec3(0.04), ROUGHNESS);
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(-incoming, normal), 0, 1), ROUGHNESS)).rg;
-    vec3 spec = textureLod(SkyboxTex, reflect(incoming, normal), ROUGHNESS * textureQueryLevels(SkyboxTex)).rgb;
+    vec3 spec = SampleCubemap(Cubemaps[0], reflect(incoming, normal), ROUGHNESS).rgb;
     spec *= kS * brdf.x + brdf.y;
 
     ambient = min(ambient, CalculateShadow(0.1));

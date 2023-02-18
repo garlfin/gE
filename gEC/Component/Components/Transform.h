@@ -58,5 +58,6 @@ namespace gE::Component
             p_Buffer.Bind(1, BufferTarget::UNIFORM);
         }
         void UpdateMatrices(const Entity** entities, uint32_t count);
+        Buffer<ObjectInfo>* GetBuffer() { return &p_Buffer; }
     };
 }

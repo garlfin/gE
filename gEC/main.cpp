@@ -2,7 +2,7 @@
 
 int main()
 {
-    if(gE::Init(4, 6, false)) return gE::FAIL;
+    if(gE::Init(4, 6, true)) return gE::FAIL;
 
     gE::Result result;
     gE::DemoWindow window("Test DemoWindow", 1280, 720, &result);

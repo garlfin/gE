@@ -64,7 +64,7 @@ void main()
 #endif
 
     float ambient = max(dot(normal, light), 0);
-    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.05));
+    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.03));
 
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 #ifndef FORWARD

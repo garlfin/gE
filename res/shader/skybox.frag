@@ -6,5 +6,5 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = texture(SkyboxTex, TexCoords);
+    FragColor = textureLod(SkyboxTex, TexCoords, 0);
 }

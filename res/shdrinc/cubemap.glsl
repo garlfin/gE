@@ -1,6 +1,5 @@
 #ifndef CUBEMAP_INCLUDE
 #define CUBEMAP_INCLUDE 1
-#ifndef FORWARD
 
 struct CubemapData
 {
@@ -28,8 +27,7 @@ vec4 SampleCubemap(CubemapData cm, vec3 dir, float roughness)
 
     if (any(greaterThan(FragPos, boxMax)) || any(lessThan(FragPos, boxMin)) || any(equal(cm.Extents, vec3(0)))) sampleDir = dir;
 
-    return textureLod(cm.Cubemap, sampleDir, textureQueryLevels(cm.Cubemap) * roughness);
+    return textureLod(SkyboxTex, sampleDir, textureQueryLevels(SkyboxTex) * roughness);
 }
 
-#endif
 #endif

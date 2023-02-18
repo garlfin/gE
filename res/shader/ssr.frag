@@ -16,7 +16,7 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 1.0
-#define ROUGHNESS 0.1
+#define ROUGHNESS 0.4
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
