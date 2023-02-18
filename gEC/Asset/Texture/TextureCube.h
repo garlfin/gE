@@ -13,7 +13,7 @@ namespace gE::Asset
     public:
         TextureCube(Window* const window, uint32_t size, TextureType type,
         uint8_t mipCount = 1);
-        TextureCube(Window* const window, uint32_t size, TextureFilterMode filter, TextureType type,
+        TextureCube(Window* const window, uint32_t size, TextureType type,
         uint8_t* data, uint8_t mipCount = 1, uint8_t sentMips = 1);
 
         void Use() override;

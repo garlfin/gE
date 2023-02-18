@@ -28,7 +28,7 @@ vec4 SampleCubemap(CubemapData cm, vec3 dir, float roughness)
 
     if (any(greaterThan(FragPos, boxMax)) || any(lessThan(FragPos, boxMin)) || any(equal(cm.Extents, vec3(0)))) sampleDir = dir;
 
-    return textureLod(SkyboxTex, sampleDir, textureQueryLevels(SkyboxTex) * roughness);
+    return textureLod(cm.Cubemap, sampleDir, textureQueryLevels(cm.Cubemap) * roughness);
 }
 
 #endif

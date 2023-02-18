@@ -66,7 +66,6 @@ namespace gE::Utility
 
         Asset::Texture* texture = header.FaceCount == 6 ?
                                   (Asset::Texture*) new gE::Asset::TextureCube(window, header.Width,
-                                                                               Asset::TextureFilterMode::LINEAR,
                                                                                header.PixelFormat, imageData,
                                                                                0, header.MipCount)
                                                         :

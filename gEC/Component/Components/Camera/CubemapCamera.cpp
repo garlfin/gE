@@ -43,7 +43,14 @@ namespace gE::Component
         GetWindow()->MeshManager->OnRender();
         ((DemoWindow*) GetWindow())->CubemapManager->Skybox.Render();
 
-        glGenerateTextureMipmap(InternalColor->Get());
+        {
+            Asset::TextureCube tempSkybox(GetWindow(), GetColor()->GetSize().x, Asset::TextureType::RGBf_32, GetColor()->GetMipCount());
+            glGenerateTextureMipmap(InternalColor->Get());
+            for(uint8_t i = 0; i < tempSkybox.GetMipCount(); i++)
+                glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_CUBE_MAP, i, 0, 0, 0, tempSkybox.Get(), GL_TEXTURE_CUBE_MAP, i, 0, 0, 0, tempSkybox.GetSize(i).x, tempSkybox.GetSize(i).x, 6);
+
+            ((DemoWindow*) GetWindow())->CubemapManager->Convolute(&tempSkybox, InternalColor);
+        }
     }
 
     CubemapManager::CubemapManager(Window* window) : ComponentManager<CubemapCamera>(window),
@@ -75,13 +82,13 @@ namespace gE::Component
             CameraData data(glm::lookAt(glm::vec3(0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)), glm::perspectiveFov(1.5708f, 1.f, 1.f, 0.01f, 100.f), glm::vec3(0), glm::vec4(0), 0, 0);
             _convolutionBuffer.GetWindow()->CameraManager->GetBuffer()->ReplaceData(&data);
         }
-        for(int i = 0; i < src->GetMipCount(); i++)
+        for(int i = 0; i < dst->GetMipCount(); i++)
         {
-            auto mipSize = src->GetSize(i);
+            auto mipSize = dst->GetSize(i);
             glViewport(0, 0, mipSize.x, mipSize.y);
             _convolutionBuffer.Attach(dst, 0, i);
 
-            glProgramUniform2f(_convolutionShader.Get(), glGetUniformLocation(_convolutionShader.Get(), "Data"), (float) i / src->GetMipCount(), src->GetSize().x);
+            glProgramUniform2f(_convolutionShader.Get(), glGetUniformLocation(_convolutionShader.Get(), "Data"), (float) i / (dst->GetMipCount() - 1), dst->GetSize().x);
 
             Skybox.SkyboxVAO->Draw(6);
         }

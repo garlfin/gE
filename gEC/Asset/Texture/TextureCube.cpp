@@ -24,12 +24,11 @@ namespace gE::Asset
         glTextureParameteri(ID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTextureParameteri(ID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
         glTextureParameteri(ID, GL_TEXTURE_CUBE_MAP_SEAMLESS, GL_TRUE);
-
         glTextureParameteri(ID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTextureParameteri(ID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
-    TextureCube::TextureCube(Window* const window, uint32_t size, TextureFilterMode filter,
+    TextureCube::TextureCube(Window* const window, uint32_t size,
                              TextureType type, uint8_t* data, uint8_t mipCount, uint8_t sentMips) : TextureCube(window, size, type, mipCount)
     {
         bool compressed = IS_COMPRESSED(type);

@@ -83,7 +83,7 @@ void gE::DemoWindow::Load()
     // Scene Setup
     
     auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::NEVER);
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
@@ -164,10 +164,13 @@ void gE::DemoWindow::Load()
 
     Sun->OnRender(0);
 
-    Component::CubemapBufferData d{CubemapManager->Skybox.SkyboxTexture->GetHandle(), Component::CubemapData(0, cTransform->Location, glm::vec3(10.01))};
+    Component::CubemapBufferData d{CubemapManager->Skybox.SkyboxTexture->GetHandle(), Component::CubemapData(CubemapManager->Skybox.SkyboxTexture->GetHandle(), cTransform->Location, glm::vec3(10.01))};
     CubemapManager->CubemapBuffer.ReplaceData(&d);
 
     cCam->OnRender(0);
+
+    d.Cubemaps->CubemapHandle = cCam->GetColor()->GetHandle();
+    CubemapManager->CubemapBuffer.ReplaceData(&d);
 }
 
 void gE::DemoWindow::Update(double delta)
