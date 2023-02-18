@@ -41,13 +41,63 @@ namespace gE::Component
         glClear(GL_DEPTH_BUFFER_BIT);
 
         GetWindow()->MeshManager->OnRender();
-        ((DemoWindow*) GetWindow())->Skybox.Render();
+        ((DemoWindow*) GetWindow())->CubemapManager->Skybox.Render();
 
         glGenerateTextureMipmap(InternalColor->Get());
     }
 
-    CubemapManager::CubemapManager(Window* window) : ComponentManager<CubemapCamera>(window), CubemapBuffer(window->AssetManager.Create<Buffer<CubemapData>>(CMMANAGER_MAX_CUBEMAPS))
+    CubemapManager::CubemapManager(Window* window) : ComponentManager<CubemapCamera>(window),
+                                                     CubemapBuffer(window),
+                                                     Skybox(window, nullptr),
+                                                     _convolutionBuffer(window),
+                                                     _convolutionShader(window, "../res/shader/skybox.vert", "../res/shader/convolution.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS)
     {
-        CubemapBuffer->Bind(3, BufferTarget::UNIFORM);
+        CubemapBuffer.Bind(3, BufferTarget::UNIFORM);
+    }
+
+    void CubemapManager::UpdateSkybox(Asset::Texture* tex)
+    {
+        if(!Skybox.SkyboxTexture || Skybox.SkyboxTexture->GetSize() != tex->GetSize())
+        {
+            delete Skybox.SkyboxTexture;
+            Skybox.SkyboxTexture = new Asset::TextureCube(tex->GetWindow(), tex->GetSize().x, Asset::TextureType::RGBf_32, tex->GetMipCount());
+        }
+
+        Convolute(tex, Skybox.SkyboxTexture);
+    }
+
+    void CubemapManager::Convolute(Asset::Texture* src, Asset::Texture* dst)
+    {
+        _convolutionShader.Use();
+        _convolutionBuffer.Bind();
+        glProgramUniform1i(_convolutionShader.Get(), glGetUniformLocation(_convolutionShader.Get(), "Skybox"), src->Use(0));
+        {
+            CameraData data(glm::lookAt(glm::vec3(0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)), glm::perspectiveFov(1.5708f, 1.f, 1.f, 0.01f, 100.f), glm::vec3(0), glm::vec4(0), 0, 0);
+            _convolutionBuffer.GetWindow()->CameraManager->GetBuffer()->ReplaceData(&data);
+        }
+        for(int i = 0; i < src->GetMipCount(); i++)
+        {
+            auto mipSize = src->GetSize(i);
+            glViewport(0, 0, mipSize.x, mipSize.y);
+            _convolutionBuffer.Attach(dst, 0, i);
+
+            glProgramUniform2f(_convolutionShader.Get(), glGetUniformLocation(_convolutionShader.Get(), "Data"), (float) i / src->GetMipCount(), src->GetSize().x);
+
+            Skybox.SkyboxVAO->Draw(6);
+        }
+    }
+
+    void CubemapManager::OnUpdate(double delta)
+    {
+        ComponentManager::OnUpdate(delta);
+    }
+
+    void SkyboxInfo::Render() const
+    {
+        glDepthFunc(GL_LEQUAL);
+        glDisable(GL_CULL_FACE);
+
+        SkyboxShader.Use();
+        SkyboxVAO->Draw(SkyboxVAO->GetWindow()->GetStage() == Windowing::Stage::Cubemap ? 6 : 1);
     }
 }

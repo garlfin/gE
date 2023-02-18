@@ -10,6 +10,7 @@ struct CubemapData
 
 layout(std140, binding = 3) uniform CubemapManager
 {
+    samplerCube SkyboxTex;
     CubemapData Cubemaps[];
 };
 

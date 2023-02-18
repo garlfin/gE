@@ -1,5 +1,8 @@
 #extension GL_ARB_bindless_texture: enable
-#include "../res/shader/demowindow.glsl"
+
+in vec3 FragPos;
+
+#include "../res/shdrinc/cubemap.glsl"
 
 in vec3 TexCoords;
 out vec4 FragColor;

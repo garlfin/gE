@@ -49,6 +49,6 @@ namespace gE::Component
         glColorMask(true, true, true, true);
 
         GetWindow()->MeshManager->OnRender();
-        ((DemoWindow*) GetWindow())->Skybox.Render();
+        ((DemoWindow*) GetWindow())->CubemapManager->Skybox.Render();
     }
 }

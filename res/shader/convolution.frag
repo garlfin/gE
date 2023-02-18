@@ -1,5 +1,3 @@
-#extension GL_ARB_bindless_texture: enable
-
 in vec3 TexCoords;
 out vec4 FragColor;
 
@@ -7,7 +5,7 @@ uniform samplerCube Skybox;
 uniform vec2 Data;
 
 #define PI 3.14159
-#define SAMPLE_COUNT 1024
+#define SAMPLE_COUNT 256
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
 vec2 Hammersley(uint i, uint N);
@@ -33,14 +31,13 @@ void main()
         float NdotH = max(dot(normal, H), 0.0);
         float pdf = D * NdotH / (4.0 * NdotH) + 0.0001;
 
-        float saTexel  = 4.0 * PI / (6.0 * data.y * data.y);
+        float saTexel  = 4.0 * PI / (6.0 * Data.y * Data.y);
         float saSample = 1.0 / (SAMPLE_COUNT * pdf + 0.0001);
 
-        float mipLevel = data.x == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
+        float mipLevel = Data.x == 0.0 ? 0.0 : 0.5 * log2(saSample / saTexel);
 
         sampleColor += textureLod(Skybox, L, mipLevel).rgb * nDotL;
         weight += nDotL;
-
     }
 
     FragColor = vec4(sampleColor / weight, 1);

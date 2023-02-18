@@ -70,35 +70,13 @@ void gE::DemoWindow::Load()
     PassthroughVAO = AssetManager.Create<Asset::VAO>(gE::FieldInfo(false, false, false, false), 6, (void*) &PassthroughVertices);
     PassthroughShader = AssetManager.Create<Asset::Shader>("../gEC/Resource/passthrough.vert", "../gEC/Resource/passthrough.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
     //HiZComputeShader = AssetManager.Create<Asset::Shader>("../res/shader/highz.comp");
-    Skybox.SkyboxShader = AssetManager.Create<Asset::Shader>("../res/shader/skybox.vert", "../res/shader/skybox.frag", Asset::CullMode::NEVER, Asset::DepthFunction::LEQUAL);
-    AssetManager.Add(Skybox.SkyboxVAO = gE::Utility::CreateSkyboxVAO(this));
+
     {
-        Asset::Texture* skybox = Utility::LoadPVR(this, "../sky.pvr", nullptr);
-        Skybox.SkyboxTexture = AssetManager.Create<Asset::TextureCube>(skybox->GetSize().x, Asset::TextureType::RGBf_32, 0);
-
-        Asset::Shader convolutionShader(this, "../res/shader/skybox.vert", "../res/shader/convolution.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
-        Asset::Framebuffer convolutionBuffer(this);
-        convolutionShader.Use();
-        glProgramUniform1i(convolutionShader.Get(), glGetUniformLocation(convolutionShader.Get(), "Skybox"), skybox->Use(0));
-
-        convolutionBuffer.Bind();
-        {
-            Component::CameraData data(glm::lookAt(glm::vec3(0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)), glm::perspectiveFov(1.5708f, 1.f, 1.f, 0.01f, 100.f), glm::vec3(0), glm::vec4(0), 0, 0);
-            CameraManager->GetBuffer()->ReplaceData(&data);
-        }
-        for(int i = 0; i < skybox->GetMipCount(); i++)
-        {
-            auto mipSize = skybox->GetSize(i);
-            glViewport(0, 0, mipSize.x, mipSize.y);
-            convolutionBuffer.Attach(Skybox.SkyboxTexture, 0, i);
-
-            glProgramUniform1f(convolutionShader.Get(), glGetUniformLocation(convolutionShader.Get(), "Roughness"), (float) i / skybox->GetMipCount());
-
-            Skybox.SkyboxVAO->Draw(6);
-        }
-
+        auto skybox = Utility::LoadPVR(this, "../sky.pvr", nullptr);
+        CubemapManager->UpdateSkybox(skybox);
         delete skybox;
     }
+
     BlitBuffer = AssetManager.Create<Asset::Framebuffer>();
     BlitBuffer->Attach(AssetManager.Create<Asset::Renderbuffer>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F), Asset::Framebuffer::DEPTH);
 
@@ -180,19 +158,16 @@ void gE::DemoWindow::Load()
     MeshManager->OnUpdate(0);
 
     {
-        DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, GetFrame());
+        DemoUBO ubo(Sun, BRDF, GetFrame());
         DemoUniformBuffer->ReplaceData(&ubo);
     }
 
     Sun->OnRender(0);
 
-    Component::CubemapData d(Skybox.SkyboxTexture->GetHandle(), cTransform->Location, glm::vec3(0));
-    CubemapManager->CubemapBuffer->ReplaceData(&d);
+    Component::CubemapBufferData d{CubemapManager->Skybox.SkyboxTexture->GetHandle(), Component::CubemapData(0, cTransform->Location, glm::vec3(10.01))};
+    CubemapManager->CubemapBuffer.ReplaceData(&d);
 
     cCam->OnRender(0);
-
-    d = Component::CubemapData(cCam->GetColor()->GetHandle(), cTransform->Location, glm::vec3(10.01));
-    CubemapManager->CubemapBuffer->ReplaceData(&d);
 }
 
 void gE::DemoWindow::Update(double delta)
@@ -215,7 +190,7 @@ void gE::DemoWindow::Render(double delta)
     sunTransform->Location += glm::floor(CameraManager->GetCamera()->GetOwner()->GetComponent<Component::Transform>()->Location);
 
     {
-        DemoUBO ubo(Skybox.SkyboxTexture, Sun, BRDF, Frame);
+        DemoUBO ubo(Sun, BRDF, Frame);
         DemoUniformBuffer->ReplaceData(&ubo);
     }
 
@@ -231,9 +206,9 @@ void gE::DemoWindow::Render(double delta)
     PassthroughVAO->Draw(1);
 }
 
-gE::DemoUBO::DemoUBO(gE::Asset::Texture* sky, gE::Component::DirectionalLight* sun, gE::Asset::Texture* brdf, int32_t frame) :
-                    ShadowID(sun->GetDepth()->GetHandle()), SkyboxID(sky->GetHandle()),
-                    SunMatrix(sun->GetProjection() * sun->GetView()), Frame(frame), BRDFID(brdf->GetHandle())
+gE::DemoUBO::DemoUBO(gE::Component::DirectionalLight* sun, gE::Asset::Texture* brdf, int32_t frame) :
+                    ShadowID(sun->GetDepth()->GetHandle()), SunMatrix(sun->GetProjection() * sun->GetView()),
+                    Frame(frame), BRDFID(brdf->GetHandle())
 {
     Component::Transform* transform = sun->GetOwner()->GetComponent<Component::Transform>();
 
