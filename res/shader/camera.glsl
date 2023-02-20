@@ -1,6 +1,7 @@
 layout(std140, binding = 0) uniform SceneInfo
 {
     mat4 View;
+    mat4 PreviousView;
     mat4 Projection;
     vec4 Info; // Width, Height, Near, Far
     vec3 Position;

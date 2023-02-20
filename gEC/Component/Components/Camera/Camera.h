@@ -20,6 +20,7 @@ namespace gE::Component
         DEPTH_COPY       = 0b00000010,
         COLOR_COPY       = 0b00000100,
         CUBEMAP          = 0b00001000,
+        VELOCITY         = 0b00010000,
         SCREEN_SPACE_RDY = COLOR | DEPTH_COPY | COLOR_COPY,
         CUBEMAP_RDY      = COLOR | CUBEMAP
     };
@@ -33,10 +34,11 @@ namespace gE::Component
         virtual void UpdateProjection() = 0;
 
         glm::mat4 Projection;
+        glm::mat4 PreviousView;
         glm::vec2 ClipPlanes;
 
         Asset::Framebuffer* const Framebuffer;
-        Asset::Texture* InternalDepth, *InternalColor, *Color, *Depth;
+        Asset::Texture* InternalDepth, *InternalColor, *Color, *Depth, *Velocity;
 
     public:
         void OnRender(double delta) final;
@@ -47,10 +49,11 @@ namespace gE::Component
         [[nodiscard]] const glm::mat4& GetProjection() const { return Projection; }
         [[nodiscard]] virtual glm::mat4 GetView() const;
         [[nodiscard]] glm::vec2 GetClipPlanes() const { return ClipPlanes; }
-
-        Asset::Texture* GetColor() { return Color ?: InternalColor; }
-        Asset::Texture* GetDepth() { return Depth ?: InternalDepth; }
-        glm::uvec2 GetSize() { return GetDepth()->GetSize(); }
+        [[nodiscard]] Asset::Texture* GetColor(bool forceInternal = false) const { return (forceInternal ? nullptr : Color) ?: InternalColor; }
+        [[nodiscard]] Asset::Texture* GetDepth(bool forceInternal = false) const { return (forceInternal ? nullptr : Depth) ?: InternalDepth; }
+        [[nodiscard]] glm::uvec2 GetSize() const { return GetDepth(true)->GetSize(); }
+        [[nodiscard]] Asset::Framebuffer* GetFramebuffer() const { return Framebuffer; }
+        [[nodiscard]] const glm::mat4& GetPreviousView() const;
 
         void Use();
 
@@ -60,11 +63,12 @@ namespace gE::Component
     struct CameraData
     {
     public:
-        CameraData(const glm::mat4& view, const glm::mat4 & projection, const glm::vec3& position, const glm::vec4& info, uint64_t color, uint64_t depth)
-                : View(view), Projection(projection), Position(position), Info(info), Color(color), Depth(depth)
+        CameraData(const glm::mat4& view, const glm::mat4& previousView, const glm::mat4 & projection, const glm::vec3& position, const glm::vec4& info, uint64_t color, uint64_t depth)
+                : View(view), PreviousView(previousView), Projection(projection), Position(position), Info(info), Color(color), Depth(depth)
         {}
 
         glm::mat4 View;
+        glm::mat4 PreviousView;
         glm::mat4 Projection;
         glm::vec4 Info;
         glm::vec3 Position;

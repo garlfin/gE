@@ -13,10 +13,12 @@ in FragInfo
     vec2 TexCoord;
     vec4 FragPosLightSpace;
     mat3 TBN;
+
+    mat2x4 ViewPositions;
 };
 
 #define RAY_THICKNESS 1.0
-#define ROUGHNESS 0.1
+#define ROUGHNESS 0.4
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
@@ -24,7 +26,8 @@ in FragInfo
 
 uniform uvec2 NormalTex;
 
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 FragVelocity;
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
 vec2 Hammersley(uint i, uint N);
@@ -35,15 +38,15 @@ void main()
 
     const vec3 normal = normalize(TBN * nor) * mix(-1, 1, gl_FrontFacing);
     const vec3 viewDir = normalize(FragPos - Position);
-    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(viewDir, normal), ROUGHNESS);
+    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 1024), 1024), reflect(viewDir, normal), ROUGHNESS);
     vec2 reflection = vec2(-1);
 
 #ifndef FORWARD
-    vec3 rayPos = FragPos;
+    vec3 rayPos = FragPos + interleavedGradientSample * rayDir * 0.1;
     if(dot(rayDir, normalize(Normal) * mix(-1, 1, gl_FrontFacing)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150.0, 50.0, ROUGHNESS)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
-    FragColor = mix(SampleCubemap(Cubemaps[0], reflect(viewDir, normal), ROUGHNESS), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
+    FragColor = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 #else
-    FragColor = SampleCubemap(Cubemaps[0], reflect(viewDir, normal), ROUGHNESS);
+    FragColor = SampleCubemap(Cubemaps[0], rayDir);
 #endif
 }
 

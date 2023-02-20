@@ -42,5 +42,6 @@ namespace gE
         Component::DirectionalLight* Sun;
         Asset::Texture* BRDF;
         Component::CubemapManager* CubemapManager;
+        Asset::Shader* TAAShader;
     };
 }

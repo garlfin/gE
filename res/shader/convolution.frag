@@ -5,7 +5,7 @@ uniform samplerCube Skybox;
 uniform vec2 Data;
 
 #define PI 3.14159
-#define SAMPLE_COUNT 256
+#define SAMPLE_COUNT 16
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
 vec2 Hammersley(uint i, uint N);

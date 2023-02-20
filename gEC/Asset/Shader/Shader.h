@@ -29,7 +29,10 @@ namespace gE::Asset
     private:
         CullMode p_CullMode;
         DepthFunction p_DepthFunc;
+        ShaderStage* p_DepthStage;
+        bool p_DepthStageOwned;
         Shader(Window* window, CullMode cullMode, DepthFunction function);
+
     public:
         Shader(gE::Window* window, gE::Asset::ShaderStage*,
                gE::Asset::ShaderStage*, CullMode cullMode = CullMode::BACKFACE, DepthFunction depthFunc = DepthFunction::LESS);
@@ -39,6 +42,7 @@ namespace gE::Asset
 
         [[nodiscard]] DepthFunction GetDepthFunc() const { return p_DepthFunc; }
         [[nodiscard]] CullMode GetCullMode() const { return p_CullMode; }
+        [[nodiscard]] ShaderStage* GetVertStage() const { return p_DepthStage; }
 
         void Use(DepthFunction = DepthFunction::IGNORE, CullMode = CullMode::NEVER) const;
     };

@@ -13,8 +13,8 @@ mat4(
 
 float interleavedGradientNoise(vec2 pos)
 {
-    const vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
-    return fract(magic.z * fract(dot(pos, magic.xy)));
+    pos += (float(Frame) * 5.588238f);
+    return fract(52.9829189f * fract(0.06711056f*float(pos.x) + 0.00583715f*float(pos.y)));
 }
 
 vec2 vogelDiskSample(uint sampleIndex, int samplesCount, float phi)
@@ -30,12 +30,7 @@ float dither(vec2 pos)
     return _thresholdMatrix[int(pos.x) % 4][int(pos.y) % 4];
 }
 
-#define IGN_MOVING
 
-#ifdef IGN_MOVING
-float interleavedGradientSample = fract(interleavedGradientNoise(gl_FragCoord.xy) + Frame / 64.0);
-#else
 float interleavedGradientSample = interleavedGradientNoise(gl_FragCoord.xy);
-#endif
 float ditherSample = dither(gl_FragCoord.xy);
 #endif

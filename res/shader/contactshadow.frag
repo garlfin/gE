@@ -15,6 +15,8 @@ in FragInfo
     vec2 TexCoord;
     vec4 FragPosLightSpace;
     mat3 TBN;
+
+    mat2x4 ViewPositions;
 };
 
 #define SHADOW_SAMPLES 8
@@ -32,7 +34,8 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 FragVelocity;
 
 #define ROUGHNESS 0.2
 
@@ -52,7 +55,7 @@ void main()
 
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, -incoming)), vec3(0.04), ROUGHNESS);
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(-incoming, normal), 0, 1), ROUGHNESS)).rg;
-    vec3 spec = SampleCubemap(Cubemaps[0], reflect(incoming, normal), ROUGHNESS).rgb;
+    vec3 spec = SampleCubemap(Cubemaps[0], reflect(incoming, normal)).rgb;
     spec *= kS * brdf.x + brdf.y;
 
     ambient = min(ambient, CalculateShadow(0.1));

@@ -14,6 +14,7 @@ namespace gE::Component
     private:
         Transform* transform = nullptr;
         glm::dvec2 prevMousePos = glm::dvec2(0);
+        glm::vec3 velocity = glm::vec3(0);
 
     public:
         explicit CameraMovement(Entity* owner) : Behavior(owner) {}

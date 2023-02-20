@@ -7,6 +7,7 @@
 #include "../res/shader/camera.glsl"
 #include "../res/shader/objectinfo.glsl"
 #include "../res/shader/demowindow.glsl"
+#include "../res/shdrinc/taa.glsl"
 
 layout(location = 0) in vec3 vPos;
 layout(location = 1) in vec2 vUV;
@@ -22,6 +23,8 @@ out FragInfo
     vec2 TexCoord;
     vec4 FragPosLightSpace;
     mat3 TBN;
+
+    mat2x4 ViewPositions;
 };
 
 void main()
@@ -32,9 +35,15 @@ void main()
     Normal = normalize(normalMatrix * vNor);
     TexCoord = vUV;
 
+
     gl_Position = Projection * GetView(Position, gl_Layer) * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
+
     FragPosLightSpace = SunMatrix * vec4(FragPos, 1.0);
 
     vec3 tan = normalize(normalMatrix * vTan);
     TBN = mat3(tan, normalize(cross(Normal, tan)), Normal);
+
+    ViewPositions[0] = gl_Position;
+    ViewPositions[1] = gl_Position;//Projection * PreviousView * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
+    gl_Position.xy += Jitter() * gl_Position.w;
 }

@@ -11,6 +11,8 @@ namespace gE::Component
     {
     private:
         float FOV;
+        Asset::Texture* _TAABufferTex;
+
     public:
         enum FOVType : uint8_t
         {
@@ -19,12 +21,12 @@ namespace gE::Component
         };
 
         PerspectiveCamera(Entity* owner, float fov, glm::vec2 clipPlane, FOVType type = Horizontal);
-
         void SetFOV(float fovDegrees, FOVType type = Horizontal);
+
+        ~PerspectiveCamera() { delete _TAABufferTex; }
+
     protected:
         void RenderPass(double delta) override;
-
-    protected:
         void UpdateProjection() override;
     };
 }

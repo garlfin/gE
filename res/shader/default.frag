@@ -17,10 +17,12 @@ in FragInfo
     vec2 TexCoord;
     vec4 FragPosLightSpace;
     mat3 TBN;
+
+    mat2x4 ViewPositions;
 };
 
 #define SHADOW_SAMPLES 16
-#define PENUMBRA_MIN 0.05
+#define PENUMBRA_MIN 0.01
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
 #define RAY_THICKNESS 1.0
@@ -32,7 +34,8 @@ in FragInfo
 #include "../res/shdrinc/shadow.glsl"
 #include "../res/shdrinc/cubemap.glsl"
 
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 FragVelocity;
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
 vec2 Hammersley(uint i, uint N);
@@ -55,12 +58,13 @@ void main()
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, incoming)), f0, roughness);
     const vec3 kD = (vec3(1) - kS) * (1 - METALLIC);
 
-    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 256), 256), reflect(-incoming, normal), roughness);
+    vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 1024), 1024), reflect(-incoming, normal), roughness);
     vec2 reflection = vec2(-1);
 
 #ifndef FORWARD
-    vec3 rayPos = FragPos;
-    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150, 10, roughness)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, roughness));
+    vec3 rayPos = FragPos + interleavedGradientSample * rayDir * 0.1;
+    if(dot(rayDir, normalize(Normal)) >= 0)// rayDir = reflect(-incoming, normalize(Normal));
+    reflection = CastRay(rayPos, rayDir, int(mix(150, 10, roughness)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, roughness));
 #endif
 
     float ambient = max(dot(normal, light), 0);
@@ -68,9 +72,9 @@ void main()
 
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 #ifndef FORWARD
-    vec3 spec = mix(SampleCubemap(Cubemaps[0], reflect(-incoming, normal), roughness), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
+    vec3 spec = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
 #else
-    vec3 spec = SampleCubemap(Cubemaps[0], reflect(-incoming, normal), roughness).rgb;
+    vec3 spec = SampleCubemap(Cubemaps[0], rayDir).rgb;
 #endif
     spec += vec3(pow(max(0, dot(reflect(light, normal), -incoming)), pow(2 - roughness, 16))) * ambient;
     spec *= kS * brdf.x + brdf.y;
@@ -111,4 +115,3 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     vec3 bitangent = cross(N, tangent);
     return tangent * H.x + bitangent * H.y + N * H.z;
 }
-

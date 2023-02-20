@@ -45,14 +45,13 @@ void APIENTRY DebugCallback(GLenum src, GLenum type, GLuint id, GLenum severity,
 
 void gE::DemoWindow::Load()
 {
-    // Engine Setup
     glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(DebugCallback, nullptr);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     CubemapManager = new Component::CubemapManager(this);
 
@@ -69,21 +68,19 @@ void gE::DemoWindow::Load()
 
     PassthroughVAO = AssetManager.Create<Asset::VAO>(gE::FieldInfo(false, false, false, false), 6, (void*) &PassthroughVertices);
     PassthroughShader = AssetManager.Create<Asset::Shader>("../gEC/Resource/passthrough.vert", "../gEC/Resource/passthrough.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
+    TAAShader = AssetManager.Create<Asset::Shader>("../gEC/Resource/passthrough.vert", "../res/shader/taa.frag", Asset::CullMode::NEVER, Asset::DepthFunction::ALWAYS);
     //HiZComputeShader = AssetManager.Create<Asset::Shader>("../res/shader/highz.comp");
 
-    {
-        auto skybox = Utility::LoadPVR(this, "../sky.pvr", nullptr);
-        CubemapManager->UpdateSkybox(skybox);
-        delete skybox;
-    }
+    CubemapManager->UpdateSkybox((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../sky.pvr", nullptr)));
+
 
     BlitBuffer = AssetManager.Create<Asset::Framebuffer>();
     BlitBuffer->Attach(AssetManager.Create<Asset::Renderbuffer>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F), Asset::Framebuffer::DEPTH);
 
     // Scene Setup
     
-    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");
+    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");//, Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::NEVER);//, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
@@ -141,7 +138,7 @@ void gE::DemoWindow::Load()
 
     entity = EntityManager.Create<DynamicEntity>(nullptr, "Sun");
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0), glm::vec3(-145, 65, 0), glm::vec3(1)));
-    Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 40);
+    Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 30);
 
     entity = EntityManager.Create<DynamicEntity>();
     auto* cTransform = entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(0), glm::vec3(1)));
@@ -203,9 +200,10 @@ void gE::DemoWindow::Render(double delta)
     glViewport(0, 0, GetSize().x, GetSize().y);
 
     Stage = Windowing::Stage::PostProcess;
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     PassthroughShader->Use();
-    glProgramUniform1i(PassthroughShader->Get(), 0, CameraManager->GetCamera()->GetColor()->Use(1));
+    glProgramUniform1i(PassthroughShader->Get(), 0, CameraManager->GetCamera()->GetColor(true)->Use(0));
     PassthroughVAO->Draw(1);
 }
 

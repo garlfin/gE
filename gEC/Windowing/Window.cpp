@@ -29,7 +29,10 @@ namespace gE
         CameraManager = new Component::CameraManager(this);
         MeshManager = new Asset::MeshManager(this);
         TransformManager = new Component::TransformManager(this);
-        p_MissingShader = new Asset::Shader(this, "../gEC/Resource/depth.vert", "../gEC/Resource/empty.frag", Asset::CullMode::NEVER);
+
+        p_MissingFrag = new Asset::ShaderStage(this, "../gEC/Resource/empty.frag", Asset::StageType::Fragment, Asset::CompileFlags::NONE);
+        Asset::ShaderStage missingVert(this, "../gEC/Resource/depth.vert", Asset::StageType::Vertex, Asset::CompileFlags::NONE);
+        p_MissingShader = new Asset::Shader(this, &missingVert, p_MissingFrag, Asset::CullMode::NEVER);
 
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     }
@@ -48,7 +51,7 @@ namespace gE
     void Window::Run()
     {
         Load();
-
+        glfwSwapInterval(0);
         glfwSetTime(0);
         double pTime = 0, fTime = 0;
         Frame = 0;
@@ -64,7 +67,7 @@ namespace gE
             {
                 Render(fTime);
 
-                if(Frame % int(0.3 * FPS_TARGET) == 0) snprintf(fps_buf, sizeof fps_buf - 1, "%u", unsigned(1.0 / (fTime)) );
+                if(Frame % int(0.3 * FPS_TARGET) == 0) snprintf(fps_buf, sizeof fps_buf - 1, "%u", unsigned(ceil(1.0 / fTime)));
 
                 glfwSetWindowTitle(GLFWWindow, fps_buf);
                 glfwSwapBuffers(GLFWWindow);

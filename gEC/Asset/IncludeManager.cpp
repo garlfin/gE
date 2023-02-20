@@ -43,15 +43,14 @@ namespace gE::Asset
         if (!std::filesystem::exists(path)) throw std::runtime_error("Could not find requested file!");
 
         uint32_t shaderSourceLength;
-        const char* const shaderSource = ReadFile(path, &shaderSourceLength);
+        const char* const shaderSource = ReadFile(path, &shaderSourceLength, true);
 
         auto* pair = new std::pair<const char*, const char*>(path, shaderSource);
         p_Assets.push_back(pair);
 
         // Search
         uint32_t includeCount = 0;
-        for (const char* directive = shaderSource; (directive = strstr(directive, INC)); includeCount++, directive++)
-        {}
+        for (const char* directive = shaderSource; (directive = strstr(directive, INC)); includeCount++) directive++;
         const char** includes = new const char* [includeCount];
 
         {

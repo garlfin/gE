@@ -14,14 +14,16 @@ namespace gE::Asset
     protected:
         const Shader* p_DepthShader;
         const Shader* p_Shader;
+        bool p_DepthShaderOwned;
     public:
-        Material(Window* window, const Shader* shader, const Shader* depthShader = nullptr) : Asset(window), p_Shader(shader),
-                                                                                            p_DepthShader(depthShader) {}
+        Material(Window* window, const Shader* shader, const Shader* depthShader = nullptr);
 
         virtual void Use();
 
         virtual void MandatorySetup() = 0;
         virtual void RenderStageSetup() = 0;
+
+        ~Material() { if(p_DepthShaderOwned) delete p_DepthShader; }
     };
 
     class DeferredMaterial : public Material

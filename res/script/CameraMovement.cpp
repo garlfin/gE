@@ -18,6 +18,12 @@ namespace gE::Component
         transform = GetOwner()->GetComponent<Transform>();
     }
 
+    glm::vec3 lerp(glm::vec3 a, glm::vec3 b, float f)
+    {
+        auto clamped = std::clamp(f, 0.f, 1.f);
+        return (1 - clamped) * a + clamped * b;
+    }
+
     void CameraMovement::OnUpdate(double delta)
     {
         glm::dvec2 mousePos;
@@ -40,6 +46,7 @@ namespace gE::Component
         direction += glm::vec3(CHECK_KEY(GLFW_KEY_D) - CHECK_KEY(GLFW_KEY_A)) * right;
         direction.y += CHECK_KEY(GLFW_KEY_E) - CHECK_KEY(GLFW_KEY_Q);
 
-        transform->Location += direction / (glm::length(direction) ?: 1) * glm::vec3(delta) * 3.f;
+        velocity = lerp(velocity, direction / (glm::length(direction) ?: 1) * 3.f, delta * 10);
+        transform->Location += velocity * glm::vec3(delta) ;
     }
 }

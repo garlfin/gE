@@ -9,10 +9,12 @@
 
 gE::Asset::Shader::Shader(gE::Window* window, const char* const vPath, const char* const fPath, CullMode cullMode, DepthFunction depthFunc, CompileFlags flags) : Shader(window, cullMode, depthFunc)
 {
-    ShaderStage vertex(window, vPath, StageType::Vertex, flags);
+    p_DepthStage = new ShaderStage(window, vPath, StageType::Vertex, flags);
+    p_DepthStageOwned = true;
+
     ShaderStage fragment(window, fPath, StageType::Fragment, flags);
 
-    glAttachShader(ID, vertex.Get());
+    glAttachShader(ID, p_DepthStage->Get());
     glAttachShader(ID, fragment.Get());
     glLinkProgram(ID);
 }
@@ -20,6 +22,7 @@ gE::Asset::Shader::Shader(gE::Window* window, const char* const vPath, const cha
 gE::Asset::Shader::~Shader()
 {
     glDeleteProgram(ID);
+    if(p_DepthStageOwned) delete p_DepthStage;
 }
 
 void gE::Asset::Shader::Use(gE::Asset::DepthFunction dOverride, CullMode cOverride) const
@@ -46,13 +49,15 @@ gE::Asset::Shader::Shader(gE::Window* window, const char* const path) : Shader(w
 gE::Asset::Shader::Shader(gE::Window* window, gE::Asset::ShaderStage* v,
                           gE::Asset::ShaderStage* f, CullMode cullMode, DepthFunction depthFunc) : Shader(window, cullMode, depthFunc)
 {
+    p_DepthStage = v;
     glAttachShader(ID, v->Get());
     glAttachShader(ID, f->Get());
 
     glLinkProgram(ID);
 }
 
-gE::Asset::Shader::Shader(gE::Window *window, gE::Asset::CullMode cullMode, gE::Asset::DepthFunction function) : GLAsset(window), p_CullMode(cullMode), p_DepthFunc(function)
+gE::Asset::Shader::Shader(gE::Window *window, gE::Asset::CullMode cullMode, gE::Asset::DepthFunction function) : GLAsset(window), p_CullMode(cullMode),
+                            p_DepthFunc(function), p_DepthStage(nullptr), p_DepthStageOwned(false)
 {
     ID = glCreateProgram();
 }

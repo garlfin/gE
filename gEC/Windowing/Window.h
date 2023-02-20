@@ -25,6 +25,7 @@ namespace gE
     class Window
     {
     private:
+        Asset::ShaderStage* p_MissingFrag;
         Asset::Shader* p_MissingShader;
     public:
         Window(const char* const title, const uint32_t width, const uint32_t height, Result* const result);
@@ -50,6 +51,7 @@ namespace gE
         [[nodiscard]] glm::u32vec2 GetSize() const { return Size; }
         [[nodiscard]] Windowing::Stage GetStage() const {return Stage; }
         [[nodiscard]] const Asset::Shader* GetDefaultShader() const { return p_MissingShader; }
+        [[nodiscard]] Asset::ShaderStage* GetDefaultFragment() const { return p_MissingFrag; }
 
         void SetStage(Windowing::Stage stage);
         uint32_t GetFrame() const { return Frame; }

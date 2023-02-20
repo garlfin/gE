@@ -29,7 +29,7 @@ namespace gE::Component
     {
         {
             auto* c = GetColor();
-            CameraData d(GetView(), GetProjection(), GetOwner()->GetComponent<Transform>()->Location, glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
+            CameraData d(GetView(), glm::mat4(1), GetProjection(), GetOwner()->GetComponent<Transform>()->Location, glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
             GetWindow()->CameraManager->GetBuffer()->ReplaceData(&d);
         }
 
@@ -43,14 +43,15 @@ namespace gE::Component
         GetWindow()->MeshManager->OnRender();
         ((DemoWindow*) GetWindow())->CubemapManager->Skybox.Render();
 
-        {
+        return;
+        /*{
             Asset::TextureCube tempSkybox(GetWindow(), GetColor()->GetSize().x, Asset::TextureType::RGBf_32, GetColor()->GetMipCount());
             glGenerateTextureMipmap(InternalColor->Get());
             for(uint8_t i = 0; i < tempSkybox.GetMipCount(); i++)
                 glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_CUBE_MAP, i, 0, 0, 0, tempSkybox.Get(), GL_TEXTURE_CUBE_MAP, i, 0, 0, 0, tempSkybox.GetSize(i).x, tempSkybox.GetSize(i).x, 6);
 
             ((DemoWindow*) GetWindow())->CubemapManager->Convolute(&tempSkybox, InternalColor);
-        }
+        }*/
     }
 
     CubemapManager::CubemapManager(Window* window) : ComponentManager<CubemapCamera>(window),
@@ -64,13 +65,16 @@ namespace gE::Component
 
     void CubemapManager::UpdateSkybox(Asset::Texture* tex)
     {
-        if(!Skybox.SkyboxTexture || Skybox.SkyboxTexture->GetSize() != tex->GetSize())
+        Skybox.SkyboxTexture = tex;
+        return;
+
+        /*if(!Skybox.SkyboxTexture || Skybox.SkyboxTexture->GetSize() != tex->GetSize())
         {
             delete Skybox.SkyboxTexture;
             Skybox.SkyboxTexture = new Asset::TextureCube(tex->GetWindow(), tex->GetSize().x, Asset::TextureType::RGBf_32, tex->GetMipCount());
         }
 
-        Convolute(tex, Skybox.SkyboxTexture);
+        Convolute(tex, Skybox.SkyboxTexture);*/
     }
 
     void CubemapManager::Convolute(Asset::Texture* src, Asset::Texture* dst)
@@ -79,7 +83,7 @@ namespace gE::Component
         _convolutionBuffer.Bind();
         glProgramUniform1i(_convolutionShader.Get(), glGetUniformLocation(_convolutionShader.Get(), "Skybox"), src->Use(0));
         {
-            CameraData data(glm::lookAt(glm::vec3(0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)), glm::perspectiveFov(1.5708f, 1.f, 1.f, 0.01f, 100.f), glm::vec3(0), glm::vec4(0), 0, 0);
+            CameraData data(glm::lookAt(glm::vec3(0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)), glm::mat4(1), glm::perspectiveFov(1.5708f, 1.f, 1.f, 0.01f, 100.f), glm::vec3(0), glm::vec4(0), 0, 0);
             _convolutionBuffer.GetWindow()->CameraManager->GetBuffer()->ReplaceData(&data);
         }
         for(int i = 0; i < dst->GetMipCount(); i++)
