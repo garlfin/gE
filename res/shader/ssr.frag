@@ -18,7 +18,7 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 0.1
-#define ROUGHNESS 0.0
+#define ROUGHNESS 0.6
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
@@ -57,7 +57,7 @@ void main()
     fragOld /= fragOld.w;
     fragOld.xy = fragOld.xy * 0.5 + 0.5;
 
-    FragVelocity = fragOld;
+    FragVelocity = fragNew - fragOld;
 }
 
 float RadicalInverse_VdC(uint bits)
