@@ -60,4 +60,14 @@ void main()
 
     ambient = min(ambient, CalculateShadow(0.1));
     FragColor = albedo * mix(0.3, 1.0, ambient) + vec4(spec, 0);
+
+    vec4 fragNew = ViewPositions[0];
+    fragNew /= fragNew.w;
+    fragNew.xy = fragNew.xy * 0.5 + 0.5;
+
+    vec4 fragOld = ViewPositions[1];
+    fragOld /= fragOld.w;
+    fragOld.xy = fragOld.xy * 0.5 + 0.5;
+
+    FragVelocity = fragNew - fragOld;
 }

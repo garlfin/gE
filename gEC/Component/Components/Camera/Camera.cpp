@@ -62,7 +62,7 @@ namespace gE::Component
         if(fields & CameraFields::COLOR_COPY)
             Color = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, colorFormat, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
         if(fields & CameraFields::DEPTH_COPY)
-            Depth = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST);
+            Depth = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::LINEAR);
 
         if(fields & CameraFields::VELOCITY)
         {

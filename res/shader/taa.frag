@@ -1,7 +1,7 @@
 #extension GL_ARB_bindless_texture : enable
 layout(location = 0) uniform sampler2D NewTex;
 layout(location = 1) uniform sampler2D OldTex;
-//layout(location = 2) uniform sampler2D VelocityTex;
+layout(location = 2) uniform sampler2D VelocityTex;
 
 #include "../res/shader/camera.glsl"
 
@@ -12,7 +12,7 @@ out vec4 FragColor;
 
 void main()
 {
-    //vec2 previousTexCoord = TexCoord - texture(VelocityTex, TexCoord).xy;
+    vec2 previousTexCoord = TexCoord - texture(VelocityTex, TexCoord).xy;
 
     vec4 currentColor = texture(NewTex, TexCoord);
     vec4 prevColor = texture(OldTex, TexCoord);

@@ -17,8 +17,8 @@ in FragInfo
     mat2x4 ViewPositions;
 };
 
-#define RAY_THICKNESS 1.0
-#define ROUGHNESS 0.4
+#define RAY_THICKNESS 0.1
+#define ROUGHNESS 0.0
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
@@ -48,6 +48,16 @@ void main()
 #else
     FragColor = SampleCubemap(Cubemaps[0], rayDir);
 #endif
+
+    vec4 fragNew = ViewPositions[0];
+    fragNew /= fragNew.w;
+    fragNew.xy = fragNew.xy * 0.5 + 0.5;
+
+    vec4 fragOld = ViewPositions[1];
+    fragOld /= fragOld.w;
+    fragOld.xy = fragOld.xy * 0.5 + 0.5;
+
+    FragVelocity = fragOld;
 }
 
 float RadicalInverse_VdC(uint bits)

@@ -62,7 +62,7 @@ namespace gE::Component
 
         glProgramUniform1i(taaShader->Get(), 0, InternalColor->Use(0));
         glProgramUniform1i(taaShader->Get(), 1, Color->Use(1));
-        //glProgramUniform1i(taaShader->Get(), 2, Velocity->Use(2));
+        glProgramUniform1i(taaShader->Get(), 2, Velocity->Use(2));
 
         GetWindow()->PassthroughVAO->Draw(1);
 

@@ -35,7 +35,6 @@ void main()
     Normal = normalize(normalMatrix * vNor);
     TexCoord = vUV;
 
-
     gl_Position = Projection * GetView(Position, gl_Layer) * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
 
     FragPosLightSpace = SunMatrix * vec4(FragPos, 1.0);
@@ -44,6 +43,6 @@ void main()
     TBN = mat3(tan, normalize(cross(Normal, tan)), Normal);
 
     ViewPositions[0] = gl_Position;
-    ViewPositions[1] = gl_Position;//Projection * PreviousView * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
+    ViewPositions[1] = Projection * PreviousView * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
     gl_Position.xy += Jitter() * gl_Position.w;
 }

@@ -21,7 +21,7 @@ namespace gE::Component
         COLOR_COPY       = 0b00000100,
         CUBEMAP          = 0b00001000,
         VELOCITY         = 0b00010000,
-        SCREEN_SPACE_RDY = COLOR | DEPTH_COPY | COLOR_COPY,
+        SCREEN_SPACE_RDY = COLOR | DEPTH_COPY | COLOR_COPY | VELOCITY,
         CUBEMAP_RDY      = COLOR | CUBEMAP
     };
 
