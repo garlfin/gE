@@ -18,7 +18,7 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 0.1
-#define ROUGHNESS 0.6
+#define ROUGHNESS 0.4
 
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
@@ -49,15 +49,7 @@ void main()
     FragColor = SampleCubemap(Cubemaps[0], rayDir);
 #endif
 
-    vec4 fragNew = ViewPositions[0];
-    fragNew /= fragNew.w;
-    fragNew.xy = fragNew.xy * 0.5 + 0.5;
-
-    vec4 fragOld = ViewPositions[1];
-    fragOld /= fragOld.w;
-    fragOld.xy = fragOld.xy * 0.5 + 0.5;
-
-    FragVelocity = fragNew - fragOld;
+    FragVelocity = _worldToScreen(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
 }
 
 float RadicalInverse_VdC(uint bits)

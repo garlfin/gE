@@ -82,16 +82,7 @@ void main()
     FragColor = vec4(albedo.rgb, 1) * mix(0.1, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
 
-
-    vec4 fragNew = ViewPositions[0];
-    fragNew /= fragNew.w;
-    fragNew.xy = fragNew.xy * 0.5 + 0.5;
-
-    vec4 fragOld = ViewPositions[1];
-    fragOld /= fragOld.w;
-    fragOld.xy = fragOld.xy * 0.5 + 0.5;
-
-    FragVelocity = fragNew - fragOld;
+    FragVelocity = _worldToScreen(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
 }
 
 float RadicalInverse_VdC(uint bits)
