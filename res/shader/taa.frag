@@ -18,26 +18,29 @@ void main()
     vec4 prevColor = texture(OldTex, previousTexCoord);
 
     vec2 oneOverSize = 1 / Info.xy;
-    vec4 nearColors[8] =
+    vec4 nearColors[4] =
     {
     texture(NewTex, TexCoord + vec2(1, 0)   * oneOverSize),
     texture(NewTex, TexCoord + vec2(0, 1)   * oneOverSize),
     texture(NewTex, TexCoord + vec2(-1, 0)  * oneOverSize),
     texture(NewTex, TexCoord + vec2(0, -1)  * oneOverSize),
-    texture(NewTex, TexCoord + vec2(-1, -1) * oneOverSize),
-    texture(NewTex, TexCoord + vec2(1, -1)  * oneOverSize),
-    texture(NewTex, TexCoord + vec2(-1, 1)  * oneOverSize),
-    texture(NewTex, TexCoord + vec2(1, 1)   * oneOverSize)
+    //texture(NewTex, TexCoord + vec2(-1, -1) * oneOverSize),
+    //texture(NewTex, TexCoord + vec2(1, -1)  * oneOverSize),
+    //texture(NewTex, TexCoord + vec2(-1, 1)  * oneOverSize),
+    //texture(NewTex, TexCoord + vec2(1, 1)   * oneOverSize)
     };
 
-    vec4 boxMin = currentColor;
+   /** vec4 boxMin = currentColor;
     vec4 boxMax = currentColor;
     #pragma unroll
     for(int i = 0; i < 8; i++) boxMin = min(boxMin, nearColors[i]);
     #pragma unroll
-    for(int i = 0; i < 8; i++) boxMax = max(boxMax, nearColors[i]);
+    for(int i = 0; i < 8; i++) boxMax = max(boxMax, nearColors[i]);*/
     vec4 boxMinPlus = min(currentColor, min(nearColors[0], min(nearColors[1], min(nearColors[2], nearColors[3]))));
     vec4 boxMaxPlus = max(currentColor, max(nearColors[0], max(nearColors[1], max(nearColors[2], nearColors[3]))));
 
-    FragColor = mix(clamp(prevColor, (boxMin + boxMinPlus) / 2, (boxMax + boxMaxPlus) / 2), texture(NewTex, TexCoord), 1.0 / HALTON_SAMPLES);
+    //boxMinPlus = (boxMin + boxMinPlus) / 2;
+    //boxMaxPlus = (boxMax + boxMaxPlus) / 2;
+
+    FragColor = mix(clamp(prevColor, boxMinPlus, boxMaxPlus), currentColor, any(greaterThan(previousTexCoord, vec2(1))) || any(lessThan(previousTexCoord, vec2(0))) ? 1 : 1.0 / HALTON_SAMPLES);
 }

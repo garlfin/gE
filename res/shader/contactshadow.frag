@@ -24,6 +24,7 @@ in FragInfo
 #define RAY_THICKNESS 0.2
 #define METALLIC 0
 
+#include "../res/shdrinc/taa.glsl"
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
 #include "../res/shdrinc/shadow.glsl"
@@ -50,7 +51,7 @@ void main()
 
     #ifndef FORWARD
     vec3 rayPos = FragPos + normal * 0.01 + SunInfo.xyz * (0.1 / 25) * (1 + interleavedGradientSample);
-    ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP, 0.02).x == -1 ? 1 : 0);
+    ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP, 1).x == -1 ? 1 : 0);
     #endif
 
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, -incoming)), vec3(0.04), ROUGHNESS);

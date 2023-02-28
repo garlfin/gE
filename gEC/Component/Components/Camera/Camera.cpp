@@ -23,8 +23,6 @@ namespace gE::Component
     void Camera::OnRender(double delta)
     {
         UpdateProjection();
-        if(Color && InternalColor)
-            glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Color->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);
         Framebuffer->Bind();
         {
             auto* c = GetColor();
@@ -34,6 +32,9 @@ namespace gE::Component
 
         glViewport(0, 0, InternalDepth->GetSize().x, InternalDepth->GetSize().y);
         RenderPass(delta);
+
+        if(Color && InternalColor)
+            glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Color->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);
 
         PreviousView = GetView();
     }
@@ -62,7 +63,7 @@ namespace gE::Component
         if(fields & CameraFields::COLOR_COPY)
             Color = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, colorFormat, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
         if(fields & CameraFields::DEPTH_COPY)
-            Depth = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::LINEAR);
+            Depth = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST);
 
         if(fields & CameraFields::VELOCITY)
         {

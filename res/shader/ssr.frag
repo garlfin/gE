@@ -17,12 +17,14 @@ in FragInfo
     mat2x4 ViewPositions;
 };
 
-#define RAY_THICKNESS 0.1
+#define RAY_THICKNESS 0.3
 #define ROUGHNESS 0.4
 
+#include "../res/shdrinc/taa.glsl"
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
 #include "../res/shdrinc/cubemap.glsl"
+#include "../res/shdrinc/ssao.glsl"
 
 uniform uvec2 NormalTex;
 
@@ -43,11 +45,12 @@ void main()
 
 #ifndef FORWARD
     vec3 rayPos = FragPos + interleavedGradientSample * rayDir * 0.1;
-    if(dot(rayDir, normalize(Normal) * mix(-1, 1, gl_FrontFacing)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(150.0, 50.0, ROUGHNESS)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
+    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(50, 30, ROUGHNESS)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
     FragColor = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 #else
     FragColor = SampleCubemap(Cubemaps[0], rayDir);
 #endif
+    FragColor *= CalculateSSAO(normal);
 
     FragVelocity = _worldToScreen(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
 }

@@ -1,7 +1,6 @@
 #version 460 core
 #define GROUP_SIZE 32
 
-
 layout(local_size_x = GROUP_SIZE / 2, local_size_y = GROUP_SIZE / 2, local_size_z = 1) in;
 layout(binding = 0, r32f) restrict readonly uniform image2D DepthIn;
 layout(binding = 1, r32f) restrict writeonly uniform image2D DepthOut;
@@ -11,6 +10,7 @@ void main()
     if(any(greaterThanEqual(gl_GlobalInvocationID.xy, imageSize(DepthOut).xy))) return;
     float minDepth = 1;
 
+    #pragma unroll
     for (uint x = 0; x < 4; x++) // No significant difference if loop is unwrapped. Assumed compiler does for me.
         minDepth = min(imageLoad(DepthIn, ivec2(gl_GlobalInvocationID.xy * 2) + ivec2(x / 2, x % 2)).r, minDepth);
 

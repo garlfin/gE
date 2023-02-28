@@ -80,7 +80,7 @@ void gE::DemoWindow::Load()
     // Scene Setup
     
     auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");//, Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::NEVER);//, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::BACKFACE);//, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
@@ -94,7 +94,7 @@ void gE::DemoWindow::Load()
     uint64_t handleAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile.pvr", nullptr)))->GetHandle();
     uint64_t handleRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_rough.pvr", nullptr)))->GetHandle();
     uint64_t handleNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_nor.pvr", nullptr)))->GetHandle();
-    uint64_t foilNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/marble_nor.pvr", nullptr)))->GetHandle();
+    uint64_t foilNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tileq_nor.pvr", nullptr)))->GetHandle();
 
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Roughness"), 1, (GLuint*) & handleRough);

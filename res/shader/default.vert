@@ -26,7 +26,6 @@ out FragInfo
 
     mat2x4 ViewPositions;
 };
-
 void main()
 {
     gl_Layer = int(gl_InstanceID / ObjectCount);

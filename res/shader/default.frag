@@ -20,19 +20,24 @@ in FragInfo
 
     mat2x4 ViewPositions;
 };
+#define MIN_ITER 20
+#define MAX_ITER 50
+#define MAX_LEN 10.0
 
 #define SHADOW_SAMPLES 16
 #define PENUMBRA_MIN 0.01
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
-#define RAY_THICKNESS 0.1
+#define RAY_THICKNESS (MAX_LEN / MIN_ITER)
 #define METALLIC 0.0
 //#define SHADOW_MODE_MIN
 
+#include "../res/shdrinc/taa.glsl"
 #include "../res/shdrinc/noise.glsl"
 #include "../res/shdrinc/ray.glsl"
 #include "../res/shdrinc/shadow.glsl"
 #include "../res/shdrinc/cubemap.glsl"
+#include "../res/shdrinc/ssao.glsl"
 
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out vec4 FragVelocity;
@@ -63,8 +68,8 @@ void main()
 
 #ifndef FORWARD
     vec3 rayPos = FragPos + interleavedGradientSample * rayDir * 0.1;
-    if(dot(rayDir, normalize(Normal)) >= 0)// rayDir = reflect(-incoming, normalize(Normal));
-    reflection = CastRay(rayPos, rayDir, int(mix(150, 10, roughness)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, roughness));
+    //if(dot(rayDir, normalize(Normal)) >= 0)// rayDir = reflect(-incoming, normalize(Normal));
+    //reflection = CastRay(rayPos, rayDir, int(mix(50, 20, roughness)), 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
 #endif
 
     float ambient = max(dot(normal, light), 0);
@@ -81,6 +86,7 @@ void main()
 
     FragColor = vec4(albedo.rgb, 1) * mix(0.1, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
+    FragColor *= CalculateSSAO(normal);
 
     FragVelocity = _worldToScreen(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
 }
