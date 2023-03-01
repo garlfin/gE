@@ -94,20 +94,28 @@ void gE::DemoWindow::Load()
     uint64_t handleAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile.pvr", nullptr)))->GetHandle();
     uint64_t handleRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_rough.pvr", nullptr)))->GetHandle();
     uint64_t handleNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_nor.pvr", nullptr)))->GetHandle();
-    uint64_t foilNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tileq_nor.pvr", nullptr)))->GetHandle();
+
+    uint64_t gunAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18.pvr", nullptr)))->GetHandle();
+    uint64_t gunRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_rough.pvr", nullptr)))->GetHandle();
+    uint64_t gunNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_nor.pvr", nullptr)))->GetHandle();
 
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Roughness"), 1, (GLuint*) & handleRough);
-    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
-    glProgramUniform2uiv(ssrShader->Get(), glGetUniformLocation(ssrShader->Get(), "NormalTex"), 1, (GLuint*) & foilNor);
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
+
+    glProgramUniform2uiv(ssrShader->Get(), glGetUniformLocation(ssrShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
+
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) & gunAlbedo);
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "NormalTex"), 1, (GLuint*) & gunNor);
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Roughness"), 1, (GLuint*) & gunRough);
 
     EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(10)), rMesh, mats, 2);
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
     auto* entity = EntityManager.Create<DynamicEntity>();
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 2, 0), glm::vec3(0), glm::vec3(1)));
-    entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 80, glm::vec2(0.1, 1000))->Use();
+    entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 1, glm::vec2(0.1, 1000))->Use();
+    entity->GetComponent<Component::PerspectiveCamera>()->SetFOV(0.1, Component::PerspectiveCamera::Vertical);
     entity->CreateComponent<Component::CameraMovement>(&BehaviorManager);
 
     entity = EntityManager.Create<DynamicEntity>(entity);
@@ -120,14 +128,14 @@ void gE::DemoWindow::Load()
     (
         0.2, FireSelectMode::Single,
         Transform(glm::vec3(1.82343, -1.10008, -1.45051), glm::vec3(4, 0, 5.72), glm::vec3(1)),
-        Transform(glm::vec3(0, 0.332703, -0.0976), glm::vec3(0), glm::vec3(1)), // Sight point
+        Transform(glm::vec3(0, 0, 0), glm::vec3(0), glm::vec3(1)), // Sight point
             new SightAttachment
             (
                 AssetManager.Create<Asset::RenderMesh>(gunGETF), nullptr,
-                Transform(glm::vec3(0, 0.12513, -1), glm::vec3(0), glm::vec3(1)),
-                80
+                Transform(glm::vec3(0, 0.382211, -1.23802), glm::vec3(0), glm::vec3(1)),
+                60
             ),
-        AssetManager.Create<Asset::RenderMesh>(gunGETF + 1),
+        nullptr, //AssetManager.Create<Asset::RenderMesh>(gunGETF + 1),
         nullptr, 0
     );
 
@@ -153,7 +161,6 @@ void gE::DemoWindow::Load()
 
     Update(0);
     MeshManager->OnUpdate(0);
-
     {
         DemoUBO ubo(Sun, BRDF, GetFrame());
         DemoUniformBuffer->ReplaceData(&ubo);

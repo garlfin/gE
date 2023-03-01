@@ -17,8 +17,14 @@ vec2 _taaSamples[16] = {
                             vec2(0.031250, 0.592593)
                         };
 
-vec2 Jitter()
+vec2 Jitter(uint f)
 {
-    vec2 halton = 2 * _taaSamples[Frame % 16] - 1;
+    vec2 halton = 2 * _taaSamples[f % 16] - 1;
     return (_taaSamples[Frame % 16] * 2 - 1) / Info.xy;
 }
+
+vec2 Jitter()
+{
+    return Jitter(Frame);
+}
+

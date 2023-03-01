@@ -67,9 +67,9 @@ void main()
     vec2 reflection = vec2(-1);
 
 #ifndef FORWARD
-    vec3 rayPos = FragPos + interleavedGradientSample * rayDir * 0.1;
-    //if(dot(rayDir, normalize(Normal)) >= 0)// rayDir = reflect(-incoming, normalize(Normal));
-    //reflection = CastRay(rayPos, rayDir, int(mix(50, 20, roughness)), 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
+    int rayCount = int(mix(50.0, 20.0, roughness));
+    vec3 rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
+    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
 #endif
 
     float ambient = max(dot(normal, light), 0);
@@ -121,5 +121,5 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
     vec3 up = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
     vec3 tangent = normalize(cross(up, N));
     vec3 bitangent = cross(N, tangent);
-    return tangent * H.x + bitangent * H.y + N * H.z;
+    return normalize(tangent * H.x + bitangent * H.y + N * H.z);
 }

@@ -25,7 +25,7 @@ float CalculateSSAO(vec3 normal)
         hemiSample.xy = vogelDiskSample(i, SSAO_SAMPLES, interleavedGradientSample * PI2);
         hemiSample.xy = normalize(mix(vec2(0.1), vec2(1), abs(hemiSample.xy)) * sign(hemiSample.xy));
         hemiSample = normalize(hemiSample);
-        hemiSample *= mix(.1, 1, interleavedGradientSample * interleavedGradientSample);
+        hemiSample *= mix(.1, 1.0, interleavedGradientSample * interleavedGradientSample);
         hemiSample = FragPos + TBN * hemiSample * SSAO_RADIUS;
 
         vec3 hemiScreen = _worldToScreen(hemiSample);

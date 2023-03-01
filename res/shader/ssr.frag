@@ -18,7 +18,7 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 0.3
-#define ROUGHNESS 0.4
+#define ROUGHNESS 0.0
 
 #include "../res/shdrinc/taa.glsl"
 #include "../res/shdrinc/noise.glsl"
@@ -33,6 +33,10 @@ layout (location = 1) out vec4 FragVelocity;
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
 vec2 Hammersley(uint i, uint N);
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
 
 void main()
 {
@@ -44,8 +48,9 @@ void main()
     vec2 reflection = vec2(-1);
 
 #ifndef FORWARD
-    vec3 rayPos = FragPos + interleavedGradientSample * rayDir * 0.1;
-    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, int(mix(50, 30, ROUGHNESS)), 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
+    int rayCount = int(mix(50.0, 20.0, ROUGHNESS));
+    vec3 rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
+    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
     FragColor = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 #else
     FragColor = SampleCubemap(Cubemaps[0], rayDir);

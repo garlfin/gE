@@ -96,7 +96,7 @@ float _calculatePenumbra(float searchSize, uint lightType, float lightSize)
     if(lightType == LIGHT_DIRECTIONAL)
         return min((shadowCoord.z - shadowAvg) * lightSize, searchSize) + PENUMBRA_MIN;
     else
-        return min((shadowCoord.z - shadowAvg) * lightSize / shadowAvg, searchSize) + PENUMBRA_MIN;
+        return (shadowCoord.z - shadowAvg) * lightSize / shadowAvg + PENUMBRA_MIN;
 }
 
 #endif

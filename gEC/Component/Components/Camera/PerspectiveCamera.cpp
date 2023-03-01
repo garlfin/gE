@@ -9,13 +9,13 @@
 #include "../../../Windowing/DemoWindow.h"
 #include "../../../Asset/Texture/Texture2D.h"
 
-#define FOV_H_TO_V(fov) atan(tan((fov) / 2) / GetWindow()->GetAspectRatio()) * 2
+#define FOV_H_TO_V(fov) float(atan(tan((fov) / 2) / (GetSize().x / GetSize().y)) * 2)
 
 namespace gE::Component
 {
     void PerspectiveCamera::UpdateProjection()
     {
-        Projection = glm::perspectiveFov(glm::radians(FOV), (float) GetWindow()->GetSize().x, (float) GetWindow()->GetSize().y, ClipPlanes.x, ClipPlanes.y);
+        Projection = glm::perspectiveFov(FOV_H_TO_V(glm::radians(FOV)), (float) GetSize().x, (float) GetSize().y, ClipPlanes.x, ClipPlanes.y);
     }
 
     void PerspectiveCamera::SetFOV(float fovDegrees, PerspectiveCamera::FOVType type)
