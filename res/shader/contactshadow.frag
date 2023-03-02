@@ -64,7 +64,7 @@ void main()
     ambient = min(ambient, CalculateShadow(0.1));
 
     #ifndef FORWARD
-    vec3 rayPos = FragPos + normal * 0.002 + SunInfo.xyz * (0.1 / 25) * interleavedGradientSample;
+    vec3 rayPos = FragPos + normal * 0.003 + SunInfo.xyz * (0.1 / 25) * interleavedGradientSample;
     ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP, 0.1).x == -1 ? 1 : 0);
     #endif
 

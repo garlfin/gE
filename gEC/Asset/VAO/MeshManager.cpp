@@ -74,10 +74,12 @@ namespace gE::Asset
 
     void MeshManager::OnUpdate(double delta)
     {
+        // Get the most possible entities to be rendered;
         uint32_t count = 0;
         for(Pair *pair : Base::p_Assets)
             count = std::max(count, (uint32_t) pair->second.size());
 
+        // Reallocate eligible array
         if(p_PreviousCount != count)
         {
             delete[] p_EligibleEntities;
@@ -85,6 +87,7 @@ namespace gE::Asset
         }
         p_PreviousCount = count;
 
+        // Render eligible entities
         for(Pair *pair: Base::p_Assets)
         {
             memcpy(p_EligibleEntities, pair->second.data(), pair->second.size() * sizeof(DynamicEntity*));
@@ -101,7 +104,8 @@ void SortVisibleEntities(const gE::Entity** entities, uint32_t count, gE::Window
     {
         auto* renderer = entities[i]->GetComponent<gE::Component::Renderer>();
         auto* transform = entities[i]->GetComponent<gE::Component::Transform>();
-        renderer->IsInView = true;
+
+        renderer->IsInView = entities[i]->Layer & window->CameraManager->GetCamera()->GetOwner()->Layer;
 
         //if(window->CameraManager->GetFrustum()->Collide(gE::Math::AABB(mesh->Mesh->Bounds, transform->Model))) renderer->IsInView = true;
     }

@@ -22,6 +22,9 @@ namespace gE::Component
 
     void Camera::OnRender(double delta)
     {
+        GetWindow()->MeshManager->OnUpdate(0);
+        auto* pCam = GetWindow()->CameraManager->GetCamera();
+        Use();
         UpdateProjection();
         Framebuffer->Bind();
         {
@@ -37,6 +40,7 @@ namespace gE::Component
             glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Color->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);
 
         PreviousView = GetView();
+        pCam->Use();
     }
 
 

@@ -119,6 +119,7 @@ void gE::DemoWindow::Load()
     entity->CreateComponent<Component::CameraMovement>(&BehaviorManager);
 
     entity = EntityManager.Create<DynamicEntity>(entity);
+    entity->Layer = Layers::One;
     entity->CreateComponent<Component::Transform>(TransformManager);
     entity->CreateComponent<Component::Renderer>(&ComponentManager, nullptr);
     entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
@@ -131,11 +132,11 @@ void gE::DemoWindow::Load()
         Transform(glm::vec3(0, 0, 0), glm::vec3(0), glm::vec3(1)), // Sight point
             new SightAttachment
             (
-                AssetManager.Create<Asset::RenderMesh>(gunGETF), nullptr,
+                    nullptr, nullptr,
                 Transform(glm::vec3(0, 0.382211, -1.23802), glm::vec3(0), glm::vec3(1)),
                 60
             ),
-        nullptr, //AssetManager.Create<Asset::RenderMesh>(gunGETF + 1),
+        AssetManager.Create<Asset::RenderMesh>(gunGETF),
         nullptr, 0
     );
 
@@ -145,6 +146,7 @@ void gE::DemoWindow::Load()
     entity->CreateComponent<Component::MaterialHolder>(&ComponentManager, &sssMat, 1);
 
     entity = EntityManager.Create<DynamicEntity>(nullptr, "Sun");
+    entity->Layer = Layers::All;
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0), glm::vec3(-145, 65, 0), glm::vec3(1)));
     Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 30);
 
@@ -160,7 +162,6 @@ void gE::DemoWindow::Load()
     sunTransform->Location = glm::normalize(sunDir) * Sun->GetSize() + cTransform->Location;
 
     Update(0);
-    MeshManager->OnUpdate(0);
     {
         DemoUBO ubo(Sun, BRDF, GetFrame());
         DemoUniformBuffer->ReplaceData(&ubo);

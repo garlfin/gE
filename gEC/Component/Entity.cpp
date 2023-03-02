@@ -6,7 +6,7 @@
 #include "../Windowing/Window.h"
 
 gE::Entity::Entity(gE::Window* window, gE::Entity* parent, const char* name)
-    : OwningWindow(window), Parent(parent), Name(name), Components(nullptr), ComponentCount(0), ChildrenCount(0)
+    : OwningWindow(window), Parent(parent), Name(name), Components(nullptr), ComponentCount(0), ChildrenCount(0), Layer(Layers::Default)
 {
 
 }
@@ -18,3 +18,7 @@ void gE::Entity::Destroy()
     GetWindow()->EntityManager.Destroy(this);
 }
 
+uint8_t gE::operator&(const gE::Layers& a, const gE::Layers& b)
+{
+    return (uint8_t) a & (uint8_t) b;
+}

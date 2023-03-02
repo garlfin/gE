@@ -14,10 +14,10 @@ namespace gE::Component
     void InventoryScript::OnLoad()
     {
         p_Owner->GetComponent<Renderer>()->SetRenderMesh(Weapon->Mesh);
-        auto* sight = p_Owner->GetChild("Sight");
-        sight->GetComponent<Renderer>()->SetRenderMesh(Weapon->Sight->Mesh);
-        sight->GetComponent<gE::Component::Transform>()->Set(Weapon->SightAttachmentPoint);
-        sight->GetComponent<gE::Component::Transform>()->Scale = glm::vec3(1);
+        //auto* sight = p_Owner->GetChild("Sight");
+        //sight->GetComponent<Renderer>()->SetRenderMesh(Weapon->Sight->Mesh);
+        //sight->GetComponent<gE::Component::Transform>()->Set(Weapon->SightAttachmentPoint);
+        //sight->GetComponent<gE::Component::Transform>()->Scale = glm::vec3(1);
 
         _transform = p_Owner->GetComponent<gE::Component::Transform>();
         _transform->Set(Weapon->IdleOffset);

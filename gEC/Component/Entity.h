@@ -13,6 +13,21 @@ namespace gE
 {
     class Window;
 
+    enum class Layers : uint8_t
+    {
+        Default = 0b00000001,
+        One     = 0b00000010,
+        Two     = 0b00000100,
+        Three   = 0b00001000,
+        Four    = 0b00010000,
+        Five    = 0b00100000,
+        Six     = 0b01000000,
+        Seven   = 0b10000000,
+        All = UINT8_MAX
+    };
+
+   uint8_t operator &(Layers const& a, Layers const& b);
+
     class Entity
     {
     protected:
@@ -54,6 +69,8 @@ namespace gE
 
         [[nodiscard]] Entity* GetParent()
         { return Parent; }
+
+        Layers Layer;
     };
 
     class DynamicEntity final : public Entity

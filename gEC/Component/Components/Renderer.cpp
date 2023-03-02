@@ -19,9 +19,8 @@ namespace gE::Component
 
     void Renderer::SetRenderMesh(Asset::RenderMesh* mesh)
     {
-        p_renderMesh = mesh;
-        
         GetWindow()->MeshManager->Remove(this);
+        p_renderMesh = mesh;
         GetWindow()->MeshManager->Register(this);
     }
 }
