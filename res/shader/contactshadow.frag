@@ -64,26 +64,20 @@ void main()
     ambient = min(ambient, CalculateShadow(0.1));
 
     #ifndef FORWARD
-    vec3 rayPos = FragPos + normal * 0.003 + SunInfo.xyz * (0.1 / 25) * interleavedGradientSample;
+    vec3 rayPos = FragPos + normalize(Normal) * 0.01;// + SunInfo.xyz * (0.1 / 25) * interleavedGradientSample;
     ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP, 0.1).x == -1 ? 1 : 0);
     #endif
 
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 
-    #ifndef FORWARD
-    int rayCount = int(mix(50.0, 20.0, roughness));
-    rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
-    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
-    vec3 spec = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
-    #else
     vec3 spec = SampleCubemap(Cubemaps[0], rayDir).rgb;
-    #endif
 
     spec += vec3(pow(max(0, dot(reflect(light, normal), -incoming)), pow(2 - roughness, 16))) * ambient;
     spec *= kS * brdf.x + brdf.y;
 
     FragColor = vec4(albedo.rgb, 1) * mix(0.1, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
+    FragColor.a = 1;
 
     FragVelocity = vec4(0);
 }

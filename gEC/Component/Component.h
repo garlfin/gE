@@ -52,6 +52,7 @@ namespace gE::Component
 
             for(T* const component: Base::p_Instantiation)
                 component->OnLoad();
+            Base::p_Instantiation.clear();
 
             for (T* const component: Base::p_Assets)
                 if (component->IsFlagged())

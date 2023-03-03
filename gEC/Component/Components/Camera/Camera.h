@@ -51,6 +51,7 @@ namespace gE::Component
         [[nodiscard]] glm::vec2 GetClipPlanes() const { return ClipPlanes; }
         [[nodiscard]] Asset::Texture* GetColor(bool forceInternal = false) const { return (forceInternal ? nullptr : Color) ?: InternalColor; }
         [[nodiscard]] Asset::Texture* GetDepth(bool forceInternal = false) const { return (forceInternal ? nullptr : Depth) ?: InternalDepth; }
+        [[nodiscard]] Asset::Texture* GetVelocity() const { return Velocity; }
         [[nodiscard]] glm::uvec2 GetSize() const { return GetDepth(true)->GetSize(); }
         [[nodiscard]] Asset::Framebuffer* GetFramebuffer() const { return Framebuffer; }
         [[nodiscard]] const glm::mat4& GetPreviousView() const;

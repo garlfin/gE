@@ -66,6 +66,7 @@ vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir, float threshold)
 #endif
 
 vec3 _worldToScreen(vec3 pos) { vec4 val = Projection * View * vec4(pos, 1.0); val.xy /= val.w; val.xy = val.xy * 0.5 + 0.5; return val.xyz; };
+vec3 _worldToScreenNoJitter(vec3 pos) { vec4 val = Projection * View * vec4(pos, 1.0); val.xy /= val.w; val.xy = val.xy * 0.5 + 0.5; return val.xyz; };
 vec3 _worldToScreenPrev(vec3 pos) { vec4 val = Projection * PreviousView * vec4(pos, 1.0); val.xy /= val.w; val.xy = val.xy * 0.5 + 0.5; return val.xyz; };
 vec3 _worldToView(vec3 pos) { return (View * vec4(pos, 1.0)).xyz; }
 vec3 _screenToWorld(vec3 pos, bool ndc)

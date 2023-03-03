@@ -102,6 +102,7 @@ namespace gE::Asset
         if (assemblyLocation > pair->second + length + 1) std::cout << "Wrote to unallocated memory!" << std::endl;
 
         delete[] shaderSource;
+        delete[] includes;
         return pair->second;
     }
 

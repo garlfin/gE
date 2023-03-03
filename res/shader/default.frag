@@ -69,15 +69,15 @@ void main()
 #ifndef FORWARD
     int rayCount = int(mix(50.0, 20.0, roughness));
     vec3 rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
-    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
+    //if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
 #endif
 
     float ambient = max(dot(normal, light), 0);
-    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.03));
+    ambient = min(ambient, CalculateShadow(LIGHT_DIRECTIONAL, 0.05));
 
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 #ifndef FORWARD
-    vec3 spec = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
+    vec3 spec = SampleCubemap(Cubemaps[0], rayDir).rgb;// mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
 #else
     vec3 spec = SampleCubemap(Cubemaps[0], rayDir).rgb;
 #endif
@@ -87,8 +87,9 @@ void main()
     FragColor = vec4(albedo.rgb, 1) * mix(0.1, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
     FragColor *= CalculateSSAO(normal);
+    FragColor.a = 1;
 
-    FragVelocity = _worldToScreen(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
+    FragVelocity = _worldToScreenNoJitter(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
 }
 
 float RadicalInverse_VdC(uint bits)

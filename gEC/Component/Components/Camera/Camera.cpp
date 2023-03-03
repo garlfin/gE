@@ -36,8 +36,8 @@ namespace gE::Component
         glViewport(0, 0, InternalDepth->GetSize().x, InternalDepth->GetSize().y);
         RenderPass(delta);
 
-        if(Color && InternalColor)
-            glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Color->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);
+        //if(Color && InternalColor)
+         //   glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Color->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);
 
         PreviousView = GetView();
         pCam->Use();
