@@ -8,6 +8,9 @@
 #include "../../gEC/Windowing/Window.h"
 #include "GLFW/glfw3.h"
 #include "glm/trigonometric.hpp"
+#include "../../gEC/Component/Components/Camera/PerspectiveCamera.h"
+#include "../../gEC/Asset/Texture/Texture2D.h"
+#include "../../gEC/Windowing/DemoWindow.h"
 
 #define CHECK_KEY(k) glfwGetKey(GetWindow()->GetWindow(), (k))
 
@@ -16,6 +19,9 @@ namespace gE::Component
     void CameraMovement::OnLoad()
     {
         transform = GetOwner()->GetComponent<Transform>();
+        compositeShader = new Asset::Shader(GetWindow(), "../res/shader/compositefps.comp");
+        auto* otherCam = GetOwner()->GetComponent<PerspectiveCamera>();
+        _TAABufferTex = new Asset::Texture2D(GetWindow(), otherCam->GetSize().x, otherCam->GetSize().y, Asset::TextureType::RGBAf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
     }
 
     glm::vec3 lerp(glm::vec3 a, glm::vec3 b, float f)
@@ -47,6 +53,38 @@ namespace gE::Component
         direction.y += CHECK_KEY(GLFW_KEY_E) - CHECK_KEY(GLFW_KEY_Q);
 
         velocity = lerp(velocity, direction / (glm::length(direction) ?: 1) * 3.f, delta * 10);
-        transform->Location += velocity * glm::vec3(delta) ;
+        transform->Location += velocity * glm::vec3(delta);
+    }
+
+    void CameraMovement::OnRender(double delta)
+    {
+        auto* originalCam = GetOwner()->GetComponent<PerspectiveCamera>();
+        auto* otherCam = fpsCam->GetComponent<PerspectiveCamera>();
+
+        otherCam->OnRender(delta);
+
+        GetWindow()->SetStage(Windowing::Stage::PostProcess);
+
+        otherCam->GetColor(true)->Bind(0, Asset::AccessMode::READ);
+        originalCam->GetColor(true)->Bind(1, Asset::AccessMode::ALL);
+        originalCam->GetVelocity()->Bind(2, Asset::AccessMode::ALL);
+
+        compositeShader->Use();
+        glDispatchCompute(DIV_CEIL(otherCam->GetSize().x, 32), DIV_CEIL(otherCam->GetSize().y, 32), 1);
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+        originalCam->GetFramebuffer()->Attach(_TAABufferTex, 0);
+        originalCam->GetFramebuffer()->Bind();
+        auto* taaShader = ((DemoWindow*) GetWindow())->TAAShader;
+        taaShader->Use();
+
+        glProgramUniform1i(taaShader->Get(), 0, originalCam->GetColor(true)->Use(0));
+        glProgramUniform1i(taaShader->Get(), 1, originalCam->GetColor()->Use(1));
+        glProgramUniform1i(taaShader->Get(), 2, originalCam->GetVelocity()->Use(2));
+
+        GetWindow()->PassthroughVAO->Draw(1);
+        originalCam->GetFramebuffer()->Attach(originalCam->GetColor(true), 0);
+
+        glCopyImageSubData(_TAABufferTex->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, originalCam->GetColor()->Get(), GL_TEXTURE_2D, 0, 0, 0,0, originalCam->GetSize().x, originalCam->GetSize().y, 1);
     }
 }

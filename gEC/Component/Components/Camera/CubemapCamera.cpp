@@ -98,11 +98,6 @@ namespace gE::Component
         }
     }
 
-    void CubemapManager::OnUpdate(double delta)
-    {
-        ComponentManager::OnUpdate(delta);
-    }
-
     void SkyboxInfo::Render() const
     {
         glDepthFunc(GL_LEQUAL);

@@ -19,6 +19,7 @@ float CalculateSSAO(vec3 normal)
 {
     float ssaoSample = 0;
 
+    #pragma unroll
     for(int i = 0; i < SSAO_SAMPLES; i++)
     {
         vec3 hemiSample = vec3(interleavedGradientSample);

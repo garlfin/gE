@@ -50,14 +50,15 @@ void main()
 #ifndef FORWARD
     int rayCount = int(mix(50.0, 20.0, ROUGHNESS));
     vec3 rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
-    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
-    FragColor = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
+    //if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
+    FragColor = SampleCubemap(Cubemaps[0], rayDir);// mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 #else
     FragColor = SampleCubemap(Cubemaps[0], rayDir);
 #endif
     FragColor *= CalculateSSAO(normal);
+    FragColor.a = 1;
 
-    FragVelocity = _worldToScreen(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
+    FragVelocity = _worldToScreenNoJitter(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
 }
 
 float RadicalInverse_VdC(uint bits)

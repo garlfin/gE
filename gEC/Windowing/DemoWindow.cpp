@@ -50,6 +50,7 @@ void gE::DemoWindow::Load()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glClearColor(0, 0, 0, 0);
     glDebugMessageCallback(DebugCallback, nullptr);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
@@ -61,6 +62,7 @@ void gE::DemoWindow::Load()
         brdfCompute.Use();
         BRDF->Bind(0, Asset::AccessMode::WRITE);
         glDispatchCompute(16, 16, 1);
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     }
 
     DemoUniformBuffer = AssetManager.Create<Buffer<DemoUBO>>();
@@ -95,9 +97,9 @@ void gE::DemoWindow::Load()
     uint64_t handleRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_rough.pvr", nullptr)))->GetHandle();
     uint64_t handleNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_nor.pvr", nullptr)))->GetHandle();
 
-    uint64_t gunAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18.pvr", nullptr)))->GetHandle();
-    uint64_t gunRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_rough.pvr", nullptr)))->GetHandle();
-    uint64_t gunNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_nor.pvr", nullptr)))->GetHandle();
+    //uint64_t gunAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18.pvr", nullptr)))->GetHandle();
+    //uint64_t gunRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_rough.pvr", nullptr)))->GetHandle();
+    //uint64_t gunNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_nor.pvr", nullptr)))->GetHandle();
 
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
     glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Roughness"), 1, (GLuint*) & handleRough);
@@ -105,18 +107,23 @@ void gE::DemoWindow::Load()
 
     glProgramUniform2uiv(ssrShader->Get(), glGetUniformLocation(ssrShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
 
-    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) & gunAlbedo);
-    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "NormalTex"), 1, (GLuint*) & gunNor);
-    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Roughness"), 1, (GLuint*) & gunRough);
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
+    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Roughness"), 1, (GLuint*) & handleRough);
 
     EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(10)), rMesh, mats, 2);
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
     auto* entity = EntityManager.Create<DynamicEntity>();
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 2, 0), glm::vec3(0), glm::vec3(1)));
-    entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 1, glm::vec2(0.1, 1000))->Use();
-    entity->GetComponent<Component::PerspectiveCamera>()->SetFOV(0.1, Component::PerspectiveCamera::Vertical);
-    entity->CreateComponent<Component::CameraMovement>(&BehaviorManager);
+    entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 1, glm::vec2(0.1, 100))->Use();
+
+    auto* fpsCam = EntityManager.Create<DynamicEntity>(entity);
+    fpsCam->Layer = Layers::One;
+    fpsCam->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0), glm::vec3(0), glm::vec3(1)));
+    fpsCam->CreateComponent<Component::PerspectiveCamera>(CameraManager, 80, glm::vec2(0.1, 100));
+
+    entity->CreateComponent<Component::CameraMovement>(&BehaviorManager, fpsCam);
 
     entity = EntityManager.Create<DynamicEntity>(entity);
     entity->Layer = Layers::One;
@@ -205,13 +212,15 @@ void gE::DemoWindow::Render(double delta)
     Sun->OnRender(delta);
     CameraManager->GetCamera()->OnRender(delta);
 
+    BehaviorManager.OnRender(delta);
+
     glViewport(0, 0, GetSize().x, GetSize().y);
 
     Stage = Windowing::Stage::PostProcess;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     PassthroughShader->Use();
-    glProgramUniform1i(PassthroughShader->Get(), 0, CameraManager->GetCamera()->GetColor(true)->Use(0));
+    glProgramUniform1i(PassthroughShader->Get(), 0, CameraManager->GetCamera()->GetColor()->Use(0));
     PassthroughVAO->Draw(1);
 }
 

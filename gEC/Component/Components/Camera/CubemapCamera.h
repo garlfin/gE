@@ -68,7 +68,5 @@ namespace gE::Component
 
         void UpdateSkybox(Asset::Texture* tex);
         void Convolute(Asset::Texture* src, Asset::Texture* dst);
-
-        void OnUpdate(double delta) override;
     };
 }

@@ -29,6 +29,7 @@ gE::Asset::ShaderStage::ShaderStage(gE::Window* window, const char* const path, 
     char* log = new char[length + 1]{};
     glGetShaderInfoLog(ID, length, nullptr, log);
     std::cout << log << sources[0] << shaderSource << std::endl;
+    delete[] log;
 }
 
 gE::Asset::ShaderStage::~ShaderStage()
