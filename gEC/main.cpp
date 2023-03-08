@@ -5,7 +5,7 @@ int main()
     if(gE::Init(4, 6)) return gE::FAIL;
 
     gE::Result result;
-    gE::DemoWindow window("Test DemoWindow", 1920, 1080, &result);
+    gE::DemoWindow window("Test DemoWindow", 1280, 720, &result);
 
     if(result) return result;
 
