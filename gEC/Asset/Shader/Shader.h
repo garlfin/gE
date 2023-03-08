@@ -31,6 +31,7 @@ namespace gE::Asset
         DepthFunction p_DepthFunc;
         ShaderStage* p_DepthStage;
         bool p_DepthStageOwned;
+        bool p_Compiled;
         Shader(Window* window, CullMode cullMode, DepthFunction function);
 
     public:

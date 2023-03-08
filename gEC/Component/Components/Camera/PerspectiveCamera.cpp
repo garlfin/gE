@@ -36,7 +36,6 @@ namespace gE::Component
         glDepthMask(true);
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        GetWindow()->MeshManager->OnUpdate(0);
         GetWindow()->MeshManager->OnRender();
 
         glCopyImageSubData(InternalDepth->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Depth->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);

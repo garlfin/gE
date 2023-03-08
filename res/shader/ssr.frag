@@ -18,7 +18,7 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 0.3
-#define ROUGHNESS 0.0
+#define ROUGHNESS 0.01
 
 #include "../res/shdrinc/taa.glsl"
 #include "../res/shdrinc/noise.glsl"
@@ -26,7 +26,7 @@ in FragInfo
 #include "../res/shdrinc/cubemap.glsl"
 #include "../res/shdrinc/ssao.glsl"
 
-uniform uvec2 NormalTex;
+layout(bindless_sampler) uniform sampler2D NormalTex;
 
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out vec4 FragVelocity;
@@ -40,7 +40,7 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 
 void main()
 {
-    vec3 nor = pow(texture(sampler2D(NormalTex), TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
+    vec3 nor = pow(texture(NormalTex, TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
 
     const vec3 normal = normalize(TBN * nor) * mix(-1, 1, gl_FrontFacing);
     const vec3 viewDir = normalize(FragPos - Position);
@@ -50,12 +50,12 @@ void main()
 #ifndef FORWARD
     int rayCount = int(mix(50.0, 20.0, ROUGHNESS));
     vec3 rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
-    //if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
-    FragColor = SampleCubemap(Cubemaps[0], rayDir);// mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
+    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
+    FragColor = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 #else
     FragColor = SampleCubemap(Cubemaps[0], rayDir);
 #endif
-    FragColor *= CalculateSSAO(normal);
+    //FragColor *= CalculateSSAO(normal);
     FragColor.a = 1;
 
     FragVelocity = _worldToScreenNoJitter(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;

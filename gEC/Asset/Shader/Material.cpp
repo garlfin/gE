@@ -11,7 +11,7 @@ namespace gE::Asset
     {
         MandatorySetup();
 
-        if(GetWindow()->GetStage() == Windowing::Stage::PreZ)
+        if(GetWindow()->GetStage() & (Windowing::Stage::PreZ | Windowing::Stage::CubemapPreZ))
             return p_DepthShader->Use();
         if(GetWindow()->GetStage() == Windowing::Stage::Shadow)
             return GetWindow()->GetDefaultShader()->Use(p_Shader->GetDepthFunc(), p_Shader->GetCullMode());
@@ -33,12 +33,12 @@ namespace gE::Asset
     void DeferredMaterial::Use()
     {
         MandatorySetup();
-        if(GetWindow()->GetStage() & Windowing::Stage::PreZ)
+        if(GetWindow()->GetStage() & (Windowing::Stage::PreZ | Windowing::Stage::CubemapPreZ))
             return p_DepthShader->Use();
         else if(GetWindow()->GetStage() & Windowing::Stage::Shadow)
-            return GetWindow()->GetDefaultShader()->Use(p_Shader->GetDepthFunc(), p_Shader->GetCullMode());
+            return (p_DepthShader ?: GetWindow()->GetDefaultShader())->Use(p_Shader->GetDepthFunc(), p_Shader->GetCullMode());
         else
-            (GetWindow()->GetStage() == Windowing::Stage::Cubemap ? _forwardShader : p_Shader)->Use();
+            (GetWindow()->GetStage() & (Windowing::Stage::Cubemap | Windowing::Stage::CubemapPreZ) ? _forwardShader : p_Shader)->Use();
         RenderStageSetup();
     }
 }

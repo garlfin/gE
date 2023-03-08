@@ -12,12 +12,9 @@
 #include "../Component/Components/MaterialHolder.h"
 #include "../../res/shader/PBRMaterial.h"
 #include <glm/trigonometric.hpp>
-#include "../Asset/Buffer/Renderbuffer.h"
 #include "../../res/script/StaticRenderer.h"
 #include "../../res/script/InventoryScript.h"
 #include "../Asset/Texture/Texture2D.h"
-#include "../Component/Components/Camera/CubemapCamera.h"
-#include "glm/gtc/matrix_transform.hpp"
 
 const float PassthroughVertices[]
         {
@@ -48,15 +45,15 @@ void gE::DemoWindow::Load()
     glfwSetInputMode(GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    //glEnable(GL_DEBUG_OUTPUT);
+    //glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glClearColor(0, 0, 0, 0);
-    glDebugMessageCallback(DebugCallback, nullptr);
+    //glDebugMessageCallback(DebugCallback, nullptr);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     CubemapManager = new Component::CubemapManager(this);
 
-    BRDF = AssetManager.Create<Asset::Texture2D>(512, 512, Asset::TextureType::RGf_32, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
+    BRDF = AssetManager.Create<Asset::Texture2D>(512, 512, Asset::TextureType::RGf_16, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
     {
         Asset::Shader brdfCompute(this, "../res/shader/brdf.comp");
         brdfCompute.Use();
@@ -77,44 +74,55 @@ void gE::DemoWindow::Load()
 
 
     BlitBuffer = AssetManager.Create<Asset::Framebuffer>();
-    BlitBuffer->Attach(AssetManager.Create<Asset::Renderbuffer>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32F), Asset::Framebuffer::DEPTH);
+    BlitBuffer->Attach(AssetManager.Create<Asset::Renderbuffer>(GetSize().x, GetSize().y, Asset::TextureType::DEPTH_32f), Asset::Framebuffer::DEPTH);
 
     // Scene Setup
     
-    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");//, Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::BACKFACE);//, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
+    auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");//, Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::NONE);
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::NEVER);//, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
+    auto* tpcShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/alpha.frag", Asset::CullMode::NEVER);
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
-    auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
+    auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
+    auto* rMesh2 = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
     //auto* rMeshPlane = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
 
     Asset::Material* shinyMat = AssetManager.Create<Asset::PBRMaterial>(shinyShader, shinyShader);
     Asset::Material* ssrMat = AssetManager.Create<Asset::PBRMaterial>(ssrShader, ssrShader);
+    Asset::Material* ssrMatAlpha = AssetManager.Create<Asset::PBRMaterial>(ssrShader, ssrShader, tpcShader);
     Asset::Material* sssMat = AssetManager.Create<Asset::PBRMaterial>(sssShader, ssrShader);
 
     Asset::Material* mats[2]{ssrMat, shinyMat};
+    Asset::Material* matsPlane[2]{ssrMatAlpha, shinyMat};
 
     uint64_t handleAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile.pvr", nullptr)))->GetHandle();
     uint64_t handleRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_rough.pvr", nullptr)))->GetHandle();
     uint64_t handleNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../tile_nor.pvr", nullptr)))->GetHandle();
 
-    //uint64_t gunAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18.pvr", nullptr)))->GetHandle();
-    //uint64_t gunRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_rough.pvr", nullptr)))->GetHandle();
-    //uint64_t gunNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_nor.pvr", nullptr)))->GetHandle();
+    uint64_t gunAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18.pvr", nullptr)))->GetHandle();
+    uint64_t gunRough = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_rough.pvr", nullptr)))->GetHandle();
+    uint64_t gunNor = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/m18_nor.pvr", nullptr)))->GetHandle();
+    uint64_t chainAlbedo = ((Asset::Texture*) AssetManager.Add(Utility::LoadPVR(this, "../res/chain.pvr", nullptr)))->GetHandle();
 
-    glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
-    glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Roughness"), 1, (GLuint*) & handleRough);
-    glProgramUniform2uiv(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
+    glProgramUniformHandleui64ARB(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Albedo"),    handleAlbedo);
+    glProgramUniformHandleui64ARB(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "Roughness"), handleRough);
+    glProgramUniformHandleui64ARB(shinyShader->Get(), glGetUniformLocation(shinyShader->Get(), "NormalTex"), handleNor);
 
-    glProgramUniform2uiv(ssrShader->Get(), glGetUniformLocation(ssrShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
+    glProgramUniformHandleui64ARB(ssrShader->Get(), glGetUniformLocation(ssrShader->Get(), "NormalTex"), handleNor);
 
-    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), 1, (GLuint*) & handleAlbedo);
-    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "NormalTex"), 1, (GLuint*) & handleNor);
-    glProgramUniform2uiv(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Roughness"), 1, (GLuint*) & handleRough);
+    glProgramUniformHandleui64ARB(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Albedo"), gunAlbedo);
+    glProgramUniformHandleui64ARB(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "NormalTex"), gunNor);
+    glProgramUniformHandleui64ARB(sssShader->Get(), glGetUniformLocation(sssShader->Get(), "Roughness"), gunRough);
 
-    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(10)), rMesh, mats, 2);
+    glProgramUniformHandleui64ARB(tpcShader->Get(), glGetUniformLocation(tpcShader->Get(), "Albedo"), chainAlbedo);
+
+    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(2.4)), rMesh, matsPlane, 2);
+    EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(2.4)), rMesh2, mats, 2)->Layer = Layers::Two;
+
+    //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(0, 0, 0), glm::vec3(10)), rMesh, mats, 1)->Layer = Layers::Two;
     //EntityManager.Create<StaticRenderer>(Transform(glm::vec3(0), glm::vec3(-90, 0, 0), glm::vec3(3)), rMeshPlane, &ssrMat, 1);
 
     auto* entity = EntityManager.Create<DynamicEntity>();
+    entity->Layer |= Layers::Two;
     entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 2, 0), glm::vec3(0), glm::vec3(1)));
     entity->CreateComponent<Component::PerspectiveCamera>(CameraManager, 1, glm::vec2(0.1, 100))->Use();
 
@@ -158,8 +166,10 @@ void gE::DemoWindow::Load()
     Sun = entity->CreateComponent<Component::DirectionalLight>(&LightManager, 1024, 30);
 
     entity = EntityManager.Create<DynamicEntity>();
+    entity->Layer = Layers::Default;
     auto* cTransform = entity->CreateComponent<Component::Transform>(TransformManager, Transform(glm::vec3(0, 10, 0), glm::vec3(0), glm::vec3(1)));
     auto* cCam = entity->CreateComponent<Component::CubemapCamera>(CubemapManager, 512, glm::vec2(0.1, 100));
+
 
     auto* sunTransform = Sun->GetOwner()->GetComponent<gE::Component::Transform>();
     glm::vec3 sunDir;
@@ -224,9 +234,17 @@ void gE::DemoWindow::Render(double delta)
     PassthroughVAO->Draw(1);
 }
 
+void gE::DemoWindow::SetStage(gE::Windowing::Stage stage, bool replaceBuffer)
+{
+    Window::SetStage(stage);
+    if(!replaceBuffer) return;
+    int32_t stg((int32_t) stage);
+    DemoUniformBuffer->ReplaceData(&stg, 1, offsetof(DemoUBO, Stage), 1);
+}
+
 gE::DemoUBO::DemoUBO(gE::Component::DirectionalLight* sun, gE::Asset::Texture* brdf, int32_t frame) :
                     ShadowID(sun->GetDepth()->GetHandle()), SunMatrix(sun->GetProjection() * sun->GetView()),
-                    Frame(frame), BRDFID(brdf->GetHandle())
+                    Frame(frame), BRDFID(brdf->GetHandle()), Stage((int32_t) sun->GetWindow()->GetStage())
 {
     Component::Transform* transform = sun->GetOwner()->GetComponent<Component::Transform>();
 

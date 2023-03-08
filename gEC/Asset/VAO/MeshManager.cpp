@@ -9,6 +9,7 @@
 #include "../Shader/Material.h"
 #include "../../Component/Components/MaterialHolder.h"
 #include "glm/ext/matrix_transform.hpp"
+#include "../../Component/Components/Camera/PerspectiveCamera.h"
 
 void DrawSubMesh(gE::Window* window, const gE::Entity* e, const gE::Asset::VAO* subMesh, uint32_t count, uint32_t index);
 void SortVisibleEntities(const gE::Entity** entities, uint32_t count, gE::Window* window, gE::Asset::RenderMesh* mesh);
@@ -90,11 +91,11 @@ namespace gE::Asset
         // Render eligible entities
         for(Pair *pair: Base::p_Assets)
         {
-            memcpy(p_EligibleEntities, pair->second.data(), pair->second.size() * sizeof(DynamicEntity*));
-            count = pair->second.size();
-
-            SortVisibleEntities(p_EligibleEntities, count, p_Window, pair->first);
+            memcpy(p_EligibleEntities, pair->second.data(), pair->second.size() * sizeof(void*));
+            SortVisibleEntities(p_EligibleEntities, pair->second.size(), p_Window, pair->first);
         }
+
+        p_Instantiation.clear();
     }
 }
 
@@ -105,7 +106,9 @@ void SortVisibleEntities(const gE::Entity** entities, uint32_t count, gE::Window
         auto* renderer = entities[i]->GetComponent<gE::Component::Renderer>();
         auto* transform = entities[i]->GetComponent<gE::Component::Transform>();
 
-        renderer->IsInView = entities[i]->Layer & window->CameraManager->GetCamera()->GetOwner()->Layer;
+        if(typeid(*window->CameraManager->GetCamera()) == typeid(gE::Component::PerspectiveCamera))
+            renderer->IsInView = true;
+        renderer->IsInView = bool(entities[i]->Layer & window->CameraManager->GetCamera()->GetOwner()->Layer);
 
         //if(window->CameraManager->GetFrustum()->Collide(gE::Math::AABB(mesh->Mesh->Bounds, transform->Model))) renderer->IsInView = true;
     }
@@ -121,5 +124,5 @@ void DrawSubMesh(gE::Window* window, const gE::Entity* e, const gE::Asset::VAO* 
     if (renderMaterial != nullptr) renderMaterial->Use();
     else window->GetDefaultShader()->Use();
 
-    subMesh->Draw(count * (window->GetStage() == gE::Windowing::Stage::Cubemap ? 6 : 1));
+    subMesh->Draw(count * (window->GetStage() & (gE::Windowing::Stage::Cubemap | gE::Windowing::Stage::CubemapPreZ) ? 6 : 1));
 }

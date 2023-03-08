@@ -80,7 +80,7 @@ namespace gE
         }
     }
 
-    void Window::SetStage(Windowing::Stage stage)
+    void Window::SetStage(Windowing::Stage stage, bool replaceBuffer)
     {
         Stage = stage;
     }

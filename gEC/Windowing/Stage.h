@@ -15,6 +15,7 @@ namespace gE::Windowing
         Shadow      = 0b00001000,
         PostProcess = 0b00010000,
         Cubemap     = 0b00100000,
+        CubemapPreZ = 0b01000000,
     };
 
     inline Stage operator|(Stage a, Stage b)

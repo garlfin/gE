@@ -33,11 +33,11 @@ float CalculateSSAO(vec3 normal)
         float delta = hemiScreen.z - _linearizeDepth(texture(FrameDepthTex, hemiScreen.xy).r, Info.zw);
 
         bool outOfBounds = any(greaterThan(hemiScreen.xy, vec2(1))) || any(lessThan(hemiScreen.xy, vec2(0)));
-        ssaoSample += delta > 0 && delta < SSAO_THICKNESS + SSAO_RADIUS ? (outOfBounds ? 1 : 0) : 1;
+        ssaoSample += delta > 0 && delta < SSAO_THICKNESS + SSAO_RADIUS ? (hemiSample.x > 1 || hemiSample.y > 1 || hemiSample.x < 0 || hemiSample.y < 0 ? 1 : 0) : 1;
     }
 
     ssaoSample /= SSAO_SAMPLES;
-    return pow(ssaoSample, 2);
+    return ssaoSample * ssaoSample;
 }
 
 

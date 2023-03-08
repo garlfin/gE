@@ -53,7 +53,7 @@ namespace gE
         [[nodiscard]] const Asset::Shader* GetDefaultShader() const { return p_MissingShader; }
         [[nodiscard]] Asset::ShaderStage* GetDefaultFragment() const { return p_MissingFrag; }
 
-        void SetStage(Windowing::Stage stage);
+        virtual void SetStage(Windowing::Stage stage, bool replaceBuffer = true);
         uint32_t GetFrame() const { return Frame; }
 
     protected:

@@ -3,7 +3,8 @@ project(gEP)
 
 ### SETUP ###
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -s")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -s")
 
 file(GLOB_RECURSE gECFiles  "gEC/*.cpp"
                              "gEC/*.c")
@@ -17,12 +18,15 @@ include_directories(gEGL gEModel)
 link_directories("C:/Program Files/JetBrains/CLion 2022.3.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0")
 add_library(gEGL SHARED ${gEGLFiles})
 find_library(glfw glfw3 gEGL/GLFW)
+set_target_properties(gEGL PROPERTIES LINK_FLAGS_RELEASE -s)
 target_link_libraries(gEGL ${glfw})
 
 # gE
 add_library(gEModel SHARED gEModel/gEModel.cpp)
+set_target_properties(gEModel PROPERTIES LINK_FLAGS_RELEASE -s)
 target_link_libraries(gEModel ${CMAKE_CURRENT_SOURCE_DIR}/libassimp-5.dll)
 
 # gEC
 add_executable(gEC ${gECFiles} res/shader/PBRMaterial.cpp res/script/StaticRenderer.cpp res/script/InventoryScript.cpp res/script/CameraMovement.cpp)
+set_target_properties(gEC PROPERTIES LINK_FLAGS_RELEASE -s)
 target_link_libraries(gEC gEGL gEModel)

@@ -43,5 +43,5 @@ void main()
 
     ViewPositions[0] = gl_Position;
     ViewPositions[1] = Projection * PreviousView * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
-    gl_Position.xy += Jitter() * gl_Position.w;
+    if(Stage != STAGE_SHADOW) gl_Position.xy += Jitter() * gl_Position.w;
 }

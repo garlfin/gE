@@ -15,6 +15,8 @@ namespace gE::Component
     private:
         float _lerpValue = 0, _swayValue = 0;
         Transform* _transform;
+        glm::vec3 _prevPos;
+        float _sway;
 
     public:
         InventoryScript(Entity* owner) : Behavior(owner) {}

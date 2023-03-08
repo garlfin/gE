@@ -22,9 +22,9 @@ namespace gE::Component
 
     void Camera::OnRender(double delta)
     {
-        GetWindow()->MeshManager->OnUpdate(0);
         auto* pCam = GetWindow()->CameraManager->GetCamera();
         Use();
+        GetWindow()->MeshManager->OnUpdate(0);
         UpdateProjection();
         Framebuffer->Bind();
         {
@@ -50,9 +50,9 @@ namespace gE::Component
         InternalDepth(nullptr), InternalColor(nullptr), Color(nullptr), Depth(nullptr), Velocity(0), PreviousView(1)
     {
         if(fields & CameraFields::CUBEMAP)
-            InternalDepth = new Asset::TextureCube(GetWindow(), dimensions.x, Asset::TextureType::DEPTH_32F);
+            InternalDepth = new Asset::TextureCube(GetWindow(), dimensions.x, Asset::TextureType::DEPTH_32f);
         else
-            InternalDepth = new Asset::Texture2D(GetWindow(),dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F);
+            InternalDepth = new Asset::Texture2D(GetWindow(),dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32f);
         Framebuffer->Attach(InternalDepth, Asset::Framebuffer::DEPTH);
 
         if(fields & CameraFields::COLOR)
@@ -67,7 +67,7 @@ namespace gE::Component
         if(fields & CameraFields::COLOR_COPY)
             Color = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, colorFormat, 1, Asset::TextureFilterMode::LINEAR, Asset::TextureWrapMode::EDGE);
         if(fields & CameraFields::DEPTH_COPY)
-            Depth = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32F, 1, Asset::TextureFilterMode::NEAREST);
+            Depth = new Asset::Texture2D(GetWindow(), dimensions.x, dimensions.y, Asset::TextureType::DEPTH_32f, 1, Asset::TextureFilterMode::NEAREST);
 
         if(fields & CameraFields::VELOCITY)
         {

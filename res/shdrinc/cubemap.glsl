@@ -18,7 +18,8 @@ vec3 SampleAABB(CubemapData cm, vec3 dir);
 
 vec4 SampleCubemap(CubemapData cm, vec3 dir)
 {
-    return clamp(textureLod(cm.Cubemap, SampleAABB(cm, dir), 0), 0, 5);
+    vec4 a = clamp(textureLod(cm.Cubemap, SampleAABB(cm, dir), 0), 0, 5);
+    return clamp(mix(textureLod(SkyboxTex, dir, 0), a, a.a), 0, 5);
 }
 
 vec3 SampleAABB(CubemapData cm, vec3 dir)

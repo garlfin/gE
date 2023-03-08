@@ -11,9 +11,9 @@ mat4(
 16.0 / 17.0,  8.0 / 17.0, 14.0 / 17.0,  6.0 / 17.0
 );
 
-float interleavedGradientNoise(vec2 pos)
+float interleavedGradientNoise(vec2 pos, float frameMult)
 {
-    pos += (float(Frame) * 5.588238f);
+    pos += float(Frame) * frameMult * 5.588238f;
     return fract(52.9829189f * fract(0.06711056f*float(pos.x) + 0.00583715f*float(pos.y)));
 }
 
@@ -31,6 +31,6 @@ float dither(vec2 pos)
 }
 
 
-float interleavedGradientSample = interleavedGradientNoise(gl_FragCoord.xy);
+float interleavedGradientSample = interleavedGradientNoise(gl_FragCoord.xy, 1);
 float ditherSample = dither(gl_FragCoord.xy);
 #endif

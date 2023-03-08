@@ -5,9 +5,9 @@
 
 layout(early_fragment_tests) in;
 
-uniform uvec2 Albedo;
-uniform uvec2 Roughness;
-uniform uvec2 NormalTex;
+layout(bindless_sampler) uniform sampler2D Albedo;
+layout(bindless_sampler) uniform sampler2D Roughness;
+layout(bindless_sampler) uniform sampler2D NormalTex;
 
 in FragInfo
 {
@@ -24,7 +24,7 @@ in FragInfo
 #define MAX_ITER 50
 #define MAX_LEN 10.0
 
-#define SHADOW_SAMPLES 16
+#define SHADOW_SAMPLES 8
 #define PENUMBRA_MIN 0.01
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
@@ -51,14 +51,14 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 
 void main()
 {
-    vec3 nor = pow(texture(sampler2D(NormalTex), TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
+    vec3 nor = pow(texture(NormalTex, TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
     const vec3 normal = normalize(TBN * nor);
     const vec3 light = normalize(SunInfo.xyz);
     const vec3 incoming = normalize(Position - FragPos);
 
-    const vec4 albedo = texture(sampler2D(Albedo), TexCoord);
+    const vec4 albedo = texture(Albedo, TexCoord);
 
-    const float roughness = pow(texture(sampler2D(Roughness), TexCoord).r, 1.0/2.2);
+    const float roughness = pow(texture(Roughness, TexCoord).r, 1.0 / 2.2);
     const vec3 f0 = mix(vec3(0.04), albedo.rgb, METALLIC);
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, incoming)), f0, roughness);
     const vec3 kD = (vec3(1) - kS) * (1 - METALLIC);
@@ -77,7 +77,7 @@ void main()
 
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 #ifndef FORWARD
-    vec3 spec = SampleCubemap(Cubemaps[0], rayDir).rgb;// mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
+    vec3 spec = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
 #else
     vec3 spec = SampleCubemap(Cubemaps[0], rayDir).rgb;
 #endif
@@ -86,7 +86,8 @@ void main()
 
     FragColor = vec4(albedo.rgb, 1) * mix(0.1, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
-    FragColor *= CalculateSSAO(normal);
+        FragColor *= albedo.a;
+    //FragColor *= CalculateSSAO(normalize(Normal));
     FragColor.a = 1;
 
     FragVelocity = _worldToScreenNoJitter(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;

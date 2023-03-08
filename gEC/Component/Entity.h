@@ -26,7 +26,9 @@ namespace gE
         All = UINT8_MAX
     };
 
-   uint8_t operator &(Layers const& a, Layers const& b);
+   Layers operator &(Layers const& a, Layers const& b);
+   Layers operator |(Layers const& a, Layers const& b);
+   Layers operator |=(Layers& a, Layers const& b);
 
     class Entity
     {

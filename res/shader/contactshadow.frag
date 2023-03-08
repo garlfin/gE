@@ -5,9 +5,9 @@
 
 layout(early_fragment_tests) in;
 
-uniform uvec2 Albedo;
-uniform uvec2 Roughness;
-uniform uvec2 NormalTex;
+layout(bindless_sampler) uniform sampler2D Albedo;
+layout(bindless_sampler) uniform sampler2D Roughness;
+layout(bindless_sampler) uniform sampler2D NormalTex;
 
 in FragInfo
 {
@@ -45,14 +45,14 @@ layout (location = 1) out vec4 FragVelocity;
 
 void main()
 {
-    vec3 nor = pow(texture(sampler2D(NormalTex), TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
+    vec3 nor = pow(texture(NormalTex, TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
     const vec3 normal = normalize(TBN * nor);
     const vec3 light = normalize(SunInfo.xyz);
     const vec3 incoming = normalize(Position - FragPos);
 
-    const vec4 albedo = texture(sampler2D(Albedo), 1 - TexCoord);
+    const vec4 albedo = texture(Albedo, 1 - TexCoord);
 
-    const float roughness = pow(texture(sampler2D(Roughness), TexCoord).r, 1.0/2.2);
+    const float roughness = pow(texture(Roughness, TexCoord).r, 1.0/2.2);
     const vec3 f0 = mix(vec3(0.04), albedo.rgb, METALLIC);
     const vec3 kS = fresnelSchlickRoughness(max(0, dot(normal, incoming)), f0, roughness);
     const vec3 kD = (vec3(1) - kS) * (1 - METALLIC);

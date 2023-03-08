@@ -65,9 +65,9 @@ namespace gE::Asset
                 return GL_RGB32F;
             case gE::Asset::TextureType::RGBAf_32:
                 return GL_RGBA32F;
-            case gE::Asset::TextureType::DEPTH_32F:
+            case gE::Asset::TextureType::DEPTH_32f:
                 return GL_DEPTH_COMPONENT32F;
-            case gE::Asset::TextureType::RED_32F:
+            case gE::Asset::TextureType::RED_32f:
                 return GL_R32F;
             case gE::Asset::TextureType::RGf_32:
                 return GL_RG32F;
@@ -78,10 +78,19 @@ namespace gE::Asset
 
     GLenum FormatToPixelType(gE::Asset::TextureType type)
     {
-        if (type == TextureType::RGBf_32) return GL_RGB;
-        if (type == TextureType::RGf_32) return GL_RG;
-        if (type == TextureType::RED_32F) return GL_RED;
-        return GL_RGBA; // TODO
+        switch(type)
+        {
+            case TextureType::RGBf_32:
+                return GL_RGB;
+            case TextureType::RGf_32:
+                return GL_RG;
+            case TextureType::RGf_16:
+                return GL_RG;
+            case TextureType::RED_32f:
+                return GL_RED;
+            default:
+                return GL_RGBA;
+        }
     }
 
     GLenum FormatToSizedFormat(gE::Asset::TextureType type)
@@ -95,6 +104,7 @@ namespace gE::Asset
             return {4, 8};
         if (IS_COMPRESSED(type)) return {4, 16};
         if(type == TextureType::RGBf_32) return {1, sizeof(float) * 3};
+        if(type == TextureType::RGBAf_16) return {1, sizeof(float) * 3};
         return {1, 1};
     }
 

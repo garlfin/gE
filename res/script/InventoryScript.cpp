@@ -8,6 +8,9 @@
 #include "../gEC/Windowing/Window.h"
 #include "../../gEC/Component/Components/Camera/PerspectiveCamera.h"
 #include <GLFW/glfw3.h>
+#define SWAY_DEG 2
+#define RADIANS (3.14159 / 180)
+#define DEGREES (180 / 3.14159)
 
 namespace gE::Component
 {

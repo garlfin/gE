@@ -15,7 +15,7 @@ namespace gE::Component
         Projection = glm::perspectiveFov(1.5708f, (float) GetSize().x, (float) GetSize().x, ClipPlanes.x, ClipPlanes.y);
     }
 
-    CubemapCamera::CubemapCamera(Entity* owner, uint32_t size, glm::vec2 clipPlanes) : Camera(owner, clipPlanes, glm::uvec2(size), CameraFields::CUBEMAP_RDY, Asset::TextureType::RGBf_32)
+    CubemapCamera::CubemapCamera(Entity* owner, uint32_t size, glm::vec2 clipPlanes) : Camera(owner, clipPlanes, glm::uvec2(size), CameraFields::CUBEMAP_RDY, Asset::TextureType::RGBAf_32)
     {
     }
 
@@ -35,23 +35,20 @@ namespace gE::Component
 
         glViewport(0, 0, InternalDepth->GetSize().x, InternalDepth->GetSize().y);
 
-        GetWindow()->SetStage(Windowing::Stage::Cubemap);
+        GetWindow()->SetStage(Windowing::Stage::CubemapPreZ);
         glDepthMask(true);
-        glColorMask(true, true, true, true);
+        glColorMask(false, false, false, false);
         glClear(GL_DEPTH_BUFFER_BIT);
 
         GetWindow()->MeshManager->OnRender();
+
+        GetWindow()->SetStage(Windowing::Stage::Cubemap);
+        glDepthMask(false);
+        glColorMask(true, true, true, true);
+        glDepthFunc(GL_EQUAL);
+
+        GetWindow()->MeshManager->OnRender();
         ((DemoWindow*) GetWindow())->CubemapManager->Skybox.Render();
-
-        return;
-        /*{
-            Asset::TextureCube tempSkybox(GetWindow(), GetColor()->GetSize().x, Asset::TextureType::RGBf_32, GetColor()->GetMipCount());
-            glGenerateTextureMipmap(InternalColor->Get());
-            for(uint8_t i = 0; i < tempSkybox.GetMipCount(); i++)
-                glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_CUBE_MAP, i, 0, 0, 0, tempSkybox.Get(), GL_TEXTURE_CUBE_MAP, i, 0, 0, 0, tempSkybox.GetSize(i).x, tempSkybox.GetSize(i).x, 6);
-
-            ((DemoWindow*) GetWindow())->CubemapManager->Convolute(&tempSkybox, InternalColor);
-        }*/
     }
 
     CubemapManager::CubemapManager(Window* window) : ComponentManager<CubemapCamera>(window),

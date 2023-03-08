@@ -18,7 +18,17 @@ void gE::Entity::Destroy()
     GetWindow()->EntityManager.Destroy(this);
 }
 
-uint8_t gE::operator&(const gE::Layers& a, const gE::Layers& b)
+gE::Layers gE::operator&(const gE::Layers& a, const gE::Layers& b)
 {
-    return (uint8_t) a & (uint8_t) b;
+    return (Layers) ((uint8_t) a & (uint8_t) b);
+}
+
+gE::Layers gE::operator|(const gE::Layers& a, const gE::Layers& b)
+{
+    return (Layers) ((uint8_t) a | (uint8_t) b);
+}
+
+gE::Layers gE::operator|=(gE::Layers& a, const gE::Layers& b)
+{
+    return a = a | b;
 }

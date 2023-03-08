@@ -25,7 +25,8 @@ namespace gE
         alignas(16) glm::vec4 SunInfo; // Direction, ShadowSize
         glm::mat4 SunMatrix;
         uint64_t BRDFID;
-        int32_t Frame;
+        alignas(16) int32_t Frame;
+        int32_t Stage;
     };
 
     class DemoWindow : public Window
@@ -36,6 +37,8 @@ namespace gE
         void Load() override;
         void Update(double delta) override;
         void Render(double delta) override;
+
+        void SetStage(Windowing::Stage stage, bool replaceBuffer = false) override;
 
         Component::ComponentManager<Component::Camera> LightManager;
         Buffer<DemoUBO>* DemoUniformBuffer;
