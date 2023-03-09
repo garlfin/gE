@@ -79,8 +79,8 @@ void gE::DemoWindow::Load()
     // Scene Setup
     
     auto* shinyShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/default.frag");//, Asset::CullMode::BACKFACE, Asset::DepthFunction::LESS, Asset::CompileFlags::NONE);
-    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag", Asset::CullMode::NEVER);//, Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
-    auto* tpcShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/alpha.frag", Asset::CullMode::NEVER);
+    auto* ssrShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/ssr.frag");// Asset::CullMode::NEVER), Asset::DepthFunction::LESS, Asset::CompileFlags::FORWARD);
+    auto* tpcShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/alpha.frag");//, Asset::CullMode::NEVER);
     auto* sssShader = AssetManager.Create<Asset::Shader>("../res/shader/default.vert", "../res/shader/contactshadow.frag");
     auto* rMesh = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../plane.dae"));
     auto* rMesh2 = AssetManager.Create<Asset::RenderMesh>(gE::LoadgEMeshFromIntermediate("../cube.dae"));
@@ -201,6 +201,10 @@ void gE::DemoWindow::Update(double delta)
     EntityManager.OnUpdate(0);
     LightManager.OnUpdate(0);
     TransformManager->OnRender(0);
+
+    auto* sunRot = &Sun->GetOwner()->GetComponent<Component::Transform>()->Rotation.x;
+    *sunRot += glfwGetKey(GetWindow(), GLFW_KEY_P) * 20 * delta;
+    *sunRot -= glfwGetKey(GetWindow(), GLFW_KEY_L) * 20 * delta;
 }
 
 void gE::DemoWindow::Render(double delta)

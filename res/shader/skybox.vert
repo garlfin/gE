@@ -13,6 +13,6 @@ void main()
 {
     gl_Layer = int(gl_InstanceID);
     TexCoords = vPos;
-    gl_Position = (Projection * mat4(mat3(GetView(Position, gl_Layer))) * vec4(vPos, 1.0)).xyww;
+    gl_Position = (Projection * mat4(mat3(GetView(CamPos, gl_Layer))) * vec4(vPos, 1.0)).xyww;
 }
 

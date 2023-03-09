@@ -3,11 +3,11 @@
 #ifndef FORWARD
 
 #ifndef SSAO_SAMPLES
-#define SSAO_SAMPLES 8
+#define SSAO_SAMPLES 4
 #endif
 
 #ifndef SSAO_RADIUS
-#define SSAO_RADIUS 0.5
+#define SSAO_RADIUS 1
 #endif
 
 #ifndef SSAO_THICKNESS
@@ -33,7 +33,7 @@ float CalculateSSAO(vec3 normal)
         float delta = hemiScreen.z - _linearizeDepth(texture(FrameDepthTex, hemiScreen.xy).r, Info.zw);
 
         bool outOfBounds = any(greaterThan(hemiScreen.xy, vec2(1))) || any(lessThan(hemiScreen.xy, vec2(0)));
-        ssaoSample += delta > 0 && delta < SSAO_THICKNESS + SSAO_RADIUS ? (hemiSample.x > 1 || hemiSample.y > 1 || hemiSample.x < 0 || hemiSample.y < 0 ? 1 : 0) : 1;
+        ssaoSample += delta > 0 && delta < SSAO_THICKNESS + SSAO_RADIUS ? (hemiScreen.x > 1 || hemiScreen.y > 1 || hemiScreen.x < 0 || hemiScreen.y < 0 ? 1 : 0) : 1;
     }
 
     ssaoSample /= SSAO_SAMPLES;

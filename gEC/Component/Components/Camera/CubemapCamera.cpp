@@ -29,7 +29,7 @@ namespace gE::Component
     {
         {
             auto* c = GetColor();
-            CameraData d(GetView(), glm::mat4(1), GetProjection(), GetOwner()->GetComponent<Transform>()->Location, glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
+            CameraData d(GetView(), glm::mat4(1), GetProjection(), glm::mat4(1), GetOwner()->GetComponent<Transform>()->Location, glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
             GetWindow()->CameraManager->GetBuffer()->ReplaceData(&d);
         }
 
@@ -80,7 +80,7 @@ namespace gE::Component
         _convolutionBuffer.Bind();
         glProgramUniform1i(_convolutionShader.Get(), glGetUniformLocation(_convolutionShader.Get(), "Skybox"), src->Use(0));
         {
-            CameraData data(glm::lookAt(glm::vec3(0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)), glm::mat4(1), glm::perspectiveFov(1.5708f, 1.f, 1.f, 0.01f, 100.f), glm::vec3(0), glm::vec4(0), 0, 0);
+            CameraData data(glm::lookAt(glm::vec3(0), glm::vec3(1, 0, 0), glm::vec3(0, -1, 0)), glm::mat4(1), glm::perspectiveFov(1.5708f, 1.f, 1.f, 0.01f, 100.f), glm::mat4(1), glm::vec3(0), glm::vec4(0), 0, 0);
             _convolutionBuffer.GetWindow()->CameraManager->GetBuffer()->ReplaceData(&data);
         }
         for(int i = 0; i < dst->GetMipCount(); i++)

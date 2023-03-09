@@ -43,7 +43,7 @@ void main()
     vec3 nor = pow(texture(NormalTex, TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
 
     const vec3 normal = normalize(TBN * nor) * mix(-1, 1, gl_FrontFacing);
-    const vec3 viewDir = normalize(FragPos - Position);
+    const vec3 viewDir = normalize(FragPos - CamPos);
     vec3 rayDir = ImportanceSampleGGX(Hammersley(int(interleavedGradientSample * 1024), 1024), reflect(viewDir, normal), ROUGHNESS);
     vec2 reflection = vec2(-1);
 
@@ -55,7 +55,7 @@ void main()
 #else
     FragColor = SampleCubemap(Cubemaps[0], rayDir);
 #endif
-    //FragColor *= CalculateSSAO(normal);
+    FragColor *= CalculateSSAO(normal);
     FragColor.a = 1;
 
     FragVelocity = _worldToScreenNoJitter(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;

@@ -20,5 +20,5 @@ in FragInfo
 
 void main()
 {
-    if(texture(Albedo, TexCoord).a < interleavedGradientNoise(gl_FragCoord.xy, Stage == STAGE_SHADOW ? 0 : 1)) discard;
+    if(texture(Albedo, TexCoord).a < (Stage == STAGE_SHADOW ? 0.5 : interleavedGradientSample)) discard;
 }

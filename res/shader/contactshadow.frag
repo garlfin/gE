@@ -48,7 +48,7 @@ void main()
     vec3 nor = pow(texture(NormalTex, TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
     const vec3 normal = normalize(TBN * nor);
     const vec3 light = normalize(SunInfo.xyz);
-    const vec3 incoming = normalize(Position - FragPos);
+    const vec3 incoming = normalize(CamPos - FragPos);
 
     const vec4 albedo = texture(Albedo, 1 - TexCoord);
 
@@ -64,7 +64,7 @@ void main()
     ambient = min(ambient, CalculateShadow(0.1));
 
     #ifndef FORWARD
-    vec3 rayPos = FragPos + normalize(Normal) * 0.01;// + SunInfo.xyz * (0.1 / 25) * interleavedGradientSample;
+    vec3 rayPos = FragPos + normalize(Normal) * 0.01 + SunInfo.xyz * (0.1 / 25) * interleavedGradientSample;
     ambient = min(ambient, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP, 0.1).x == -1 ? 1 : 0);
     #endif
 

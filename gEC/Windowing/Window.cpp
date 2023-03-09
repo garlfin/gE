@@ -14,7 +14,10 @@ namespace gE
     Window::Window(const char* const title, const uint32_t width, const uint32_t height, Result* const result)
             : Title(title), Size(width, height), EntityManager(this), IncludeManager(this), ComponentManager(this), AssetManager(this), BehaviorManager(this)
     {
-        GLFWWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
+        auto* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* settings = glfwGetVideoMode(monitor);
+
+        GLFWWindow = glfwCreateWindow(width, height, title, width == settings->width && height == settings->height ? monitor : nullptr, nullptr);
 
         if (!GLFWWindow)
         {

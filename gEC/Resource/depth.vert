@@ -18,5 +18,5 @@ void main()
     gl_Layer = int(gl_InstanceID / ObjectCount);
     TexCoord = vUV;
 
-    gl_Position = Projection * GetView(Position, gl_Layer) * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
+    gl_Position = Projection * GetView(CamPos, gl_Layer) * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
 }

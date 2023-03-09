@@ -35,6 +35,7 @@ namespace gE::Component
 
         glm::mat4 Projection;
         glm::mat4 PreviousView;
+        glm::mat4 PreviousProjection;
         glm::vec2 ClipPlanes;
 
         Asset::Framebuffer* const Framebuffer;
@@ -54,7 +55,6 @@ namespace gE::Component
         [[nodiscard]] Asset::Texture* GetVelocity() const { return Velocity; }
         [[nodiscard]] glm::uvec2 GetSize() const { return GetDepth(true)->GetSize(); }
         [[nodiscard]] Asset::Framebuffer* GetFramebuffer() const { return Framebuffer; }
-        [[nodiscard]] const glm::mat4& GetPreviousView() const;
 
         void Use();
 
@@ -64,13 +64,14 @@ namespace gE::Component
     struct CameraData
     {
     public:
-        CameraData(const glm::mat4& view, const glm::mat4& previousView, const glm::mat4 & projection, const glm::vec3& position, const glm::vec4& info, uint64_t color, uint64_t depth)
-                : View(view), PreviousView(previousView), Projection(projection), Position(position), Info(info), Color(color), Depth(depth)
+        CameraData(const glm::mat4& view, const glm::mat4& previousView, const glm::mat4 & projection, const glm::mat4& previousProjection, const glm::vec3& position, const glm::vec4& info, uint64_t color, uint64_t depth)
+                : View(view), PreviousView(previousView), Projection(projection), Position(position), Info(info), Color(color), Depth(depth), PreviousProjection(previousProjection)
         {}
 
         glm::mat4 View;
         glm::mat4 PreviousView;
         glm::mat4 Projection;
+        glm::mat4 PreviousProjection;
         glm::vec4 Info;
         glm::vec3 Position;
 

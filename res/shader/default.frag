@@ -24,7 +24,7 @@ in FragInfo
 #define MAX_ITER 50
 #define MAX_LEN 10.0
 
-#define SHADOW_SAMPLES 8
+#define SHADOW_SAMPLES 16
 #define PENUMBRA_MIN 0.01
 #define SEARCH_SIZE 0.5
 #define SHADOW_BIAS 0.001
@@ -54,7 +54,7 @@ void main()
     vec3 nor = pow(texture(NormalTex, TexCoord).rgb, vec3(1.0/2.2)) * 2 - 1;
     const vec3 normal = normalize(TBN * nor);
     const vec3 light = normalize(SunInfo.xyz);
-    const vec3 incoming = normalize(Position - FragPos);
+    const vec3 incoming = normalize(CamPos - FragPos);
 
     const vec4 albedo = texture(Albedo, TexCoord);
 
@@ -69,7 +69,7 @@ void main()
 #ifndef FORWARD
     int rayCount = int(mix(50.0, 20.0, roughness));
     vec3 rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
-    //if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
+    if(dot(rayDir, normalize(Normal)) > 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
 #endif
 
     float ambient = max(dot(normal, light), 0);
@@ -87,7 +87,7 @@ void main()
     FragColor = vec4(albedo.rgb, 1) * mix(0.1, 1.0, ambient) * vec4(kD, 1);
     FragColor += vec4(spec, 1);
         FragColor *= albedo.a;
-    //FragColor *= CalculateSSAO(normalize(Normal));
+    FragColor *= CalculateSSAO(normalize(Normal));
     FragColor.a = 1;
 
     FragVelocity = _worldToScreenNoJitter(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
