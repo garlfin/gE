@@ -70,7 +70,7 @@ namespace gE
             {
                 Render(fTime);
 
-                if(Frame % int(0.3 * FPS_TARGET) == 0) snprintf(fps_buf, sizeof fps_buf - 1, "%u", unsigned(ceil(1.0 / fTime)));
+                if(Frame % int(0.1  * FPS_TARGET) == 0) snprintf(fps_buf, sizeof fps_buf - 1, "%u", unsigned(ceil(1.0 / fTime)));
 
                 glfwSetWindowTitle(GLFWWindow, fps_buf);
                 glfwSwapBuffers(GLFWWindow);

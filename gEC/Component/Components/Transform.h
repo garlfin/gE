@@ -25,6 +25,7 @@ namespace gE::Component
         glm::vec3 Scale;
 
         glm::mat4 Model;
+        glm::mat4 PreviousModel;
 
         void OnLoad() override;
         void OnRender(double delta) override;
@@ -42,6 +43,7 @@ namespace gE::Component
     struct ObjectInfo
     {
         glm::mat4 Model[MAX_INSTANCE_COUNT];
+        glm::mat4 PreviousModel[MAX_INSTANCE_COUNT];
         glm::mat4 NormalMatrix[MAX_INSTANCE_COUNT];
         uint32_t ObjectCount;
     };

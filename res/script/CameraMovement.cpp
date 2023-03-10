@@ -68,6 +68,7 @@ namespace gE::Component
         otherCam->GetColor(true)->Bind(0, Asset::AccessMode::READ);
         originalCam->GetColor(true)->Bind(1, Asset::AccessMode::ALL);
         originalCam->GetVelocity()->Bind(2, Asset::AccessMode::ALL);
+        otherCam->GetVelocity()->Bind(3, Asset::AccessMode::READ);
 
         compositeShader->Use();
         glDispatchCompute(DIV_CEIL(otherCam->GetSize().x, 32), DIV_CEIL(otherCam->GetSize().y, 32), 1);

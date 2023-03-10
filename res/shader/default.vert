@@ -42,6 +42,6 @@ void main()
     TBN = mat3(tan, normalize(cross(Normal, tan)), Normal);
 
     ViewPositions[0] = gl_Position;
-    ViewPositions[1] = Projection * PreviousView * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
+    ViewPositions[1] = PreviousProjection * PreviousView * PreviousModel[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
     if(Stage != STAGE_SHADOW) gl_Position.xy += Jitter() * gl_Position.w;
 }

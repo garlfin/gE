@@ -12,7 +12,7 @@ namespace gE::Component
 {
     void Transform::OnLoad()
     {
-        Model = glm::mat4(1.0f);
+        PreviousModel = Model = glm::mat4(1.0f);
     }
 
     void Transform::OnRender(double delta)
@@ -22,6 +22,7 @@ namespace gE::Component
 
     void Transform::OnUpdate(double delta)
     {
+        PreviousModel = Model;
         gE::Component::Transform* t = nullptr;
         if(p_Owner->GetParent())
             t = p_Owner->GetParent()->GetComponent<gE::Component::Transform>();
@@ -39,6 +40,7 @@ namespace gE::Component
         {
             auto* transform = entities[i]->GetComponent<Transform>();
             p_Info.Model[i] = transform->Model;
+            p_Info.PreviousModel[i] = transform->PreviousModel;
             p_Info.NormalMatrix[i] = glm::inverseTranspose(glm::mat3(transform->Model));
         }
 

@@ -179,6 +179,7 @@ void gE::DemoWindow::Load()
     sunTransform->Location = glm::normalize(sunDir) * Sun->GetSize() + cTransform->Location;
 
     Update(0);
+    TransformManager->OnUpdate(0);
     {
         DemoUBO ubo(Sun, BRDF, GetFrame());
         DemoUniformBuffer->ReplaceData(&ubo);
@@ -200,15 +201,18 @@ void gE::DemoWindow::Update(double delta)
     BehaviorManager.OnUpdate(delta);
     EntityManager.OnUpdate(0);
     LightManager.OnUpdate(0);
-    TransformManager->OnRender(0);
 
-    auto* sunRot = &Sun->GetOwner()->GetComponent<Component::Transform>()->Rotation.x;
-    *sunRot += glfwGetKey(GetWindow(), GLFW_KEY_P) * 20 * delta;
-    *sunRot -= glfwGetKey(GetWindow(), GLFW_KEY_L) * 20 * delta;
+    auto* sunRot = &Sun->GetOwner()->GetComponent<Component::Transform>()->Rotation;
+    sunRot->x += glfwGetKey(GetWindow(), GLFW_KEY_P) * 20 * delta;
+    sunRot->x -= glfwGetKey(GetWindow(), GLFW_KEY_L) * 20 * delta;
+    sunRot->y += glfwGetKey(GetWindow(), GLFW_KEY_O) * 20 * delta;
+    sunRot->y -= glfwGetKey(GetWindow(), GLFW_KEY_K) * 20 * delta;
 }
 
 void gE::DemoWindow::Render(double delta)
 {
+    TransformManager->OnUpdate(0);
+
     auto* sunTransform = Sun->GetOwner()->GetComponent<Component::Transform>();
 
     glm::vec3 sunDir;

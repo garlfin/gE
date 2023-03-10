@@ -20,5 +20,7 @@ in FragInfo
 
 void main()
 {
-    if(texture(Albedo, TexCoord).a < (Stage == STAGE_SHADOW ? 0.5 : interleavedGradientSample)) discard;
+    float dist = clamp(distance(FragPos, CamPos) - 0.2, 0, 1);
+
+    if(texture(Albedo, TexCoord).a * (dist * dist) < (Stage == STAGE_SHADOW ? 0.5 : interleavedGradientSample)) discard;
 }

@@ -43,6 +43,8 @@ void main()
     vec4 boxMinPlus = min(currentColor, min(nearColors[0], min(nearColors[1], min(nearColors[2], nearColors[3]))));
     vec4 boxMaxPlus = max(currentColor, max(nearColors[0], max(nearColors[1], max(nearColors[2], nearColors[3]))));
 
+    if(boxMaxPlus.a == 0) { FragColor = currentColor; return; }
+
 #ifdef AVG_PLUS
     vec4 boxMin = currentColor;
     vec4 boxMax = currentColor;
