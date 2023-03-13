@@ -41,7 +41,7 @@ in FragInfo
 #include "../res/shdrinc/ssao.glsl"
 
 layout (location = 0) out vec4 FragColor;
-layout (location = 1) out vec4 FragVelocity;
+layout (location = 1) out vec2 FragVelocity;
 
 vec3 CalculateLight(vec3 normal, vec3 view, float roughness, vec3 f0, vec3 albedo);
 
@@ -65,10 +65,9 @@ void main()
 #ifndef FORWARD
     int rayCount = int(mix(50.0, 20.0, roughness));
     vec3 rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
-    //if(dot(rayDir, normalize(Normal)) > 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
+    if(dot(rayDir, normalize(Normal)) > 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.1, 0.3, roughness));
 #endif
     float shadow = CalculateShadowPCSS(DirectionalLight(SunInfo.xyz, 0.05, 0.5, vec3(1), sampler2D(ShadowTex), mat4(1)));
-
     vec2 brdf = texture(BRDFLut, vec2(clamp(dot(incoming, normal), 0, 1), roughness)).rg;
 #ifndef FORWARD
     vec3 spec = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x < 0 ? 0 : 1).rgb;
@@ -82,5 +81,5 @@ void main()
     FragColor *= CalculateSSAO(normalize(Normal));
     FragColor.a = 1;
 
-    FragVelocity = _worldToScreenNoJitter(FragPos).xyxy - _worldToScreenPrev(FragPos).xyxy;
+    FragVelocity = ((ViewPositions[0].xy / ViewPositions[0].w * 0.5 + 0.5) - (ViewPositions[1].xy / ViewPositions[1].w * 0.5 + 0.5));
 }

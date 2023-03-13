@@ -36,12 +36,13 @@ vec2 CastRay(inout vec3 rayPos, vec3 rayDir, uint iteration, float length, uint 
         float delta = rayMode == RAY_MODE_CHEAP ? rayDepth - rayScreen.z : rayScreen.z - rayDepth;
 
         if(rayScreen.x < 0 || rayScreen.x > 1 || rayScreen.y < 0 || rayScreen.y > 1 || rayScreen.z < 0) break;
-
-        if (delta > 0 && delta <= RAY_THICKNESS)
-            if (rayMode == RAY_MODE_CHEAP)
+        if(delta > 0 && delta < RAY_THICKNESS)
+        {
+            //if(delta < threshold || rayMode == RAY_MODE_CHEAP)
                 return rayScreen.xy;
-            else
-                return _binaryRefine(rayPos, rayDir, threshold);
+            //else
+              //  return _binaryRefine(rayPos, rayDir, threshold);;
+        }
     }
 
     return vec2(-1);
@@ -61,11 +62,11 @@ vec2 _binaryRefine(inout vec3 rayPos, vec3 rayDir, float threshold)
         if(abs(rayScreen.z - rayDepth) <= threshold) return rayScreen.xy;
         rayPos -= (rayScreen.z > rayDepth ? 1 : 0) * rayDir;
     }
-    return vec2(-1);
+    return rayScreen.xy;
 }
 #endif
 
-vec3 _worldToScreen(vec3 pos) { vec4 val = Projection * View * vec4(pos, 1.0); val.xy /= val.w; val.xy = val.xy * 0.5 + 0.5; return val.xyz; };
+vec3 _worldToScreen(vec3 pos) { vec4 val = Projection * View * vec4(pos, 1.0); val.xy /= val.w; val.xy = val.xy * 0.5 + 0.5; return val.xyz; val.xy -= Jitter(Frame); };
 vec3 _worldToScreenNoJitter(vec3 pos) { vec4 val = Projection * View * vec4(pos, 1.0); val.xy /= val.w; val.xy = val.xy * 0.5 + 0.5; return val.xyz; };
 vec3 _worldToScreenPrev(vec3 pos) { vec4 val = PreviousProjection * PreviousView * vec4(pos, 1.0); val.xy /= val.w; val.xy = val.xy * 0.5 + 0.5; return val.xyz; };
 vec3 _worldToView(vec3 pos) { return (View * vec4(pos, 1.0)).xyz; }

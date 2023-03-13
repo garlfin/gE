@@ -28,7 +28,6 @@ const float PassthroughVertices[]
 
 #define LOG(msg) std::cout << "LOG: " << msg << std::endl
 #define CEIL_DIV(x, y) ((((x) + (y) - 1) / (y)) ?: 1)
-#define HIZ_WORK_GROUP_SIZE 32
 
 gE::DemoWindow::DemoWindow(const char* const title, const uint32_t width, const uint32_t height, gE::Result* const result)
         : Window(title, width, height, result), LightManager(this)
@@ -201,12 +200,6 @@ void gE::DemoWindow::Update(double delta)
     BehaviorManager.OnUpdate(delta);
     EntityManager.OnUpdate(0);
     LightManager.OnUpdate(0);
-
-    auto* sunRot = &Sun->GetOwner()->GetComponent<Component::Transform>()->Rotation;
-    sunRot->x += glfwGetKey(GetWindow(), GLFW_KEY_P) * 20 * delta;
-    sunRot->x -= glfwGetKey(GetWindow(), GLFW_KEY_L) * 20 * delta;
-    sunRot->y += glfwGetKey(GetWindow(), GLFW_KEY_O) * 20 * delta;
-    sunRot->y -= glfwGetKey(GetWindow(), GLFW_KEY_K) * 20 * delta;
 }
 
 void gE::DemoWindow::Render(double delta)

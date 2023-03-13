@@ -56,7 +56,7 @@ void main()
     float shadow = CalculateShadow(DirectionalLight(SunInfo.xyz, 0.2, 0.0, vec3(1), sampler2D(ShadowTex), mat4(1)));
 
     #ifndef FORWARD
-    vec3 rayPos = FragPos + normalize(Normal) * 0.01 + SunInfo.xyz * (0.1 / 25) * interleavedGradientSample;
+    vec3 rayPos = FragPos + normalize(Normal) * 0.005 + SunInfo.xyz * (0.1 / 25) * interleavedGradientSample;
     shadow = min(shadow, CastRay(rayPos, SunInfo.xyz, 25, 0.1, RAY_MODE_CHEAP, 0.1).x == -1 ? 1 : 0);
     #endif
 

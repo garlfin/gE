@@ -19,7 +19,6 @@ namespace gE::Component
         return glm::inverse(GetOwner()->GetComponent<Transform>()->Model);
     }
 
-
     void Camera::OnRender(double delta)
     {
         auto* pCam = GetWindow()->CameraManager->GetCamera();
@@ -28,16 +27,12 @@ namespace gE::Component
         UpdateProjection();
         Framebuffer->Bind();
         {
-            auto* c = GetColor();
-            CameraData d(GetView(), PreviousView, GetProjection(), PreviousProjection, glm::vec3(GetOwner()->GetComponent<Transform>()->Model[3]), glm::vec4(InternalDepth->GetSize(), ClipPlanes), c ? c->GetHandle() : 0, GetDepth()->GetHandle());
+            CameraData d(GetView(), PreviousView, GetProjection(), PreviousProjection, glm::vec3(GetOwner()->GetComponent<Transform>()->Model[3]), glm::vec4(InternalDepth->GetSize(), ClipPlanes), GetColor() ? GetColor()->GetHandle() : 0, Depth ? Depth->GetHandle() : 0);
             GetWindow()->CameraManager->GetBuffer()->ReplaceData(&d);
         }
 
         glViewport(0, 0, InternalDepth->GetSize().x, InternalDepth->GetSize().y);
         RenderPass(delta);
-
-        //if(Color && InternalColor)
-         //   glCopyImageSubData(InternalColor->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, Color->Get(), GL_TEXTURE_2D, 0, 0, 0, 0, InternalColor->GetSize().x, InternalColor->GetSize().y, 1);
 
         PreviousView = GetView();
         PreviousProjection = GetProjection();

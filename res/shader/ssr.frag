@@ -18,7 +18,7 @@ in FragInfo
 };
 
 #define RAY_THICKNESS 0.3
-#define ROUGHNESS 0.3
+#define ROUGHNESS 0.0
 
 #include "../res/shdrinc/taa.glsl"
 #include "../res/shdrinc/noise.glsl"
@@ -44,7 +44,7 @@ void main()
     vec2 reflection = vec2(-1);
     int rayCount = int(mix(50.0, 20.0, ROUGHNESS));
     vec3 rayPos = FragPos + interleavedGradientSample * (normalize(rayDir) * 10 / rayCount);
-    //if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
+    if(dot(rayDir, normalize(Normal)) >= 0) reflection = CastRay(rayPos, rayDir, rayCount, 10, RAY_MODE_ACCURATE, mix(0.01, 0.1, ROUGHNESS));
     FragColor = mix(SampleCubemap(Cubemaps[0], rayDir), texture(FrameColorTex, reflection), reflection.x >= 0 ? 1 : 0);
 #else
     FragColor = SampleCubemap(Cubemaps[0], rayDir);

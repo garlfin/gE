@@ -28,20 +28,20 @@ out FragInfo
 };
 void main()
 {
-    gl_Layer = int(gl_InstanceID / ObjectCount);
-    mat3 normalMatrix = mat3(NormalMatrix[gl_InstanceID % ObjectCount]);
     FragPos = (Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0)).xyz;
-    Normal = normalize(normalMatrix * vNor);
+    FragPosLightSpace = SunMatrix * vec4(FragPos, 1);
+
+    gl_Layer = int(gl_InstanceID / ObjectCount);
+    gl_Position = Projection * GetView(CamPos, gl_Layer) * vec4(FragPos, 1);
+    ViewPositions[0] = gl_Position;
+    ViewPositions[1] = PreviousProjection * PreviousView * PreviousModel[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
+
     TexCoord = vUV;
 
-    gl_Position = Projection * GetView(CamPos, gl_Layer) * Model[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
-
-    FragPosLightSpace = SunMatrix * vec4(FragPos, 1.0);
-
+    mat3 normalMatrix = mat3(NormalMatrix[gl_InstanceID % ObjectCount]);
+    Normal = normalize(normalMatrix * vNor);
     vec3 tan = normalize(normalMatrix * vTan);
     TBN = mat3(tan, normalize(cross(Normal, tan)), Normal);
 
-    ViewPositions[0] = gl_Position;
-    ViewPositions[1] = PreviousProjection * PreviousView * PreviousModel[gl_InstanceID % ObjectCount] * vec4(vPos, 1.0);
     if(Stage != STAGE_SHADOW) gl_Position.xy += Jitter() * gl_Position.w;
 }
